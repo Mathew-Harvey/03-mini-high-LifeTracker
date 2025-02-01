@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Life Tracker</title>
+  <style>
+    /* --- Global Reset & Base Styling --- */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      padding: 20px;
+      color: #333;
+      position: relative;
+    }
+    .container { max-width: 1100px; margin: 0 auto; text-align: center; }
+    /* --- Authentication UI --- */
+    #authContainer {
+      background: #fff; padding: 20px; border: 1px solid #ccc;
+      display: inline-block; margin-top: 50px;
+    }
+    #authContainer h1 { margin-bottom: 10px; }
+    #authContainer input {
+      padding: 8px; font-size: 16px; margin: 5px 0; width: 90%;
+    }
+    #authContainer button {
+      padding: 10px 20px; font-size: 16px; margin-top: 10px; cursor: pointer;
+    }
+    .toggle-link { margin-top: 10px; color: blue; text-decoration: underline; cursor: pointer; }
+    /* --- Main Life Tracker UI --- */
+    #gridContainer { display: none; margin-top: 30px; position: relative; }
+    #gridContainer h2 { margin-bottom: 15px; }
+    #logoutButton {
+      position: absolute; top: 10px; right: 10px; padding: 8px 12px;
+      background: #d9534f; color: #fff; border: none; cursor: pointer; z-index: 1001;
+    }
+    /* Preset menu styling */
+    #presetMenu { margin-bottom: 10px; }
+    #presetMenu select { padding: 5px; font-size: 14px; }
+    #presetMenu button { padding: 5px 10px; font-size: 14px; cursor: pointer; }
+    #gridArea {
+      display: grid;
+      grid-template-areas: "corner xAxis" "yAxis grid";
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto 1fr;
+      border: 1px solid #ccc; margin-bottom: 20px;
+    }
+    #corner {
+      grid-area: corner; width: 60px; height: 30px;
+      background: #f0f0f0; border-bottom: 1px solid #ccc; border-right: 1px solid #ccc;
+    }
+    #xAxis {
+      grid-area: xAxis; display: grid; grid-template-columns: repeat(52, 1fr);
+      border-bottom: 1px solid #ccc;
+    }
+    #xAxis .month-label {
+      text-align: center; font-size: 0.9em; border-right: 1px solid #ccc;
+      background: #f0f0f0; padding: 2px 0;
+    }
+    #yAxis {
+      grid-area: yAxis; display: grid; grid-template-rows: repeat(90, 1fr);
+      border-right: 1px solid #ccc;
+    }
+    #yAxis .decade-label {
+      text-align: right; font-size: 0.9em; padding-right: 5px;
+      border-bottom: 1px solid #ccc; background: #f0f0f0; line-height: 1;
+    }
+    #grid { grid-area: grid; overflow: auto; }
+    #lifeGrid {
+      display: grid;
+      grid-template-columns: repeat(52, 1fr);
+      gap: 2px; max-width: 100%; position: relative;
+    }
+    .week { position: relative; background-color: #ddd; }
+    .week::before { content: ""; display: block; padding-top: 100%; }
+    .week-inner {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      border: 1px solid #bbb; background-color: #ddd;
+      transition: background 0.3s;
+    }
+    .week.lived .week-inner { background-color: #4caf50; }
+    .week.thick-right .week-inner { border-right: 3px solid #555; }
+    .week.thick-bottom .week-inner { border-bottom: 3px solid #555; }
+    .event-overlay {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      opacity: 0.8; cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .event-overlay:hover { opacity: 1; }
+    .skull-overlay {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; color: #900; pointer-events: none;
+    }
+    /* --- Draggable Event Form --- */
+    #eventForm {
+      position: fixed; bottom: 20px; left: 20px; width: 300px;
+      background: #fff; border: 1px solid #ccc; z-index: 1000;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3); display: none;
+    }
+    #eventFormHeader {
+      background: #f7f7f7; padding: 8px; cursor: move;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid #ccc;
+    }
+    #eventFormHeader span { font-weight: bold; }
+    #eventFormHeader button {
+      background: none; border: none; cursor: pointer; font-size: 16px; margin-left: 5px;
+    }
+    #eventFormContent { padding: 10px; }
+    #eventFormContent label {
+      font-weight: bold; margin-top: 8px; display: block;
+    }
+    #eventFormContent input, 
+    #eventFormContent button {
+      padding: 5px; margin: 5px 0; font-size: 14px; width: 100%;
+    }
+    #eventFormContent button { cursor: pointer; }
+    /* --- Floating Draggable Legend --- */
+    #legend {
+      position: fixed; top: 20px; right: 20px;
+      background: #fff; border: 1px solid #ccc;
+      max-width: 200px; z-index: 1000; display: none;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    }
+    /* Legend header for dragging */
+    #legendHeader {
+      background: #f7f7f7; padding: 5px; cursor: move; border-bottom: 1px solid #ccc;
+    }
+    #legendHeader h3 { font-size: 16px; margin: 0; }
+    #legendContent { padding: 10px; }
+    .legend-item {
+      display: flex; align-items: center; margin-bottom: 5px; cursor: pointer;
+    }
+    .legend-color {
+      width: 16px; height: 16px; margin-right: 8px; border: 1px solid #ccc;
+    }
+    /* --- Show Event Form Button --- */
+    #showEventFormButton {
+      position: fixed; bottom: 20px; left: 20px; z-index: 1000;
+      padding: 8px 12px; background: #4caf50; color: #fff; border: none;
+      cursor: pointer; display: none; box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    }
+    /* --- New Print & Gallery Buttons --- */
+    #printButton, #galleryButton {
+      padding: 8px 12px;
+      font-size: 16px;
+      margin: 10px 5px;
+      cursor: pointer;
+    }
+    /* --- Hidden Print Area ---
+       We avoid using display:none so that html2canvas can capture its content.
+    */
+    #printArea {
+      position: absolute;
+      top: -10000px;
+      left: -10000px;
+      background: #fff;
+      padding: 20px;
+    }
+    /* --- Gallery Modal --- */
+    #galleryModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      z-index: 2000;
+    }
+    #galleryContent {
+      background: #fff;
+      width: 80%;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      position: relative;
+      border-radius: 4px;
+      max-height: 80%;
+      overflow-y: auto;
+    }
+    #galleryContent h2 {
+      margin-top: 0;
+    }
+    #galleryItems {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .gallery-item {
+      border: 1px solid #ccc;
+      padding: 10px;
+      width: calc(50% - 20px);
+    }
+    .gallery-item img {
+      max-width: 100%;
+      height: auto;
+    }
+    .gallery-item button {
+      margin: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    #closeGalleryButton {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+  </style>
+  <!-- Include html2canvas library from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <!-- Authentication UI -->
+    <div id="authContainer">
+      <h1 id="authTitle">Login</h1>
+      <input type="email" id="authEmail" placeholder="Email" autofocus />
+      <input type="password" id="authPassword" placeholder="Password" />
+      <!-- First Name and Birth Date fields shown only in Register mode -->
+      <input type="text" id="authFirstName" placeholder="First Name" style="display:none;" />
+      <input type="date" id="authBirthdate" placeholder="Birth Date" style="display:none;" />
+      <button id="authButton">Login</button>
+      <div class="toggle-link" id="toggleAuthMode">No account? Register here</div>
+    </div>
+    <!-- Main Life Tracker UI -->
+    <div id="gridContainer">
+      <h2>Your Life Calendar</h2>
+      <!-- Preset Menu -->
+      <div id="presetMenu">
+        <select id="presetSelect">
+          <option value="my">My Life Chart</option>
+        </select>
+        <button id="loadPresetButton">Load Chart</button>
+      </div>
+      <!-- Log Out Button -->
+      <button id="logoutButton">Log Out</button>
+      <div id="gridArea">
+        <div id="corner"></div>
+        <div id="xAxis"></div>
+        <div id="yAxis"></div>
+        <div id="grid">
+          <div id="lifeGrid"></div>
+        </div>
+      </div>
+      <!-- New Print and Gallery Buttons -->
+      <button id="printButton">Generate Image</button>
+      <button id="galleryButton">Gallery</button>
+    </div>
+  </div>
+
+  <!-- Draggable Event Form -->
+  <div id="eventForm">
+    <div id="eventFormHeader">
+      <span>Life Event</span>
+      <div>
+        <button id="minimizeEventFormButton" title="Minimize">–</button>
+        <button id="closeEventFormButton" title="Close">×</button>
+      </div>
+    </div>
+    <div id="eventFormContent">
+      <label for="eventTitle">Title:</label>
+      <input type="text" id="eventTitle" placeholder="Event title" />
+      <label for="eventColor">Color:</label>
+      <input type="color" id="eventColor" value="#FF0000" />
+      <label for="eventStart">Start Date:</label>
+      <input type="date" id="eventStart" />
+      <label for="eventEnd">End Date:</label>
+      <input type="date" id="eventEnd" />
+      <button id="addEventButton">Add Event</button>
+    </div>
+  </div>
+
+  <!-- Button to show Event Form if hidden -->
+  <button id="showEventFormButton">Show Event Form</button>
+
+  <!-- Floating Draggable Legend -->
+  <div id="legend">
+    <div id="legendHeader">
+      <h3>Event Legend</h3>
+    </div>
+    <div id="legendContent">
+      <div id="legendItems"></div>
+    </div>
+  </div>
+
+  <!-- Hidden Print Area (used to generate a snapshot for printing) -->
+  <div id="printArea"></div>
+
+  <!-- Gallery Modal -->
+  <div id="galleryModal">
+    <div id="galleryContent">
+      <button id="closeGalleryButton">Close Gallery</button>
+      <h2>Life Grid Gallery</h2>
+      <div id="galleryItems"></div>
+    </div>
+  </div>
+
+  <script>
+    /********* Global Variables & Settings *********/
+    const maxYears = 90;
+    const weeksPerYear = 52;
+    const totalWeeks = maxYears * weeksPerYear;
+    const msPerWeek = 1000 * 60 * 60 * 24 * 7;
+    const baseUrl = ""; // Assumes same domain/port as your Node server
+
+    // For "My Life Chart"
+    let token = localStorage.getItem("token") || null;
+    let userBirthDate = localStorage.getItem("birthDate") || null;
+    const lifeEvents = []; // Personal events
+
+    // Global mode flag to distinguish between personal and preset mode.
+    let isPresetMode = false;
+    // Global variable for celebrity presets
+    let celebPresets = [];
+
+    // Define a set of contrasting colors for preset events.
+    const presetColors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#33FFF3", "#F3FF33", "#FF8C33", "#8C33FF", "#33FF8C", "#FF3333"];
+    const contrastThreshold = 100; // Minimum Euclidean distance between RGB values
+
+    /********* Helper Functions for Color Contrast *********/
+    function hexToRgb(hex) {
+      hex = hex.replace(/^#/, '');
+      if (hex.length === 3) {
+        hex = hex.split('').map(c => c + c).join('');
+      }
+      const num = parseInt(hex, 16);
+      return {
+        r: (num >> 16) & 255,
+        g: (num >> 8) & 255,
+        b: num & 255
+      };
+    }
+    function colorDistance(hex1, hex2) {
+      const c1 = hexToRgb(hex1);
+      const c2 = hexToRgb(hex2);
+      return Math.sqrt(
+        Math.pow(c1.r - c2.r, 2) +
+        Math.pow(c1.g - c2.g, 2) +
+        Math.pow(c1.b - c2.b, 2)
+      );
+    }
+    function getContrastingColor(prevColor) {
+      for (let i = 0; i < presetColors.length; i++) {
+        if (colorDistance(prevColor, presetColors[i]) >= contrastThreshold) {
+          return presetColors[i];
+        }
+      }
+      return presetColors[0];
+    }
+
+    /********* Load Celebrity Presets from JSON *********/
+    fetch('celebPresets.json')
+      .then(response => response.json())
+      .then(data => {
+        celebPresets = data;
+        populatePresetMenu();
+      })
+      .catch(err => console.error("Error loading celebrity presets:", err));
+
+    /********* DOM ELEMENTS *********/
+    const authContainer = document.getElementById("authContainer");
+    const authTitle = document.getElementById("authTitle");
+    const authEmail = document.getElementById("authEmail");
+    const authPassword = document.getElementById("authPassword");
+    const authBirthdate = document.getElementById("authBirthdate");
+    const authFirstName = document.getElementById("authFirstName");
+    const authButton = document.getElementById("authButton");
+    const toggleAuthMode = document.getElementById("toggleAuthMode");
+
+    const gridContainer = document.getElementById("gridContainer");
+    const logoutButton = document.getElementById("logoutButton");
+    const presetSelect = document.getElementById("presetSelect");
+    const loadPresetButton = document.getElementById("loadPresetButton");
+    const xAxis = document.getElementById("xAxis");
+    const yAxis = document.getElementById("yAxis");
+    const lifeGrid = document.getElementById("lifeGrid");
+
+    const eventForm = document.getElementById("eventForm");
+    const eventFormHeader = document.getElementById("eventFormHeader");
+    const eventFormContent = document.getElementById("eventFormContent");
+    const addEventButton = document.getElementById("addEventButton");
+    const eventTitleInput = document.getElementById("eventTitle");
+    const eventColorInput = document.getElementById("eventColor");
+    const eventStartInput = document.getElementById("eventStart");
+    const eventEndInput = document.getElementById("eventEnd");
+
+    const minimizeEventFormButton = document.getElementById("minimizeEventFormButton");
+    const closeEventFormButton = document.getElementById("closeEventFormButton");
+    const showEventFormButton = document.getElementById("showEventFormButton");
+
+    const legend = document.getElementById("legend");
+    const legendHeader = document.getElementById("legendHeader");
+    const legendItems = document.getElementById("legendItems");
+
+    const printButton = document.getElementById("printButton");
+    const galleryButton = document.getElementById("galleryButton");
+    const printArea = document.getElementById("printArea");
+
+    const galleryModal = document.getElementById("galleryModal");
+    const closeGalleryButton = document.getElementById("closeGalleryButton");
+    const galleryItems = document.getElementById("galleryItems");
+
+    const monthWeekCounts = [4,4,5,4,4,5,4,4,5,4,4,5];
+    const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+    /********* Authentication Mode Toggle *********/
+    let isRegisterMode = false;
+    toggleAuthMode.addEventListener("click", () => {
+      isRegisterMode = !isRegisterMode;
+      if(isRegisterMode) {
+        authTitle.textContent = "Register";
+        authButton.textContent = "Register";
+        toggleAuthMode.textContent = "Have an account? Login here";
+        authBirthdate.style.display = "block";
+        authFirstName.style.display = "block";
+      } else {
+        authTitle.textContent = "Login";
+        authButton.textContent = "Login";
+        toggleAuthMode.textContent = "No account? Register here";
+        authBirthdate.style.display = "none";
+        authFirstName.style.display = "none";
+      }
+    });
+
+    /********* Authentication Handler *********/
+    authButton.addEventListener("click", async () => {
+      const email = authEmail.value.trim();
+      const password = authPassword.value.trim();
+      if(!email || !password) {
+        alert("Please fill in email and password.");
+        return;
+      }
+      let endpoint = isRegisterMode ? "/api/register" : "/api/login";
+      let payload = { email, password };
+      if(isRegisterMode) {
+        const bd = authBirthdate.value;
+        const firstName = authFirstName.value.trim();
+        if(!firstName) {
+          alert("Please enter your first name.");
+          return;
+        }
+        if(!bd) {
+          alert("Please enter your birth date for registration.");
+          return;
+        }
+        localStorage.setItem("firstName", firstName);
+        payload.birthDate = bd;
+      }
+      try {
+        const response = await fetch(baseUrl + endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if(!response.ok) {
+          alert(data.error || "Authentication error");
+          return;
+        }
+        token = data.token;
+        localStorage.setItem("token", token);
+        const myBD = data.birthDate || authBirthdate.value;
+        localStorage.setItem("birthDate", myBD);
+        authContainer.style.display = "none";
+        gridContainer.style.display = "block";
+        eventForm.style.display = "block";
+        isPresetMode = false;
+        initializeMainApp();
+      } catch (err) {
+        console.error(err);
+        alert("Error communicating with server.");
+      }
+    });
+
+    /********* Log Out Handler *********/
+    logoutButton.addEventListener("click", () => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("birthDate");
+      localStorage.removeItem("firstName");
+      token = null;
+      userBirthDate = null;
+      lifeEvents.length = 0;
+      authContainer.style.display = "block";
+      gridContainer.style.display = "none";
+      eventForm.style.display = "none";
+    });
+
+    /********* On Page Load, Check for Existing Token *********/
+    window.addEventListener("load", () => {
+      if(token && localStorage.getItem("birthDate")) {
+        userBirthDate = localStorage.getItem("birthDate");
+        authContainer.style.display = "none";
+        gridContainer.style.display = "block";
+        eventForm.style.display = "block";
+        initializeMainApp();
+      } else {
+        authContainer.style.display = "block";
+      }
+    });
+
+    /********* Populate Preset Menu *********/
+    function populatePresetMenu() {
+      celebPresets.forEach(celeb => {
+        const opt = document.createElement("option");
+        opt.value = celeb.name;
+        opt.textContent = celeb.name;
+        presetSelect.appendChild(opt);
+      });
+    }
+
+    /********* Preset Menu Handler *********/
+    loadPresetButton.addEventListener("click", () => {
+      const selected = presetSelect.value;
+      if(selected === "my") {
+        isPresetMode = false;
+        initializeMainApp();
+      } else {
+        const preset = celebPresets.find(c => c.name === selected);
+        if(preset) {
+          isPresetMode = true;
+          clearPersonalEvents();
+          renderPresetChart(preset);
+        }
+      }
+    });
+
+    function clearPersonalEvents() {
+      lifeEvents.length = 0;
+      updateLegend();
+    }
+
+    /********* Initialize "My Life Chart" *********/
+    async function initializeMainApp() {
+      const now = new Date();
+      let weeksLived = (now - new Date(localStorage.getItem("birthDate"))) / msPerWeek;
+      if(weeksLived > totalWeeks) weeksLived = totalWeeks;
+      const fullWeeks = Math.floor(weeksLived);
+      const partialWeekFraction = weeksLived - fullWeeks;
+      generateAxisLabels();
+      generateGrid(fullWeeks, partialWeekFraction);
+      await loadUserEvents();
+      updateLegend();
+    }
+
+    /********* Render Preset Chart *********/
+    function renderPresetChart(preset) {
+      const currentDate = preset.deathDate ? new Date(preset.deathDate) : new Date();
+      let weeksLived = (currentDate - new Date(preset.dob)) / msPerWeek;
+      if(weeksLived > totalWeeks) weeksLived = totalWeeks;
+      const fullWeeks = Math.floor(weeksLived);
+      const partialWeekFraction = weeksLived - fullWeeks;
+      generateAxisLabels();
+      generateGrid(fullWeeks, partialWeekFraction);
+      
+      const sortedEvents = preset.lifeEvents.slice().sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+      let prevEventColor = null;
+      sortedEvents.forEach((ev, i) => {
+        const presetDob = new Date(preset.dob);
+        const evStart = new Date(ev.startDate);
+        let evEnd;
+        if(!ev.endDate || ev.endDate === "") {
+          evEnd = currentDate;
+        } else {
+          evEnd = new Date(ev.endDate);
+        }
+        const startWeek = Math.floor((evStart - presetDob) / msPerWeek);
+        const endWeek = (evStart.getTime() === evEnd.getTime())
+                        ? startWeek + 1
+                        : Math.ceil((evEnd - presetDob) / msPerWeek);
+        let color;
+        if (prevEventColor !== null && startWeek === prevEventEndWeek) {
+          color = getContrastingColor(prevEventColor);
+        } else {
+          color = presetColors[i % presetColors.length];
+        }
+        prevEventColor = color;
+        prevEventEndWeek = endWeek;
+        const presetEvent = {
+          title: ev.title,
+          color,
+          startWeek,
+          endWeek,
+          startDate: ev.startDate,
+          endDate: ev.endDate
+        };
+        overlayPresetEvent(presetEvent);
+        ev.color = color;
+      });
+      updatePresetLegend(sortedEvents);
+      alert("Loaded preset: " + preset.name + ". Your own chart remains saved as 'My Life Chart'.");
+    }
+
+    function overlayPresetEvent(ev) {
+      const start = Math.max(0, ev.startWeek);
+      const end = Math.min(totalWeeks, ev.endWeek);
+      for(let weekIndex = start; weekIndex < end; weekIndex++){
+        const cell = lifeGrid.querySelector(`.week[data-week-index='${weekIndex}']`);
+        if(cell){
+          const inner = cell.querySelector(".week-inner");
+          const overlay = document.createElement("div");
+          overlay.className = "event-overlay";
+          overlay.style.backgroundColor = ev.color;
+          overlay.title = `${ev.title}\nFrom: ${new Date(ev.startDate).toLocaleDateString()} To: ${new Date(ev.endDate).toLocaleDateString()}`;
+          inner.appendChild(overlay);
+        }
+      }
+    }
+
+    function overlaySkull(weekIndex) {
+      const cell = lifeGrid.querySelector(`.week[data-week-index='${weekIndex}']`);
+      if(cell){
+        const inner = cell.querySelector(".week-inner");
+        const skullDiv = document.createElement("div");
+        skullDiv.className = "skull-overlay";
+        skullDiv.innerHTML = "&#9760;";
+        inner.appendChild(skullDiv);
+      }
+    }
+
+    /********* Update Preset Legend *********/
+    function updatePresetLegend(sortedEvents) {
+      legendItems.innerHTML = "";
+      if(!sortedEvents || sortedEvents.length === 0) {
+        legend.style.display = "none";
+        return;
+      }
+      legend.style.display = "block";
+      sortedEvents.forEach((ev) => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "legend-item";
+        itemDiv.addEventListener("click", function(){
+          alert("Preset events cannot be deleted.");
+        });
+        const colorDiv = document.createElement("div");
+        colorDiv.className = "legend-color";
+        colorDiv.style.backgroundColor = ev.color;
+        const labelSpan = document.createElement("span");
+        labelSpan.textContent = ev.title;
+        itemDiv.appendChild(colorDiv);
+        itemDiv.appendChild(labelSpan);
+        legendItems.appendChild(itemDiv);
+      });
+    }
+
+    /********* Axis & Grid Functions *********/
+    function generateAxisLabels() {
+      xAxis.innerHTML = "";
+      yAxis.innerHTML = "";
+      let colStart = 1;
+      monthWeekCounts.forEach((weeksInMonth, index) => {
+        const labelDiv = document.createElement("div");
+        labelDiv.className = "month-label";
+        labelDiv.textContent = monthNames[index];
+        labelDiv.style.gridColumn = `${colStart} / span ${weeksInMonth}`;
+        colStart += weeksInMonth;
+        xAxis.appendChild(labelDiv);
+      });
+      for(let decade = 0; decade < 9; decade++){
+        const labelDiv = document.createElement("div");
+        labelDiv.className = "decade-label";
+        labelDiv.textContent = `${decade * 10}–${decade * 10 + 9}`;
+        labelDiv.style.gridRow = `${decade * 10 + 1} / span 10`;
+        yAxis.appendChild(labelDiv);
+      }
+    }
+
+    function generateGrid(fullWeeks, partialFraction) {
+      lifeGrid.innerHTML = "";
+      for(let weekIndex = 0; weekIndex < totalWeeks; weekIndex++){
+        const year = Math.floor(weekIndex / weeksPerYear);
+        const weekInYear = weekIndex % weeksPerYear;
+        const weekDiv = document.createElement("div");
+        weekDiv.classList.add("week");
+        weekDiv.dataset.weekIndex = weekIndex;
+        if((weekInYear + 1) % 4 === 0){
+          weekDiv.classList.add("thick-right");
+        }
+        if((year + 1) % 10 === 0){
+          weekDiv.classList.add("thick-bottom");
+        }
+        const innerDiv = document.createElement("div");
+        innerDiv.classList.add("week-inner");
+        if(weekIndex < fullWeeks){
+          weekDiv.classList.add("lived");
+        } else if(weekIndex === fullWeeks && partialFraction > 0){
+          const percent = partialFraction * 100;
+          innerDiv.style.background = `linear-gradient(to right, #4caf50 ${percent}%, #ddd ${percent}%)`;
+        }
+        weekDiv.appendChild(innerDiv);
+        lifeGrid.appendChild(weekDiv);
+      }
+      if(!isPresetMode) {
+        overlayEvents();
+      }
+    }
+
+    /********* Event Handling for "My Life Chart" *********/
+    addEventButton.addEventListener("click", async () => {
+      const title = eventTitleInput.value.trim();
+      const color = eventColorInput.value;
+      const startDateValue = eventStartInput.value;
+      const endDateValue = eventEndInput.value;
+      if(!title || !startDateValue || !endDateValue){
+        alert("Please fill in all fields for the event.");
+        return;
+      }
+      const startDate = new Date(startDateValue);
+      const endDate = new Date(endDateValue);
+      if(startDate > endDate){
+        alert("Start date cannot be after end date.");
+        return;
+      }
+      const eventStartWeek = Math.floor((startDate - new Date(localStorage.getItem("birthDate"))) / msPerWeek);
+      const eventEndWeek = Math.ceil((endDate - new Date(localStorage.getItem("birthDate"))) / msPerWeek);
+      const payload = {
+        title,
+        color,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        startWeek: eventStartWeek,
+        endWeek: eventEndWeek
+      };
+      try {
+        const response = await fetch(baseUrl + "/api/event", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if(!response.ok){
+          alert(data.error || "Error saving event");
+          return;
+        }
+        lifeEvents.push(data.event);
+        eventTitleInput.value = "";
+        eventStartInput.value = "";
+        eventEndInput.value = "";
+        overlayEvents();
+        updateLegend();
+      } catch(err) {
+        console.error(err);
+        alert("Error communicating with server.");
+      }
+    });
+
+    async function loadUserEvents() {
+      try {
+        const response = await fetch(baseUrl + "/api/events", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        const data = await response.json();
+        if(response.ok){
+          lifeEvents.length = 0;
+          data.events.forEach(ev => lifeEvents.push(ev));
+          overlayEvents();
+          updateLegend();
+        } else {
+          alert(data.error || "Error loading events");
+        }
+      } catch(err) {
+        console.error(err);
+      }
+    }
+
+    function overlayEvents() {
+      document.querySelectorAll(".event-overlay").forEach(overlay => overlay.remove());
+      lifeEvents.forEach(ev => {
+        const start = Math.max(0, ev.startWeek);
+        const end = Math.min(totalWeeks, ev.endWeek);
+        for(let weekIndex = start; weekIndex < end; weekIndex++){
+          const cell = lifeGrid.querySelector(`.week[data-week-index='${weekIndex}']`);
+          if(cell){
+            const inner = cell.querySelector(".week-inner");
+            const overlay = document.createElement("div");
+            overlay.className = "event-overlay";
+            overlay.style.backgroundColor = ev.color;
+            overlay.title = `${ev.title}\nFrom: ${new Date(ev.startDate).toLocaleDateString()} To: ${new Date(ev.endDate).toLocaleDateString()}`;
+            overlay.addEventListener("click", function(e){
+              e.stopPropagation();
+              if(confirm(`Delete event "${ev.title}"?`)){
+                deleteEvent(ev._id || ev.id);
+              }
+            });
+            inner.appendChild(overlay);
+          }
+        }
+      });
+    }
+
+    async function deleteEvent(id) {
+      try {
+        const response = await fetch(baseUrl + "/api/event/" + id, {
+          method: "DELETE",
+          headers: { "Authorization": "Bearer " + token }
+        });
+        const data = await response.json();
+        if(response.ok){
+          const index = lifeEvents.findIndex(ev => (ev._id || ev.id) == id);
+          if(index > -1){
+            lifeEvents.splice(index, 1);
+            overlayEvents();
+            updateLegend();
+          }
+        } else {
+          alert(data.error || "Error deleting event");
+        }
+      } catch(err) {
+        console.error(err);
+      }
+    }
+
+    function updateLegend() {
+      legendItems.innerHTML = "";
+      if(lifeEvents.length === 0) {
+        legend.style.display = "none";
+        return;
+      }
+      legend.style.display = "block";
+      lifeEvents.forEach(ev => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "legend-item";
+        itemDiv.addEventListener("click", function(){
+          if(confirm(`Delete event "${ev.title}"?`)){
+            deleteEvent(ev._id || ev.id);
+          }
+        });
+        const colorDiv = document.createElement("div");
+        colorDiv.className = "legend-color";
+        colorDiv.style.backgroundColor = ev.color;
+        const labelSpan = document.createElement("span");
+        labelSpan.textContent = ev.title;
+        itemDiv.appendChild(colorDiv);
+        itemDiv.appendChild(labelSpan);
+        legendItems.appendChild(itemDiv);
+      });
+    }
+
+    /********* Draggable, Minimizable Event Form *********/
+    let isDraggingEventForm = false, eventFormOffsetX = 0, eventFormOffsetY = 0;
+    eventFormHeader.addEventListener("mousedown", function(e){
+      isDraggingEventForm = true;
+      const rect = eventForm.getBoundingClientRect();
+      eventForm.style.bottom = "auto";
+      eventFormOffsetX = e.clientX - rect.left;
+      eventFormOffsetY = e.clientY - rect.top;
+    });
+    document.addEventListener("mousemove", function(e){
+      if(isDraggingEventForm){
+        eventForm.style.left = (e.clientX - eventFormOffsetX) + "px";
+        eventForm.style.top = (e.clientY - eventFormOffsetY) + "px";
+      }
+    });
+    document.addEventListener("mouseup", function(){ isDraggingEventForm = false; });
+    let isMinimized = false;
+    minimizeEventFormButton.addEventListener("click", function(){
+      if(!isMinimized){
+        eventFormContent.style.display = "none";
+        minimizeEventFormButton.textContent = "+";
+        isMinimized = true;
+      } else {
+        eventFormContent.style.display = "block";
+        minimizeEventFormButton.textContent = "–";
+        isMinimized = false;
+      }
+    });
+    closeEventFormButton.addEventListener("click", function(){
+      eventForm.style.display = "none";
+      showEventFormButton.style.display = "block";
+    });
+    showEventFormButton.addEventListener("click", function(){
+      eventForm.style.display = "block";
+      showEventFormButton.style.display = "none";
+    });
+
+    /********* Draggable Legend Functionality *********/
+    let isDraggingLegend = false, legendOffsetX = 0, legendOffsetY = 0;
+    legendHeader.addEventListener("mousedown", function(e) {
+      isDraggingLegend = true;
+      const rect = legend.getBoundingClientRect();
+      legendOffsetX = e.clientX - rect.left;
+      legendOffsetY = e.clientY - rect.top;
+    });
+    document.addEventListener("mousemove", function(e) {
+      if(isDraggingLegend) {
+        legend.style.left = (e.clientX - legendOffsetX) + "px";
+        legend.style.top = (e.clientY - legendOffsetY) + "px";
+      }
+    });
+    document.addEventListener("mouseup", function() {
+      isDraggingLegend = false;
+    });
+
+    /********* Print and Gallery Functionality *********/
+    printButton.addEventListener("click", printLifeGrid);
+    galleryButton.addEventListener("click", openGallery);
+    closeGalleryButton.addEventListener("click", closeGallery);
+
+    function printLifeGrid() {
+      // Build a custom print page in the offscreen printArea.
+      // Layout:
+      //   • A header showing "Name: [firstName]".
+      //   • The full grid (cloned from #gridArea) preserving its natural dimensions.
+      //   • The legend (cloned from #legend) appended below the grid.
+      printArea.innerHTML = "";
+      
+      // Create print page container.
+      const printPage = document.createElement("div");
+      printPage.id = "printPage";
+      printPage.style.background = "#fff";
+      printPage.style.padding = "20px";
+      printPage.style.boxSizing = "border-box";
+      
+      // Inject custom print styles for axis labels.
+      const printStyle = document.createElement("style");
+      printStyle.innerHTML = `
+        #xAxis .month-label, #yAxis .decade-label {
+          font-size: 0.7em !important;
+          color: #000 !important;
+          background: #fff !important;
+          border: none !important;
+          font-family: sans-serif !important;
+          padding: 2px 0 !important;
+        }
+        #xAxis, #yAxis {
+          background: #fff !important;
+          border: none !important;
+        }
+      `;
+      printPage.appendChild(printStyle);
+      
+      // Header with user's first name.
+      const firstName = localStorage.getItem("firstName") || "User";
+      const headerDiv = document.createElement("div");
+      headerDiv.style.textAlign = "center";
+      headerDiv.style.marginBottom = "10px";
+      headerDiv.innerHTML = `<h2>Name: ${firstName}</h2>`;
+      printPage.appendChild(headerDiv);
+      
+      // Clone the gridArea and preserve its natural dimensions.
+      const originalGrid = document.getElementById("gridArea");
+      const gridClone = originalGrid.cloneNode(true);
+      gridClone.style.width = originalGrid.offsetWidth + "px";
+      gridClone.style.height = originalGrid.offsetHeight + "px";
+      const gridContainerPrint = document.createElement("div");
+      gridContainerPrint.style.marginBottom = "20px";
+      gridContainerPrint.appendChild(gridClone);
+      printPage.appendChild(gridContainerPrint);
+      
+      // Clone the legend and append it below the grid.
+      const legendClone = document.getElementById("legend").cloneNode(true);
+      // Remove positioning styles so it flows naturally.
+      legendClone.style.position = "static";
+      legendClone.style.margin = "0 auto";
+      const legendContainerPrint = document.createElement("div");
+      legendContainerPrint.appendChild(legendClone);
+      printPage.appendChild(legendContainerPrint);
+      
+      printArea.appendChild(printPage);
+      
+      // Use html2canvas to capture the print page.
+      html2canvas(printPage).then(canvas => {
+        // Scale the captured image to a maximum width of 1200px for high quality.
+        const maxWidth = 1200;
+        let newWidth = canvas.width;
+        let newHeight = canvas.height;
+        if (canvas.width > maxWidth) {
+          const scaleFactor = maxWidth / canvas.width;
+          newWidth = maxWidth;
+          newHeight = canvas.height * scaleFactor;
+        }
+        const scaledCanvas = document.createElement("canvas");
+        scaledCanvas.width = newWidth;
+        scaledCanvas.height = newHeight;
+        const ctx = scaledCanvas.getContext("2d");
+        ctx.drawImage(canvas, 0, 0, newWidth, newHeight);
+        const dataUrl = scaledCanvas.toDataURL("image/jpeg", 1.0);
+        
+        // Open a new window to display the image and a "Save Image" button.
+        const imageWindow = window.open('', '_blank');
+        imageWindow.document.write(`
+          <html>
+            <head>
+              <title>Life Grid Image</title>
+              <style>
+                body { margin: 0; padding: 20px; text-align: center; background: #eee; }
+                img { max-width: 100%; height: auto; border: 1px solid #ccc; }
+                button { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
+              </style>
+            </head>
+            <body>
+              <img id="printedImage" src="${dataUrl}" alt="Life Grid">
+              <br>
+              <button id="saveImageButton">Save Image</button>
+              <script>
+                document.getElementById("saveImageButton").addEventListener("click", function(){
+                  var a = document.createElement("a");
+                  a.href = document.getElementById("printedImage").src;
+                  a.download = "LifeGrid_" + new Date().getTime() + ".jpg";
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                });
+              <\/script>
+            </body>
+          </html>
+        `);
+        imageWindow.document.close();
+      }).catch(err => {
+        console.error("Error generating print image:", err);
+      });
+    }
+
+    function openGallery() {
+      galleryItems.innerHTML = "";
+      let gallery = JSON.parse(localStorage.getItem("lifeGridGallery") || "[]");
+      if(gallery.length === 0) {
+        galleryItems.innerHTML = "<p>No printed grids in gallery.</p>";
+      } else {
+        let sortedGallery = gallery.slice().sort((a, b) => b.timestamp - a.timestamp);
+        sortedGallery.forEach(item => {
+          const itemDiv = document.createElement("div");
+          itemDiv.className = "gallery-item";
+          const img = document.createElement("img");
+          img.src = item.imageData;
+          const info = document.createElement("p");
+          const date = new Date(item.timestamp);
+          info.innerText = `Name: ${item.firstName}\nPrinted: ${date.toLocaleString()}`;
+          const downloadBtn = document.createElement("button");
+          downloadBtn.innerText = "Download";
+          downloadBtn.addEventListener("click", () => downloadImage(item.imageData, `lifeGrid_${item.timestamp}.jpg`));
+          const printBtn = document.createElement("button");
+          printBtn.innerText = "Print";
+          printBtn.addEventListener("click", () => printImage(item.imageData));
+          const deleteBtn = document.createElement("button");
+          deleteBtn.innerText = "Delete";
+          deleteBtn.addEventListener("click", () => {
+            if(confirm("Are you sure you want to delete this printed life grid?")){
+              deleteGalleryItem(item.timestamp);
+            }
+          });
+          itemDiv.appendChild(img);
+          itemDiv.appendChild(info);
+          itemDiv.appendChild(downloadBtn);
+          itemDiv.appendChild(printBtn);
+          itemDiv.appendChild(deleteBtn);
+          galleryItems.appendChild(itemDiv);
+        });
+      }
+      galleryModal.style.display = "block";
+    }
+
+    function closeGallery() {
+      galleryModal.style.display = "none";
+    }
+
+    function downloadImage(dataUrl, filename) {
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function printImage(dataUrl) {
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Print Life Grid</title>
+            <style>
+              body { margin: 0; padding: 0; }
+              img { display: block; max-width: 100%; }
+            </style>
+          </head>
+          <body>
+            <img src="${dataUrl}" alt="Life Grid">
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    }
+
+    function deleteGalleryItem(timestamp) {
+      let gallery = JSON.parse(localStorage.getItem("lifeGridGallery") || "[]");
+      gallery = gallery.filter(item => item.timestamp !== timestamp);
+      localStorage.setItem("lifeGridGallery", JSON.stringify(gallery));
+      openGallery();
+    }
+  </script>
+</body>
+</html>

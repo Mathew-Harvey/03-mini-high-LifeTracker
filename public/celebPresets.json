@@ -1,0 +1,356 @@
+[
+  {
+    "name": "Barack Obama",
+    "dob": "1961-08-04",
+    "lifeEvents": [
+      { "title": "Born in Honolulu, Hawaii", "startDate": "1961-08-04", "endDate": "1961-08-04" },
+      { "title": "Graduated from Columbia University", "startDate": "1983-05-01", "endDate": "1983-05-01" },
+      { "title": "Graduated from Harvard Law School", "startDate": "1991-05-01", "endDate": "1991-05-01" },
+      { "title": "Elected to the U.S. Senate", "startDate": "2004-11-04", "endDate": "2008-11-04" },
+      { "title": "Served as President of the United States", "startDate": "2008-11-04", "endDate": "2017-01-20" },
+      { "title": "Published 'Dreams from My Father'", "startDate": "1995-01-01", "endDate": "1995-01-01" },
+      { "title": "Published 'The Audacity of Hope'", "startDate": "2006-01-01", "endDate": "2006-01-01" },
+      { "title": "Inaugurated as President", "startDate": "2009-01-20", "endDate": "2009-01-20" },
+      { "title": "Founded the Obama Foundation", "startDate": "2014-01-01", "endDate": "2014-01-01" },
+      { "title": "Published memoir 'A Promised Land'", "startDate": "2020-11-17", "endDate": "2020-11-17" }
+    ]
+  },
+  {
+    "name": "Oprah Winfrey",
+    "dob": "1954-01-29",
+    "lifeEvents": [
+      { "title": "Born in Kosciusko, Mississippi", "startDate": "1954-01-29", "endDate": "1954-01-29" },
+      { "title": "Started Local TV Career", "startDate": "1976-01-01", "endDate": "1986-01-01" },
+      { "title": "Became National Talk Show Host", "startDate": "1986-01-01", "endDate": "2011-01-01" },
+      { "title": "Launched OWN Network", "startDate": "2011-01-01", "endDate": "2011-01-01" },
+      { "title": "Debut of The Oprah Winfrey Show", "startDate": "1986-09-08", "endDate": "1986-09-08" },
+      { "title": "Founded Harpo Productions", "startDate": "1986-01-01", "endDate": "1986-01-01" },
+      { "title": "Received Presidential Medal of Freedom", "startDate": "2013-11-20", "endDate": "2013-11-20" },
+      { "title": "Opened Oprah Winfrey Leadership Academy for Girls", "startDate": "2007-01-01", "endDate": "2007-01-01" }
+    ]
+  },
+  {
+    "name": "Steve Jobs",
+    "dob": "1955-02-24",
+    "deathDate": "2011-10-05",
+    "lifeEvents": [
+      { "title": "Co‑founded Apple Inc.", "startDate": "1976-04-01", "endDate": "1985-01-01" },
+      { "title": "Launched Macintosh", "startDate": "1984-01-01", "endDate": "1984-01-01" },
+      { "title": "Departed from Apple", "startDate": "1985-01-01", "endDate": "1985-01-01" },
+      { "title": "Founded NeXT", "startDate": "1985-01-01", "endDate": "1997-01-01" },
+      { "title": "Returned to Apple & Oversaw Innovation", "startDate": "1997-01-01", "endDate": "2011-10-05" },
+      { "title": "Introduced the iPhone", "startDate": "2007-01-01", "endDate": "2007-01-01" },
+      { "title": "Introduced the iPod", "startDate": "2001-10-23", "endDate": "2001-10-23" },
+      { "title": "Introduced the iPad", "startDate": "2010-01-27", "endDate": "2010-01-27" }
+    ]
+  },
+  {
+    "name": "Elon Musk",
+    "dob": "1971-06-28",
+    "lifeEvents": [
+      { "title": "Co‑founded Zip2", "startDate": "1996-01-01", "endDate": "1999-01-01" },
+      { "title": "Founded X.com/PayPal", "startDate": "1999-01-01", "endDate": "2002-01-01" },
+      { "title": "Founded SpaceX", "startDate": "2002-01-01", "endDate": "2004-01-01" },
+      { "title": "Joined Tesla Motors", "startDate": "2004-01-01", "endDate": "2025-01-01" },
+      { "title": "Launched Falcon Heavy", "startDate": "2018-02-06", "endDate": "2018-02-06" },
+      { "title": "Founded Neuralink", "startDate": "2016-04-01", "endDate": "2016-04-01" },
+      { "title": "Founded The Boring Company", "startDate": "2016-12-01", "endDate": "2016-12-01" },
+      { "title": "Acquired Twitter", "startDate": "2022-10-27", "endDate": "2022-10-27" }
+    ]
+  },
+  {
+    "name": "Michelle Obama",
+    "dob": "1964-01-17",
+    "lifeEvents": [
+      { "title": "Graduated from Princeton University", "startDate": "1985-05-01", "endDate": "1985-05-01" },
+      { "title": "Graduated from Harvard Law School", "startDate": "1988-05-01", "endDate": "1988-05-01" },
+      { "title": "Served as First Lady of the United States", "startDate": "2009-01-20", "endDate": "2017-01-20" },
+      { "title": "Authored 'Becoming'", "startDate": "2017-11-13", "endDate": "2018-11-13" },
+      { "title": "Married Barack Obama", "startDate": "1992-10-03", "endDate": "1992-10-03" },
+      { "title": "Launched Let Girls Learn initiative", "startDate": "2010-01-01", "endDate": "2010-01-01" }
+    ]
+  },
+  {
+    "name": "Bill Gates",
+    "dob": "1955-10-28",
+    "lifeEvents": [
+      { "title": "Co‑founded Microsoft", "startDate": "1975-04-04", "endDate": "1986-03-13" },
+      { "title": "Microsoft IPO", "startDate": "1986-03-13", "endDate": "1986-03-13" },
+      { "title": "Achieved Peak Wealth", "startDate": "1990-01-01", "endDate": "2000-01-01" },
+      { "title": "Founded the Bill & Melinda Gates Foundation", "startDate": "2000-01-01", "endDate": "" },
+      { "title": "Married Melinda French", "startDate": "1994-01-01", "endDate": "1994-01-01" },
+      { "title": "Stepped down from Microsoft leadership", "startDate": "2008-06-01", "endDate": "2008-06-01" },
+      { "title": "Divorced Melinda French", "startDate": "2021-08-02", "endDate": "2021-08-02" }
+    ]
+  },
+  {
+    "name": "Malala Yousafzai",
+    "dob": "1997-07-12",
+    "lifeEvents": [
+      { "title": "Born in Mingora, Pakistan", "startDate": "1997-07-12", "endDate": "1997-07-12" },
+      { "title": "Advocated for Girls’ Education", "startDate": "2008-01-01", "endDate": "2012-01-01" },
+      { "title": "Survived a Taliban Attack", "startDate": "2012-10-09", "endDate": "2012-10-09" },
+      { "title": "Awarded the Nobel Peace Prize", "startDate": "2014-10-10", "endDate": "2014-10-10" },
+      { "title": "Published 'I Am Malala'", "startDate": "2013-10-12", "endDate": "2013-10-12" },
+      { "title": "Launched Malala Fund", "startDate": "2013-10-12", "endDate": "2013-10-12" }
+    ]
+  },
+  {
+    "name": "Nelson Mandela",
+    "dob": "1918-07-18",
+    "deathDate": "2013-12-05",
+    "lifeEvents": [
+      { "title": "Born in Mvezo, South Africa", "startDate": "1918-07-18", "endDate": "1918-07-18" },
+      { "title": "Imprisoned for Anti-Apartheid Activities", "startDate": "1962-08-05", "endDate": "1990-02-11" },
+      { "title": "Elected President of South Africa", "startDate": "1994-05-10", "endDate": "1999-05-10" },
+      { "title": "Released from Prison", "startDate": "1990-02-11", "endDate": "1990-02-11" },
+      { "title": "Received the Nobel Peace Prize", "startDate": "1993-12-10", "endDate": "1993-12-10" },
+      { "title": "Founded the Nelson Mandela Foundation", "startDate": "1999-05-10", "endDate": "1999-05-10" }
+    ]
+  },
+  {
+    "name": "J.K. Rowling",
+    "dob": "1965-07-31",
+    "lifeEvents": [
+      { "title": "Born in Yate, England", "startDate": "1965-07-31", "endDate": "1965-07-31" },
+      { "title": "Wrote the First Harry Potter Book", "startDate": "1996-06-26", "endDate": "1997-06-26" },
+      { "title": "Published the Harry Potter Series", "startDate": "1997-07-02", "endDate": "1997-07-02" },
+      { "title": "Published 'Harry Potter and the Philosopher's Stone'", "startDate": "1997-06-26", "endDate": "1997-06-26" },
+      { "title": "Released first Harry Potter film", "startDate": "2001-11-16", "endDate": "2001-11-16" },
+      { "title": "Founded Volant Charitable Trust", "startDate": "2000-01-01", "endDate": "2000-01-01" }
+    ]
+  },
+  {
+    "name": "Leonardo DiCaprio",
+    "dob": "1974-11-11",
+    "lifeEvents": [
+      { "title": "Born in Los Angeles, California", "startDate": "1974-11-11", "endDate": "1974-11-11" },
+      { "title": "Launched Acting Career", "startDate": "1989-01-01", "endDate": "2025-01-19" },
+      { "title": "Starred in 'Titanic'", "startDate": "1997-12-19", "endDate": "1997-12-19" },
+      { "title": "Won an Academy Award", "startDate": "2016-02-28", "endDate": "2016-02-28" },
+      { "title": "Founded the Leonardo DiCaprio Foundation", "startDate": "1998-01-01", "endDate": "1998-01-01" },
+      { "title": "Starred in 'Inception'", "startDate": "2010-07-16", "endDate": "2010-07-16" }
+    ]
+  },
+  {
+    "name": "Martin Luther King Jr.",
+    "dob": "1929-01-15",
+    "deathDate": "1968-04-04",
+    "lifeEvents": [
+      { "title": "Born in Atlanta, Georgia", "startDate": "1929-01-15", "endDate": "1929-01-15" },
+      { "title": "Ordained as a Baptist Minister", "startDate": "1951-01-01", "endDate": "1951-01-01" },
+      { "title": "Rose as a Civil Rights Leader", "startDate": "1955-01-01", "endDate": "1955-01-01" },
+      { "title": "Delivered the 'I Have a Dream' Speech", "startDate": "1963-08-28", "endDate": "1963-08-28" },
+      { "title": "Assassinated", "startDate": "1968-04-04", "endDate": "1968-04-04" },
+      { "title": "Led the Montgomery Bus Boycott", "startDate": "1955-12-05", "endDate": "1956-12-20" },
+      { "title": "Organized the Selma to Montgomery March", "startDate": "1965-03-21", "endDate": "1965-03-25" }
+    ]
+  },
+  {
+    "name": "Albert Einstein",
+    "dob": "1879-03-14",
+    "deathDate": "1955-04-18",
+    "lifeEvents": [
+      { "title": "Born in Ulm, Germany", "startDate": "1879-03-14", "endDate": "1879-03-14" },
+      { "title": "Published Annus Mirabilis Papers", "startDate": "1905-01-01", "endDate": "1905-12-31" },
+      { "title": "Developed the Theory of Relativity", "startDate": "1915-01-01", "endDate": "1915-01-01" },
+      { "title": "Awarded the Nobel Prize in Physics", "startDate": "1921-11-09", "endDate": "1921-11-09" },
+      { "title": "Emigrated to the United States", "startDate": "1933-10-01", "endDate": "1933-10-01" },
+      { "title": "Published General Theory of Relativity", "startDate": "1915-11-25", "endDate": "1915-11-25" }
+    ]
+  },
+  {
+    "name": "Mother Teresa",
+    "dob": "1910-08-26",
+    "deathDate": "1997-09-05",
+    "lifeEvents": [
+      { "title": "Born in Skopje", "startDate": "1910-08-26", "endDate": "1910-08-26" },
+      { "title": "Founded the Missionaries of Charity", "startDate": "1950-01-01", "endDate": "1950-01-01" },
+      { "title": "Awarded the Nobel Peace Prize", "startDate": "1979-10-10", "endDate": "1979-10-10" },
+      { "title": "Started humanitarian work in Calcutta", "startDate": "1948-01-01", "endDate": "1950-01-01" }
+    ]
+  },
+  {
+    "name": "Mahatma Gandhi",
+    "dob": "1869-10-02",
+    "deathDate": "1948-01-30",
+    "lifeEvents": [
+      { "title": "Born in Porbandar, India", "startDate": "1869-10-02", "endDate": "1869-10-02" },
+      { "title": "Studied Law in London", "startDate": "1888-01-01", "endDate": "1891-01-01" },
+      { "title": "Led the Indian Independence Movement", "startDate": "1915-01-01", "endDate": "1947-08-15" },
+      { "title": "Assassinated", "startDate": "1948-01-30", "endDate": "1948-01-30" },
+      { "title": "Led the Salt March", "startDate": "1930-03-12", "endDate": "1930-04-06" },
+      { "title": "Embarked on a hunger strike for nonviolence", "startDate": "1947-08-15", "endDate": "1947-09-15" }
+    ]
+  },
+  {
+    "name": "Winston Churchill",
+    "dob": "1874-11-30",
+    "deathDate": "1965-01-24",
+    "lifeEvents": [
+      { "title": "Born in Blenheim Palace, England", "startDate": "1874-11-30", "endDate": "1874-11-30" },
+      { "title": "Served in the British Army", "startDate": "1895-01-01", "endDate": "1899-01-01" },
+      { "title": "First Term as Prime Minister", "startDate": "1940-05-10", "endDate": "1945-07-26" },
+      { "title": "Second Term as Prime Minister", "startDate": "1951-10-26", "endDate": "1955-04-07" },
+      { "title": "Awarded the Nobel Prize in Literature", "startDate": "1953-01-01", "endDate": "1953-01-01" },
+      { "title": "Gave 'We shall fight on the beaches' speech", "startDate": "1940-06-04", "endDate": "1940-06-04" },
+      { "title": "Delivered 'Iron Curtain' speech", "startDate": "1946-03-05", "endDate": "1946-03-05" }
+    ]
+  },
+  {
+    "name": "Princess Diana",
+    "dob": "1961-07-01",
+    "deathDate": "1997-08-31",
+    "lifeEvents": [
+      { "title": "Born in Sandringham, England", "startDate": "1961-07-01", "endDate": "1961-07-01" },
+      { "title": "Married Prince Charles", "startDate": "1981-07-29", "endDate": "1981-07-29" },
+      { "title": "Became Princess of Wales", "startDate": "1981-07-29", "endDate": "1981-07-29" },
+      { "title": "Active in Humanitarian Causes", "startDate": "1980-01-01", "endDate": "1997-08-31" },
+      { "title": "Died in a Car Accident", "startDate": "1997-08-31", "endDate": "1997-08-31" },
+      { "title": "Divorced Prince Charles", "startDate": "1996-12-28", "endDate": "1996-12-28" },
+      { "title": "Founded Diana Memorial Fund", "startDate": "1997-01-01", "endDate": "1997-01-01" }
+    ]
+  },
+  {
+    "name": "Michael Jackson",
+    "dob": "1958-08-29",
+    "deathDate": "2009-06-25",
+    "lifeEvents": [
+      { "title": "Born in Gary, Indiana", "startDate": "1958-08-29", "endDate": "1958-08-29" },
+      { "title": "Rose to Fame with The Jackson 5", "startDate": "1964-01-01", "endDate": "1969-01-01" },
+      { "title": "Released 'Thriller'", "startDate": "1982-11-30", "endDate": "1982-11-30" },
+      { "title": "Dominated the Music Industry as the King of Pop", "startDate": "1980-01-01", "endDate": "2009-06-25" },
+      { "title": "Died", "startDate": "2009-06-25", "endDate": "2009-06-25" },
+      { "title": "Performed Moonwalk on Motown 25", "startDate": "1983-07-25", "endDate": "1983-07-25" },
+      { "title": "Released album 'Bad'", "startDate": "1987-08-31", "endDate": "1987-08-31" }
+    ]
+  },
+  {
+    "name": "Amelia Earhart",
+    "dob": "1897-07-24",
+    "lifeEvents": [
+      { "title": "Born in Atchison, Kansas", "startDate": "1897-07-24", "endDate": "1897-07-24" },
+      { "title": "First Woman to Fly Solo Across the Atlantic", "startDate": "1932-05-20", "endDate": "1932-05-20" },
+      { "title": "Disappeared During a Flight", "startDate": "1937-07-02", "endDate": "1937-07-02" },
+      { "title": "Attempted round-the-world flight", "startDate": "1937-06-01", "endDate": "1937-07-02" }
+    ]
+  },
+  {
+    "name": "Freddie Mercury",
+    "dob": "1946-09-05",
+    "deathDate": "1991-11-24",
+    "lifeEvents": [
+      { "title": "Born in Zanzibar", "startDate": "1946-09-05", "endDate": "1946-09-05" },
+      { "title": "Rose as Lead Vocalist for Queen", "startDate": "1970-01-01", "endDate": "1991-11-24" },
+      { "title": "Released 'Bohemian Rhapsody'", "startDate": "1975-10-31", "endDate": "1975-10-31" },
+      { "title": "Died from Complications Related to AIDS", "startDate": "1991-11-24", "endDate": "1991-11-24" },
+      { "title": "Released solo album 'Mr. Bad Guy'", "startDate": "1985-04-29", "endDate": "1985-04-29" },
+      { "title": "Performed at Live Aid with Queen", "startDate": "1985-07-13", "endDate": "1985-07-13" }
+    ]
+  },
+  {
+    "name": "Elvis Presley",
+    "dob": "1935-01-08",
+    "deathDate": "1977-08-16",
+    "lifeEvents": [
+      { "title": "Born in Tupelo, Mississippi", "startDate": "1935-01-08", "endDate": "1935-01-08" },
+      { "title": "Became the King of Rock and Roll", "startDate": "1954-01-01", "endDate": "1954-01-01" },
+      { "title": "Starred in 'Jailhouse Rock'", "startDate": "1957-09-01", "endDate": "1957-09-01" },
+      { "title": "Died", "startDate": "1977-08-16", "endDate": "1977-08-16" },
+      { "title": "Served in the U.S. Army", "startDate": "1958-09-12", "endDate": "1960-03-01" },
+      { "title": "Made acting debut in 'Love Me Tender'", "startDate": "1956-11-15", "endDate": "1956-11-15" }
+    ]
+  },
+  {
+    "name": "BB King",
+    "dob": "1925-09-16",
+    "deathDate": "2015-05-14",
+    "lifeEvents": [
+      { "title": "Born in Itta Bena, Mississippi", "startDate": "1925-09-16", "endDate": "1925-09-16" },
+      { "title": "Learned Guitar and Developed a Blues Style", "startDate": "1930-01-01", "endDate": "1940-01-01" },
+      { "title": "Moved to Memphis to Pursue a Music Career", "startDate": "1940-01-01", "endDate": "1940-01-01" },
+      { "title": "Recorded 'Three O'Clock Blues'", "startDate": "1952-01-01", "endDate": "1952-01-01" },
+      { "title": "Broke Through with 'The Thrill Is Gone'", "startDate": "1969-01-01", "endDate": "1969-01-01" },
+      { "title": "Earned Multiple Grammy Awards", "startDate": "1970-01-01", "endDate": "2015-05-14" },
+      { "title": "Fathered 15 Children", "startDate": "1950-01-01", "endDate": "" },
+      { "title": "Inducted into the Blues Hall of Fame", "startDate": "1980-01-01", "endDate": "1980-01-01" },
+      { "title": "Released album 'Live at the Regal'", "startDate": "1965-01-01", "endDate": "1965-01-01" }
+    ]
+  },
+  {
+    "name": "Kurt Cobain",
+    "dob": "1967-02-20",
+    "deathDate": "1994-04-05",
+    "lifeEvents": [
+      { "title": "Born in Aberdeen, Washington", "startDate": "1967-02-20", "endDate": "1967-02-20" },
+      { "title": "Attended Aberdeen High School", "startDate": "1981-01-01", "endDate": "1985-01-01" },
+      { "title": "Formed the Band Nirvana", "startDate": "1987-01-01", "endDate": "1987-01-01" },
+      { "title": "Released the Album 'Nevermind'", "startDate": "1991-09-24", "endDate": "1991-09-24" },
+      { "title": "Married Courtney Love", "startDate": "1992-01-01", "endDate": "1992-01-01" },
+      { "title": "Daughter Frances Bean Cobain Born", "startDate": "1992-08-18", "endDate": "1992-08-18" },
+      { "title": "Died by Suicide", "startDate": "1994-04-05", "endDate": "1994-04-05" },
+      { "title": "Released album 'In Utero'", "startDate": "1993-09-21", "endDate": "1993-09-21" }
+    ]
+  },
+  {
+    "name": "Jimi Hendrix",
+    "dob": "1942-11-27",
+    "deathDate": "1970-09-18",
+    "lifeEvents": [
+      { "title": "Born in Seattle, Washington", "startDate": "1942-11-27", "endDate": "1942-11-27" },
+      { "title": "Enlisted in the U.S. Army", "startDate": "1961-01-01", "endDate": "1961-01-01" },
+      { "title": "Discharged from the Army", "startDate": "1962-01-01", "endDate": "1962-01-01" },
+      { "title": "Worked as a Session Musician", "startDate": "1962-01-01", "endDate": "1966-01-01" },
+      { "title": "Formed The Jimi Hendrix Experience", "startDate": "1966-01-01", "endDate": "1966-01-01" },
+      { "title": "Breakthrough at the Monterey Pop Festival", "startDate": "1967-06-01", "endDate": "1967-06-01" },
+      { "title": "Released the Debut Album 'Are You Experienced?'", "startDate": "1967-01-01", "endDate": "1967-01-01" },
+      { "title": "Died in London", "startDate": "1970-09-18", "endDate": "1970-09-18" },
+      { "title": "Recorded album 'Electric Ladyland'", "startDate": "1968-01-01", "endDate": "1968-12-31" }
+    ]
+  },
+  {
+    "name": "Alan Watts",
+    "dob": "1915-01-06",
+    "deathDate": "1973-11-16",
+    "lifeEvents": [
+      { "title": "Born in Chislehurst, England", "startDate": "1915-01-06", "endDate": "1915-01-06" },
+      { "title": "Attended King's School in Canterbury", "startDate": "1925-01-01", "endDate": "1932-01-01" },
+      { "title": "Moved to the United States", "startDate": "1938-01-01", "endDate": "1938-01-01" },
+      { "title": "Rose to Prominence as an Interpreter of Eastern Philosophy", "startDate": "1950-01-01", "endDate": "1973-11-16" },
+      { "title": "Published 'The Wisdom of Insecurity'", "startDate": "1951-01-01", "endDate": "1951-01-01" },
+      { "title": "Published 'The Book: On the Taboo Against Knowing Who You Are'", "startDate": "1966-01-01", "endDate": "1966-01-01" },
+      { "title": "Hosted Radio Programs on Philosophy", "startDate": "1960-01-01", "endDate": "1973-11-16" },
+      { "title": "Published 'The Joyous Cosmology'", "startDate": "1962-01-01", "endDate": "1962-01-01" }
+    ]
+  },
+  {
+    "name": "Robin Williams",
+    "dob": "1951-07-21",
+    "deathDate": "2014-08-11",
+    "lifeEvents": [
+      { "title": "Born in Chicago, Illinois", "startDate": "1951-07-21", "endDate": "1951-07-21" },
+      { "title": "Attended Juilliard School", "startDate": "1970-01-01", "endDate": "1974-01-01" },
+      { "title": "Started Stand-up Comedy", "startDate": "1975-01-01", "endDate": "1975-01-01" },
+      { "title": "Became a Star with 'Mork & Mindy'", "startDate": "1978-01-01", "endDate": "1982-01-01" },
+      { "title": "Film Career Breakthrough", "startDate": "1986-01-01", "endDate": "2014-08-11" },
+      { "title": "Won an Academy Award for 'Good Will Hunting'", "startDate": "1997-01-01", "endDate": "1997-01-01" },
+      { "title": "Fathered Multiple Children", "startDate": "1976-01-01", "endDate": "" },
+      { "title": "Died by Suicide", "startDate": "2014-08-11", "endDate": "2014-08-11" },
+      { "title": "Performed stand-up special 'Live on Broadway'", "startDate": "2002-01-01", "endDate": "2002-01-01" },
+      { "title": "Won a Golden Globe Award for 'Good Morning, Vietnam'", "startDate": "1988-01-01", "endDate": "1988-01-01" }
+    ]
+  },
+  {
+    "name": "Bill Hicks",
+    "dob": "1961-12-16",
+    "deathDate": "1994-02-26",
+    "lifeEvents": [
+      { "title": "Born in Valdosta, Georgia", "startDate": "1961-12-16", "endDate": "1961-12-16" },
+      { "title": "Started Stand-up Comedy in Texas", "startDate": "1982-01-01", "endDate": "1982-01-01" },
+      { "title": "Gained Recognition for Provocative Social Commentary", "startDate": "1985-01-01", "endDate": "1985-01-01" },
+      { "title": "Toured Internationally", "startDate": "1990-01-01", "endDate": "1994-02-26" },
+      { "title": "Died of Pancreatic Cancer", "startDate": "1994-02-26", "endDate": "1994-02-26" },
+      { "title": "Performed final show", "startDate": "1993-12-31", "endDate": "1993-12-31" }
+    ]
+  }
+]
