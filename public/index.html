@@ -927,8 +927,21 @@
       if(weeksLived > totalWeeks) weeksLived = totalWeeks;
       const fullWeeks = Math.floor(weeksLived);
       const partialWeekFraction = weeksLived - fullWeeks;
-      generateAxisLabels();
-      generateGrid(fullWeeks, partialWeekFraction);
+      let birthDateObj = new Date(localStorage.getItem("birthDate"));
+      let birthYear = birthDateObj.getFullYear();
+      let startOfYear = new Date(birthYear, 0, 1);
+      let timeDiff = birthDateObj - startOfYear;
+      let dayOfYear = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+      let birthWeek = Math.floor((dayOfYear - 1) / 7);
+      // Adjust birthWeek to align current position
+      const currentStartOfYear = new Date(now.getFullYear(), 0, 1);
+      const timeDiffCurrent = now - currentStartOfYear;
+      const currentDayOfYear = Math.floor(timeDiffCurrent / (1000 * 60 * 60 * 24)) + 1;
+      const currentWeekOfYear = Math.floor((currentDayOfYear - 1) / 7);
+      const adjustedBirthWeek = (currentWeekOfYear - (fullWeeks % 52) + 52) % 52;
+      birthWeek = adjustedBirthWeek;
+      generateAxisLabels(birthYear);
+      generateGrid(fullWeeks, partialWeekFraction, birthWeek);
       await loadUserEvents();
       updateLegend();
     }
@@ -940,8 +953,22 @@
       if(weeksLived > totalWeeks) weeksLived = totalWeeks;
       const fullWeeks = Math.floor(weeksLived);
       const partialWeekFraction = weeksLived - fullWeeks;
-      generateAxisLabels();
-      generateGrid(fullWeeks, partialWeekFraction);
+      let birthDateObj = new Date(preset.dob);
+      let birthYear = birthDateObj.getFullYear();
+      let startOfYear = new Date(birthYear, 0, 1);
+      let timeDiff = birthDateObj - startOfYear;
+      let dayOfYear = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+      let birthWeek = Math.floor((dayOfYear - 1) / 7);
+      // Adjust birthWeek to align target position
+      const targetDate = preset.deathDate ? new Date(preset.deathDate) : new Date();
+      const targetStartOfYear = new Date(targetDate.getFullYear(), 0, 1);
+      const timeDiffTarget = targetDate - targetStartOfYear;
+      const targetDayOfYear = Math.floor(timeDiffTarget / (1000 * 60 * 60 * 24)) + 1;
+      const targetWeekOfYear = Math.floor((targetDayOfYear - 1) / 7);
+      const adjustedBirthWeek = (targetWeekOfYear - (fullWeeks % 52) + 52) % 52;
+      birthWeek = adjustedBirthWeek;
+      generateAxisLabels(birthYear);
+      generateGrid(fullWeeks, partialWeekFraction, birthWeek);
       
       const sortedEvents = preset.lifeEvents.slice().sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
       let prevEventColor = null;
@@ -978,22 +1005,33 @@
         overlayPresetEvent(presetEvent);
         ev.color = color;
       });
+      if (preset.deathDate) {
+        const deathDateObj = new Date(preset.deathDate);
+        const deathLifeWeek = Math.floor((deathDateObj - birthDateObj) / msPerWeek);
+        const deathGridIndex = birthWeek + deathLifeWeek;
+        if (deathGridIndex >= 0 && deathGridIndex < totalWeeks) {
+          overlaySkull(deathGridIndex);
+        }
+      }
       updatePresetLegend(sortedEvents);
       alert("Loaded preset: " + preset.name + ". Your own chart remains saved as 'My Life Chart'.");
     }
 
     function overlayPresetEvent(ev) {
-      const start = Math.max(0, ev.startWeek);
-      const end = Math.min(totalWeeks, ev.endWeek);
-      for(let weekIndex = start; weekIndex < end; weekIndex++){
-        const cell = lifeGrid.querySelector(`.week[data-week-index='${weekIndex}']`);
-        if(cell){
-          const inner = cell.querySelector(".week-inner");
-          const overlay = document.createElement("div");
-          overlay.className = "event-overlay";
-          overlay.style.backgroundColor = ev.color;
-          overlay.title = `${ev.title}\nFrom: ${new Date(ev.startDate).toLocaleDateString()} To: ${new Date(ev.endDate).toLocaleDateString()}`;
-          inner.appendChild(overlay);
+      const start = ev.startWeek;
+      const end = ev.endWeek;
+      for (let lifeWeek = start; lifeWeek < end; lifeWeek++) {
+        const gridIndex = lifeWeek + birthWeek;
+        if (gridIndex >= 0 && gridIndex < totalWeeks) {
+          const cell = lifeGrid.querySelector(`.week[data-week-index='${gridIndex}']`);
+          if(cell){
+            const inner = cell.querySelector(".week-inner");
+            const overlay = document.createElement("div");
+            overlay.className = "event-overlay";
+            overlay.style.backgroundColor = ev.color;
+            overlay.title = `${ev.title}\nFrom: ${new Date(ev.startDate).toLocaleDateString()} To: ${new Date(ev.endDate).toLocaleDateString()}`;
+            inner.appendChild(overlay);
+          }
         }
       }
     }
@@ -1035,53 +1073,56 @@
     }
 
     /********* Axis & Grid Functions *********/
-    function generateAxisLabels() {
+    function generateAxisLabels(birthYear = 0) {
       xAxis.innerHTML = "";
       yAxis.innerHTML = "";
-      let colStart = 1;
+      let colStart = 0;
       monthWeekCounts.forEach((weeksInMonth, index) => {
         const labelDiv = document.createElement("div");
         labelDiv.className = "month-label";
         labelDiv.textContent = monthNames[index];
-        labelDiv.style.gridColumn = `${colStart} / span ${weeksInMonth}`;
+        labelDiv.style.gridColumn = `${colStart + 1} / span ${weeksInMonth}`;
         colStart += weeksInMonth;
         xAxis.appendChild(labelDiv);
       });
-      for(let decade = 0; decade < 9; decade++){
+      for (let decade = 0; decade < 9; decade++) {
         const labelDiv = document.createElement("div");
         labelDiv.className = "decade-label";
-        labelDiv.textContent = `${decade * 10}–${decade * 10 + 9}`;
+        labelDiv.textContent = `${birthYear + decade * 10}–${birthYear + decade * 10 + 9}`;
         labelDiv.style.gridRow = `${decade * 10 + 1} / span 10`;
         yAxis.appendChild(labelDiv);
       }
     }
 
-    function generateGrid(fullWeeks, partialFraction) {
+    function generateGrid(fullWeeks, partialFraction, birthWeek = 0) {
       lifeGrid.innerHTML = "";
-      for(let weekIndex = 0; weekIndex < totalWeeks; weekIndex++){
-        const year = Math.floor(weekIndex / weeksPerYear);
-        const weekInYear = weekIndex % weeksPerYear;
+      for (let gridIndex = 0; gridIndex < totalWeeks; gridIndex++) {
+        const year = Math.floor(gridIndex / weeksPerYear);
+        const weekInYear = gridIndex % weeksPerYear;
         const weekDiv = document.createElement("div");
         weekDiv.classList.add("week");
-        weekDiv.dataset.weekIndex = weekIndex;
-        if((weekInYear + 1) % 4 === 0){
+        weekDiv.dataset.weekIndex = gridIndex;
+        if ((weekInYear + 1) % 4 === 0) {
           weekDiv.classList.add("thick-right");
         }
-        if((year + 1) % 10 === 0){
+        if ((year + 1) % 10 === 0) {
           weekDiv.classList.add("thick-bottom");
         }
         const innerDiv = document.createElement("div");
         innerDiv.classList.add("week-inner");
-        if(weekIndex < fullWeeks){
-          weekDiv.classList.add("lived");
-        } else if(weekIndex === fullWeeks && partialFraction > 0){
-          const percent = partialFraction * 100;
-          innerDiv.style.background = `linear-gradient(to right, #4cc9f0 ${percent}%, #f8f9fa ${percent}%)`;
+        const lifeWeek = gridIndex - birthWeek;
+        if (lifeWeek >= 0) {
+          if (lifeWeek < fullWeeks) {
+            weekDiv.classList.add("lived");
+          } else if (lifeWeek === fullWeeks && partialFraction > 0) {
+            const percent = partialFraction * 100;
+            innerDiv.style.background = `linear-gradient(to right, #4cc9f0 ${percent}%, #f8f9fa ${percent}%)`;
+          }
         }
         weekDiv.appendChild(innerDiv);
         lifeGrid.appendChild(weekDiv);
       }
-      if(!isPresetMode) {
+      if (!isPresetMode) {
         overlayEvents();
       }
     }
@@ -1160,23 +1201,26 @@
     function overlayEvents() {
       document.querySelectorAll(".event-overlay").forEach(overlay => overlay.remove());
       lifeEvents.forEach(ev => {
-        const start = Math.max(0, ev.startWeek);
-        const end = Math.min(totalWeeks, ev.endWeek);
-        for(let weekIndex = start; weekIndex < end; weekIndex++){
-          const cell = lifeGrid.querySelector(`.week[data-week-index='${weekIndex}']`);
-          if(cell){
-            const inner = cell.querySelector(".week-inner");
-            const overlay = document.createElement("div");
-            overlay.className = "event-overlay";
-            overlay.style.backgroundColor = ev.color;
-            overlay.title = `${ev.title}\nFrom: ${new Date(ev.startDate).toLocaleDateString()} To: ${new Date(ev.endDate).toLocaleDateString()}`;
-            overlay.addEventListener("click", function(e){
-              e.stopPropagation();
-              if(confirm(`Delete event "${ev.title}"?`)){
-                deleteEvent(ev._id || ev.id);
-              }
-            });
-            inner.appendChild(overlay);
+        const start = ev.startWeek;
+        const end = ev.endWeek;
+        for (let lifeWeek = start; lifeWeek < end; lifeWeek++) {
+          const gridIndex = lifeWeek + birthWeek;
+          if (gridIndex >= 0 && gridIndex < totalWeeks) {
+            const cell = lifeGrid.querySelector(`.week[data-week-index='${gridIndex}']`);
+            if (cell) {
+              const inner = cell.querySelector(".week-inner");
+              const overlay = document.createElement("div");
+              overlay.className = "event-overlay";
+              overlay.style.backgroundColor = ev.color;
+              overlay.title = `${ev.title}\nFrom: ${new Date(ev.startDate).toLocaleDateString()} To: ${new Date(ev.endDate).toLocaleDateString()}`;
+              overlay.addEventListener("click", function(e){
+                e.stopPropagation();
+                if(confirm(`Delete event "${ev.title}"?`)){
+                  deleteEvent(ev._id || ev.id);
+                }
+              });
+              inner.appendChild(overlay);
+            }
           }
         }
       });

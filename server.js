@@ -1,42 +1,49 @@
 require('dotenv').config();
 
+// Requires Node.js >=22.5.0 and must be run with --experimental-sqlite
+const { DatabaseSync } = require('node:sqlite');
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET;
-const MONGO_URI = process.env.MONGO_URI;
+const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret';
 
 app.use(cors());
 app.use(bodyParser.json());
 
-const client = new MongoClient(MONGO_URI, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
-let db;
-client.connect()
-  .then(() => {
-    db = client.db("lifeTracker");
-    console.log("Connected to MongoDB");
-  })
-  .catch(err => console.error(err));
+// Initialize SQLite DB using Node.js built-in module
+const db = new DatabaseSync('lifeTracker.db');
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    birthDate TEXT NOT NULL,
+    createdAt TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    owner INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    color TEXT NOT NULL,
+    startDate TEXT NOT NULL,
+    endDate TEXT NOT NULL,
+    startWeek INTEGER NOT NULL,
+    endWeek INTEGER NOT NULL,
+    createdAt TEXT NOT NULL,
+    FOREIGN KEY(owner) REFERENCES users(id)
+  );
+`);
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   if (!token) return res.status(401).json({ error: "Authentication required" });
-  
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ error: "Invalid or expired token" });
     req.user = user;
@@ -49,22 +56,14 @@ app.post('/api/register', async (req, res) => {
   if (!email || !password || !birthDate) {
     return res.status(400).json({ error: "All fields are required" });
   }
-  
   try {
-    const usersCollection = db.collection("users");
-    const existing = await usersCollection.findOne({ email });
+    const existing = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
     if (existing) return res.status(400).json({ error: "Email already registered" });
-    
     const hashedPassword = await bcrypt.hash(password, 10);
-    const userDoc = { 
-      email, 
-      password: hashedPassword, 
-      birthDate,
-      createdAt: new Date()
-    };
-    const result = await usersCollection.insertOne(userDoc);
-    
-    const token = jwt.sign({ id: result.insertedId.toString(), email }, JWT_SECRET, { expiresIn: '7d' });
+    const now = new Date().toISOString();
+    const result = db.prepare('INSERT INTO users (email, password, birthDate, createdAt) VALUES (?, ?, ?, ?)').run(email, hashedPassword, birthDate, now);
+    const userId = result.lastInsertRowid;
+    const token = jwt.sign({ id: userId, email }, JWT_SECRET, { expiresIn: '7d' });
     res.status(201).json({ token, birthDate });
   } catch (err) {
     console.error(err);
@@ -76,16 +75,12 @@ app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password)
     return res.status(400).json({ error: "Email and password required" });
-  
   try {
-    const usersCollection = db.collection("users");
-    const user = await usersCollection.findOne({ email });
+    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
     if (!user) return res.status(400).json({ error: "Invalid email or password" });
-    
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(400).json({ error: "Invalid email or password" });
-    
-    const token = jwt.sign({ id: user._id.toString(), email }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user.id, email }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, birthDate: user.birthDate });
   } catch (err) {
     console.error(err);
@@ -98,21 +93,22 @@ app.post('/api/event', authenticateToken, async (req, res) => {
   if (!title || !color || !startDate || !endDate || startWeek == null || endWeek == null) {
     return res.status(400).json({ error: "All event fields are required" });
   }
-  
   try {
-    const eventsCollection = db.collection("events");
-    const eventDoc = {
-      owner: req.user.id.toString(),
+    const now = new Date().toISOString();
+    const result = db.prepare(`INSERT INTO events (owner, title, color, startDate, endDate, startWeek, endWeek, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+      .run(req.user.id, title, color, startDate, endDate, startWeek, endWeek, now);
+    const event = {
+      id: result.lastInsertRowid,
+      owner: req.user.id,
       title,
       color,
       startDate,
       endDate,
       startWeek,
       endWeek,
-      createdAt: new Date()
+      createdAt: now
     };
-    const result = await eventsCollection.insertOne(eventDoc);
-    res.status(201).json({ event: { ...eventDoc, _id: result.insertedId } });
+    res.status(201).json({ event });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to save event" });
@@ -121,8 +117,7 @@ app.post('/api/event', authenticateToken, async (req, res) => {
 
 app.get('/api/events', authenticateToken, async (req, res) => {
   try {
-    const eventsCollection = db.collection("events");
-    const events = await eventsCollection.find({ owner: req.user.id.toString() }).toArray();
+    const events = db.prepare('SELECT * FROM events WHERE owner = ?').all(req.user.id);
     res.json({ events });
   } catch (err) {
     console.error(err);
@@ -133,13 +128,8 @@ app.get('/api/events', authenticateToken, async (req, res) => {
 app.delete('/api/event/:id', authenticateToken, async (req, res) => {
   const eventId = req.params.id;
   try {
-    const eventsCollection = db.collection("events");
-    const result = await eventsCollection.deleteOne({ 
-      _id: new ObjectId(eventId), 
-      owner: req.user.id.toString() 
-    });
-    
-    if (result.deletedCount === 0) {
+    const result = db.prepare('DELETE FROM events WHERE id = ? AND owner = ?').run(eventId, req.user.id);
+    if (result.changes === 0) {
       return res.status(404).json({ error: "Event not found" });
     }
     res.json({ success: true });

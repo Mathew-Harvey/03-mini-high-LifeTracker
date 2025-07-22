@@ -10,13 +10,13 @@
   "license": "ISC",
   "description": "Life tracker build with 03-mini-high",
   "dependencies": {
-    "bcrypt": "^5.1.0",
-    "body-parser": "^1.20.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
     "express": "^4.18.2",
+    "body-parser": "^1.20.2",
+    "bcrypt": "^5.1.0",
     "jsonwebtoken": "^9.0.0",
-    "mongodb": "^5.1.0"
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "better-sqlite3": "^8.4.0"
   }
   
 }
