@@ -240,6 +240,84 @@
       display: block; 
       padding-top: 100%; 
     }
+    /* --- Age Tooltip Styles --- */
+    .age-tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 10000;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      max-width: 280px;
+      white-space: nowrap;
+    }
+    .age-tooltip.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .age-tooltip .age-main {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #4cc9f0;
+    }
+    .age-tooltip .age-details {
+      font-size: 12px;
+      color: #ccc;
+      line-height: 1.4;
+    }
+    .age-tooltip .age-date {
+      color: #fff;
+      font-weight: 500;
+      display: none;
+    }
+    .age-tooltip .event-info {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .age-tooltip .event-title {
+      color: #4cc9f0;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .age-tooltip .event-dates {
+      font-size: 11px;
+      color: #aaa;
+    }
+    .age-tooltip .arrow {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border: 6px solid transparent;
+    }
+    .age-tooltip .arrow.top {
+      bottom: -6px;
+      border-top-color: rgba(0, 0, 0, 0.9);
+    }
+    .age-tooltip .arrow.bottom {
+      top: -6px;
+      border-bottom-color: rgba(0, 0, 0, 0.9);
+    }
+    .age-tooltip .arrow.left {
+      right: -6px;
+      border-left-color: rgba(0, 0, 0, 0.9);
+    }
+    .age-tooltip .arrow.right {
+      left: -6px;
+      border-right-color: rgba(0, 0, 0, 0.9);
+    }
+
+    /* --- Enhanced Week Cell Hover Effects --- */
     .week-inner {
       position: absolute;
       top: 0;
@@ -249,10 +327,22 @@
       border: 1px solid #eaeaea;
       background-color: #f8f9fa;
       border-radius: 3px;
-      transition: background 0.3s;
+      transition: background 0.3s, transform 0.1s ease, box-shadow 0.1s ease;
+      cursor: pointer;
+    }
+    .week-inner:hover {
+      transform: scale(1.05);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      z-index: 10;
     }
     .week.lived .week-inner { 
       background-color: #4cc9f0; 
+    }
+    .week.lived .week-inner:hover {
+      background-color: #3bb8d9 !important;
+    }
+    .week:not(.lived) .week-inner:hover {
+      background-color: #e9ecef !important;
     }
     .week.thick-right .week-inner { 
       border-right: 2px solid #ddd; 
@@ -674,6 +764,19 @@
     </div>
   </div>
 
+  <!-- Age Tooltip -->
+  <div id="ageTooltip" class="age-tooltip">
+    <div class="age-main"></div>
+    <div class="age-details">
+      <div class="age-date"></div>
+    </div>
+    <div class="event-info" style="display: none;">
+      <div class="event-title"></div>
+      <div class="event-dates"></div>
+    </div>
+    <div class="arrow"></div>
+  </div>
+
   <script>
     /********* Global Variables & Settings *********/
     const maxYears = 90;
@@ -761,6 +864,164 @@
       return presetColors[0];
     }
 
+    /********* Age Calculation and Tooltip Functions *********/
+    function calculateAgeFromGridIndex(gridIndex, birthWeekInYear, birthDate) {
+      // Convert grid index back to life week
+      const lifeWeek = gridIndex - birthWeekInYear;
+      
+      if (lifeWeek < 0) {
+        return {
+          age: null,
+          date: null,
+          message: "Before birth"
+        };
+      }
+      
+      // Calculate the date for this week
+      const weekDate = new Date(birthDate);
+      weekDate.setDate(weekDate.getDate() + (lifeWeek * 7));
+      
+      // Calculate age in years
+      const ageInMs = weekDate - birthDate;
+      const ageInWeeks = Math.floor(ageInMs / msPerWeek);
+      const ageInYears = Math.floor(ageInWeeks / 52);
+      
+      return {
+        age: {
+          years: ageInYears
+        },
+        date: weekDate,
+        lifeWeek: lifeWeek
+      };
+    }
+
+    function formatAge(age) {
+      if (!age) return "Before birth";
+      
+      const { years } = age;
+      if (years === 0) {
+        return "Less than 1 year";
+      }
+      return `${years} year${years !== 1 ? 's' : ''}`;
+    }
+
+    function findEventForWeek(lifeWeek) {
+      if (isPresetMode) {
+        // For preset mode, we need to check preset events
+        const selectedPreset = celebPresets.find(p => p.name === presetSelect.value);
+        if (selectedPreset) {
+          return selectedPreset.lifeEvents.find(ev => {
+            const presetDob = new Date(selectedPreset.dob);
+            const evStart = new Date(ev.startDate);
+            const evEnd = ev.endDate ? new Date(ev.endDate) : new Date();
+            const startWeek = Math.floor((evStart - presetDob) / msPerWeek);
+            const endWeek = Math.ceil((evEnd - presetDob) / msPerWeek);
+            return lifeWeek >= startWeek && lifeWeek < endWeek;
+          });
+        }
+      } else {
+        // For personal mode, check user events
+        return lifeEvents.find(ev => lifeWeek >= ev.startWeek && lifeWeek < ev.endWeek);
+      }
+      return null;
+    }
+
+    function showAgeTooltip(event, cell) {
+      const gridIndex = parseInt(cell.dataset.weekIndex);
+      const birthDate = isPresetMode ? 
+        new Date(celebPresets.find(p => p.name === presetSelect.value)?.dob) : 
+        new Date(localStorage.getItem("birthDate"));
+      
+      const ageInfo = calculateAgeFromGridIndex(gridIndex, birthWeekInYear, birthDate);
+      
+      if (!ageInfo.age) {
+        // Before birth
+        ageTooltipMain.textContent = "Before birth";
+        ageTooltipDate.style.display = "none";
+        ageTooltipEventInfo.style.display = "none";
+      } else {
+        // After birth
+        ageTooltipMain.textContent = formatAge(ageInfo.age);
+        ageTooltipDate.style.display = "none";
+        
+        // Check for events
+        const event = findEventForWeek(ageInfo.lifeWeek);
+        if (event) {
+          ageTooltipEventInfo.style.display = "block";
+          ageTooltipEventTitle.textContent = event.title;
+          const startDate = new Date(event.startDate).toLocaleDateString();
+          const endDate = event.endDate ? new Date(event.endDate).toLocaleDateString() : "Present";
+          ageTooltipEventDates.textContent = `${startDate} - ${endDate}`;
+        } else {
+          ageTooltipEventInfo.style.display = "none";
+        }
+      }
+      
+      // Position tooltip relative to mouse cursor
+      const tooltipRect = ageTooltip.getBoundingClientRect();
+      
+      // Get scroll position
+      const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+      
+      // Calculate position relative to mouse cursor, accounting for scroll
+      let left = event.clientX + scrollX - (tooltipRect.width / 2);
+      let top = event.clientY + scrollY - tooltipRect.height - 15;
+      
+      // Adjust if tooltip goes off screen
+      if (top < scrollY + 10) {
+        top = event.clientY + scrollY + 15;
+        ageTooltipArrow.className = "arrow top";
+      } else {
+        ageTooltipArrow.className = "arrow bottom";
+      }
+      
+      if (left < scrollX + 10) {
+        left = scrollX + 10;
+      } else if (left + tooltipRect.width > scrollX + window.innerWidth - 10) {
+        left = scrollX + window.innerWidth - tooltipRect.width - 10;
+      }
+      
+      ageTooltip.style.left = left + "px";
+      ageTooltip.style.top = top + "px";
+      ageTooltip.classList.add("show");
+    }
+
+    function updateTooltipPosition(event) {
+      if (ageTooltip.classList.contains("show")) {
+        const tooltipRect = ageTooltip.getBoundingClientRect();
+        
+        // Get scroll position
+        const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+        const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Calculate position relative to mouse cursor, accounting for scroll
+        let left = event.clientX + scrollX - (tooltipRect.width / 2);
+        let top = event.clientY + scrollY - tooltipRect.height - 15;
+        
+        // Adjust if tooltip goes off screen
+        if (top < scrollY + 10) {
+          top = event.clientY + scrollY + 15;
+          ageTooltipArrow.className = "arrow top";
+        } else {
+          ageTooltipArrow.className = "arrow bottom";
+        }
+        
+        if (left < scrollX + 10) {
+          left = scrollX + 10;
+        } else if (left + tooltipRect.width > scrollX + window.innerWidth - 10) {
+          left = scrollX + window.innerWidth - tooltipRect.width - 10;
+        }
+        
+        ageTooltip.style.left = left + "px";
+        ageTooltip.style.top = top + "px";
+      }
+    }
+
+    function hideAgeTooltip() {
+      ageTooltip.classList.remove("show");
+    }
+
     /********* Load Celebrity Presets from JSON *********/
     fetch('celebPresets.json')
       .then(response => response.json())
@@ -815,6 +1076,14 @@
     const galleryModal = document.getElementById("galleryModal");
     const closeGalleryButton = document.getElementById("closeGalleryButton");
     const galleryItems = document.getElementById("galleryItems");
+
+    const ageTooltip = document.getElementById("ageTooltip");
+    const ageTooltipMain = ageTooltip.querySelector(".age-main");
+    const ageTooltipDate = ageTooltip.querySelector(".age-date");
+    const ageTooltipEventInfo = ageTooltip.querySelector(".event-info");
+    const ageTooltipEventTitle = ageTooltip.querySelector(".event-title");
+    const ageTooltipEventDates = ageTooltip.querySelector(".event-dates");
+    const ageTooltipArrow = ageTooltip.querySelector(".arrow");
 
     const monthWeekCounts = [4,4,5,4,4,5,4,4,5,4,4,5];
     const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -1076,6 +1345,20 @@
             overlay.className = "event-overlay";
             overlay.style.backgroundColor = ev.color;
             overlay.title = `${ev.title}\nFrom: ${new Date(ev.startDate).toLocaleDateString()} To: ${new Date(ev.endDate).toLocaleDateString()}`;
+            
+            // Add hover events to preset event overlay for tooltip
+            overlay.addEventListener("mouseenter", function(e) {
+              showAgeTooltip(e, cell);
+            });
+            
+            overlay.addEventListener("mousemove", function(e) {
+              updateTooltipPosition(e);
+            });
+            
+            overlay.addEventListener("mouseleave", function(e) {
+              hideAgeTooltip();
+            });
+            
             inner.appendChild(overlay);
           }
         }
@@ -1159,6 +1442,20 @@
         }
         const innerDiv = document.createElement("div");
         innerDiv.classList.add("week-inner");
+        
+        // Add hover event listeners for age tooltip
+        innerDiv.addEventListener("mouseenter", function(e) {
+          showAgeTooltip(e, weekDiv);
+        });
+        
+        innerDiv.addEventListener("mousemove", function(e) {
+          updateTooltipPosition(e);
+        });
+        
+        innerDiv.addEventListener("mouseleave", function(e) {
+          hideAgeTooltip();
+        });
+        
         weekDiv.appendChild(innerDiv);
         lifeGrid.appendChild(weekDiv);
       }
@@ -1325,6 +1622,20 @@
                   deleteEvent(ev._id || ev.id);
                 }
               });
+              
+              // Add hover events to event overlay for tooltip
+              overlay.addEventListener("mouseenter", function(e) {
+                showAgeTooltip(e, cell);
+              });
+              
+              overlay.addEventListener("mousemove", function(e) {
+                updateTooltipPosition(e);
+              });
+              
+              overlay.addEventListener("mouseleave", function(e) {
+                hideAgeTooltip();
+              });
+              
               inner.appendChild(overlay);
             }
           }
