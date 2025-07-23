@@ -189,7 +189,20 @@
     #xAxis {
       grid-area: xAxis;
       display: grid;
-      grid-template-columns: repeat(52, 1fr);
+      /* Match the lifeGrid column structure with month gaps */
+      grid-template-columns: 
+        repeat(4, 1fr) 6px  /* Jan: 4 weeks + gap */
+        repeat(4, 1fr) 6px  /* Feb: 4 weeks + gap */
+        repeat(5, 1fr) 6px  /* Mar: 5 weeks + gap */
+        repeat(4, 1fr) 6px  /* Apr: 4 weeks + gap */
+        repeat(4, 1fr) 6px  /* May: 4 weeks + gap */
+        repeat(5, 1fr) 6px  /* Jun: 5 weeks + gap */
+        repeat(4, 1fr) 6px  /* Jul: 4 weeks + gap */
+        repeat(4, 1fr) 6px  /* Aug: 4 weeks + gap */
+        repeat(5, 1fr) 6px  /* Sep: 5 weeks + gap */
+        repeat(4, 1fr) 6px  /* Oct: 4 weeks + gap */
+        repeat(4, 1fr) 6px  /* Nov: 4 weeks + gap */
+        repeat(5, 1fr);     /* Dec: 5 weeks (no gap at end) */
       border-bottom: 1px solid #eaeaea;
     }
     #xAxis .month-label {
@@ -203,7 +216,17 @@
     #yAxis {
       grid-area: yAxis;
       display: grid;
-      grid-template-rows: repeat(90, 1fr);
+      /* Match the lifeGrid row structure with decade gaps */
+      grid-template-rows: 
+        repeat(10, 1fr) 10px  /* Decade 1: 10 years + gap */
+        repeat(10, 1fr) 10px  /* Decade 2: 10 years + gap */
+        repeat(10, 1fr) 10px  /* Decade 3: 10 years + gap */
+        repeat(10, 1fr) 10px  /* Decade 4: 10 years + gap */
+        repeat(10, 1fr) 10px  /* Decade 5: 10 years + gap */
+        repeat(10, 1fr) 10px  /* Decade 6: 10 years + gap */
+        repeat(10, 1fr) 10px  /* Decade 7: 10 years + gap */
+        repeat(10, 1fr) 10px  /* Decade 8: 10 years + gap */
+        repeat(10, 1fr);      /* Decade 9: 10 years (no gap at end) */
       border-right: 1px solid #eaeaea;
     }
     #yAxis .decade-label {
@@ -225,7 +248,30 @@
     }
     #lifeGrid {
       display: grid;
-      grid-template-columns: repeat(52, 1fr);
+      /* Create enhanced grid with visual gaps using CSS custom properties */
+      grid-template-columns: 
+        repeat(4, 1fr) 6px  /* Jan: 4 weeks + gap */
+        repeat(4, 1fr) 6px  /* Feb: 4 weeks + gap */
+        repeat(5, 1fr) 6px  /* Mar: 5 weeks + gap */
+        repeat(4, 1fr) 6px  /* Apr: 4 weeks + gap */
+        repeat(4, 1fr) 6px  /* May: 4 weeks + gap */
+        repeat(5, 1fr) 6px  /* Jun: 5 weeks + gap */
+        repeat(4, 1fr) 6px  /* Jul: 4 weeks + gap */
+        repeat(4, 1fr) 6px  /* Aug: 4 weeks + gap */
+        repeat(5, 1fr) 6px  /* Sep: 5 weeks + gap */
+        repeat(4, 1fr) 6px  /* Oct: 4 weeks + gap */
+        repeat(4, 1fr) 6px  /* Nov: 4 weeks + gap */
+        repeat(5, 1fr);     /* Dec: 5 weeks (no gap at end) */
+      grid-template-rows: 
+        repeat(10, 1fr) 10px  /* Decade 1: 10 years + gap */
+        repeat(10, 1fr) 10px  /* Decade 2: 10 years + gap */
+        repeat(10, 1fr) 10px  /* Decade 3: 10 years + gap */
+        repeat(10, 1fr) 10px  /* Decade 4: 10 years + gap */
+        repeat(10, 1fr) 10px  /* Decade 5: 10 years + gap */
+        repeat(10, 1fr) 10px  /* Decade 6: 10 years + gap */
+        repeat(10, 1fr) 10px  /* Decade 7: 10 years + gap */
+        repeat(10, 1fr) 10px  /* Decade 8: 10 years + gap */
+        repeat(10, 1fr);      /* Decade 9: 10 years (no gap at end) */
       gap: 1px;
       max-width: 100%;
       position: relative;
@@ -344,12 +390,9 @@
     .week:not(.lived) .week-inner:hover {
       background-color: #e9ecef !important;
     }
-    .week.thick-right .week-inner { 
-      border-right: 2px solid #ddd; 
-    }
-    .week.thick-bottom .week-inner { 
-      border-bottom: 2px solid #ddd; 
-    }
+    /* Removed thick borders - now using CSS grid gaps for spacing */
+    /* Removed old boundary styling - now using CSS Grid gaps for clean separation */
+    /* Removed old gap styling - now using CSS Grid gaps */
     .event-overlay {
       position: absolute;
       top: 0;
@@ -360,6 +403,7 @@
       cursor: pointer;
       transition: opacity 0.2s;
       border-radius: 3px;
+      z-index: 2; /* Ensure overlays appear above gap borders */
     }
     .event-overlay:hover { 
       opacity: 1; 
@@ -376,6 +420,7 @@
       font-size: 24px;
       color: #900;
       pointer-events: none;
+      z-index: 3; /* Ensure skull appears above event overlays and gap borders */
     }
     
     /* --- App Buttons --- */
@@ -1424,22 +1469,101 @@
       }
     }
 
+    /********* Helper Functions for New Grid Structure *********/
+    function getGridColumnPosition(weekIndex) {
+      // Calculate position in the new grid structure with gaps
+      // Each month has its weeks plus a gap, except December
+      const monthWeeks = [4,4,5,4,4,5,4,4,5,4,4,5]; // weeks per month
+      let position = 1;
+      let remainingWeeks = weekIndex;
+      
+      for (let month = 0; month < 12; month++) {
+        if (remainingWeeks < monthWeeks[month]) {
+          return position + remainingWeeks;
+        }
+        position += monthWeeks[month];
+        remainingWeeks -= monthWeeks[month];
+        
+        // Add gap position (except after December)
+        if (month < 11) {
+          position += 1; // gap column
+        }
+      }
+      
+      return position;
+    }
+    
+    function getGridRowPosition(yearIndex) {
+      // Calculate position in the new grid structure with decade gaps
+      const decade = Math.floor(yearIndex / 10);
+      const yearInDecade = yearIndex % 10;
+      
+      // Each decade has 10 years plus a gap, except the last decade
+      return decade * 11 + yearInDecade + 1; // +1 for 1-based grid positioning
+    }
+    
+    function getMonthLabelPosition(monthIndex) {
+      // Calculate correct position for month labels in new grid
+      const monthWeeks = [4,4,5,4,4,5,4,4,5,4,4,5];
+      let position = 1;
+      
+      for (let i = 0; i < monthIndex; i++) {
+        position += monthWeeks[i] + 1; // +1 for gap
+      }
+      
+      return position;
+    }
+    
+    function getDecadeLabelPosition(decadeIndex) {
+      // Calculate correct position for decade labels in new grid
+      return decadeIndex * 11 + 1; // 10 years + 1 gap per decade, +1 for 1-based positioning
+    }
+
+    /********* Updated Axis & Grid Functions *********/
+    function generateAxisLabels(birthYear = 0) {
+      xAxis.innerHTML = "";
+      yAxis.innerHTML = "";
+      
+      // Create month labels with correct positioning for new grid structure
+      monthWeekCounts.forEach((weeksInMonth, index) => {
+        const labelDiv = document.createElement("div");
+        labelDiv.className = "month-label";
+        labelDiv.textContent = monthNames[index];
+        const startPos = getMonthLabelPosition(index);
+        labelDiv.style.gridColumn = `${startPos} / span ${weeksInMonth}`;
+        xAxis.appendChild(labelDiv);
+      });
+      
+      // Create decade labels with correct positioning for new grid structure
+      for (let decade = 0; decade < 9; decade++) {
+        const labelDiv = document.createElement("div");
+        labelDiv.className = "decade-label";
+        labelDiv.textContent = `${birthYear + decade * 10}–${birthYear + decade * 10 + 9}`;
+        const startPos = getDecadeLabelPosition(decade);
+        labelDiv.style.gridRow = `${startPos} / span 10`;
+        yAxis.appendChild(labelDiv);
+      }
+    }
+
     function generateGrid(fullWeeks, partialFraction, adjustedBirthWeek = 0, realBirthWeek = null) {
       lifeGrid.innerHTML = "";
       
-      // Create all grid cells first
+      // Create all grid cells first with correct positioning for gaps
       for (let gridIndex = 0; gridIndex < totalWeeks; gridIndex++) {
         const year = Math.floor(gridIndex / weeksPerYear);
         const weekInYear = gridIndex % weeksPerYear;
         const weekDiv = document.createElement("div");
         weekDiv.classList.add("week");
         weekDiv.dataset.weekIndex = gridIndex;
-        if ((weekInYear + 1) % 4 === 0) {
-          weekDiv.classList.add("thick-right");
-        }
-        if ((year + 1) % 10 === 0) {
-          weekDiv.classList.add("thick-bottom");
-        }
+        
+        // Calculate correct grid position in new structure with gaps
+        const gridColumn = getGridColumnPosition(weekInYear);
+        const gridRow = getGridRowPosition(year);
+        weekDiv.style.gridColumn = gridColumn;
+        weekDiv.style.gridRow = gridRow;
+        
+
+        
         const innerDiv = document.createElement("div");
         innerDiv.classList.add("week-inner");
         
