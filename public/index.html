@@ -691,6 +691,40 @@
     let isPresetMode = false;
     // Global variable for celebrity presets
     let celebPresets = [];
+    
+    // Global variable to store birth week for event mapping
+    let birthWeekInYear = 0;
+
+    /********* Helper function to convert life weeks to grid indices *********/
+    function lifeWeekToGridIndex(lifeWeek, birthWeekInYear) {
+      return birthWeekInYear + lifeWeek; // Simple addition
+    }
+
+    /********* Helper function to calculate week position based on month structure *********/
+    function getWeekPositionFromDate(date) {
+      // Calculate the actual week of the year (0-51) for standard calendar
+      const startOfYear = new Date(date.getFullYear(), 0, 1);
+      const dayOfYear = Math.floor((date - startOfYear) / (1000 * 60 * 60 * 24)) + 1;
+      
+      // Find which day of the week January 1st falls on (0 = Sunday, 1 = Monday, etc.)
+      const startDayOfWeek = startOfYear.getDay();
+      
+      // Calculate week number (0-51)
+      // We need to adjust for the fact that the first week might be partial
+      const weekNumber = Math.floor((dayOfYear - 1 + startDayOfWeek) / 7);
+      
+      // Cap at 51 since we have 52 weeks (0-51)
+      const result = Math.min(weekNumber, 51);
+      
+      // DEBUG: Log calculation details
+      console.log(`Week calculation for ${date.toDateString()}:`);
+      console.log(`  Day of year: ${dayOfYear}`);
+      console.log(`  Start day of week (Jan 1): ${startDayOfWeek}`);
+      console.log(`  Calculated week: ${weekNumber}`);
+      console.log(`  Final result: ${result}`);
+      
+      return result;
+    }
 
     // Define a set of contrasting colors for preset events.
     const presetColors = ["#4361ee", "#3a0ca3", "#7209b7", "#f72585", "#4cc9f0", "#4895ef", "#560bad", "#b5179e", "#f15bb5", "#fee440"];
@@ -923,25 +957,44 @@
     /********* Initialize "My Life Chart" *********/
     async function initializeMainApp() {
       const now = new Date();
-      let weeksLived = (now - new Date(localStorage.getItem("birthDate"))) / msPerWeek;
-      if(weeksLived > totalWeeks) weeksLived = totalWeeks;
-      const fullWeeks = Math.floor(weeksLived);
-      const partialWeekFraction = weeksLived - fullWeeks;
-      let birthDateObj = new Date(localStorage.getItem("birthDate"));
-      let birthYear = birthDateObj.getFullYear();
-      let startOfYear = new Date(birthYear, 0, 1);
-      let timeDiff = birthDateObj - startOfYear;
-      let dayOfYear = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1;
-      let birthWeek = Math.floor((dayOfYear - 1) / 7);
-      // Adjust birthWeek to align current position
-      const currentStartOfYear = new Date(now.getFullYear(), 0, 1);
-      const timeDiffCurrent = now - currentStartOfYear;
-      const currentDayOfYear = Math.floor(timeDiffCurrent / (1000 * 60 * 60 * 24)) + 1;
-      const currentWeekOfYear = Math.floor((currentDayOfYear - 1) / 7);
-      const adjustedBirthWeek = (currentWeekOfYear - (fullWeeks % 52) + 52) % 52;
-      birthWeek = adjustedBirthWeek;
+      const birthDateObj = new Date(localStorage.getItem("birthDate"));
+      
+      // Calculate actual weeks lived (the accurate measurement)
+      let exactWeeksLived = (now - birthDateObj) / msPerWeek;
+      if(exactWeeksLived > totalWeeks) exactWeeksLived = totalWeeks;
+      const fullWeeks = Math.floor(exactWeeksLived);
+      const partialWeekFraction = exactWeeksLived - fullWeeks;
+      
+      // Get the correct birth week for display
+      const originalBirthWeek = getWeekPositionFromDate(birthDateObj);
+      const currentWeekInYear = getWeekPositionFromDate(now);
+      
+      // Calculate how to align current date with correct calendar week
+      const currentLifeYear = Math.floor(fullWeeks / 52);
+      const weekInCurrentLifeYear = fullWeeks % 52;
+      const adjustedBirthWeek = (currentWeekInYear - weekInCurrentLifeYear + 52) % 52;
+      
+      birthWeekInYear = originalBirthWeek; // Store the real birth week for cleanup
+      
+      // DEBUG: Log values to understand the calculation
+      console.log("=== DEBUGGING LIFE GRID (WORKAROUND) ===");
+      console.log("Current date:", now.toDateString());
+      console.log("Birth date:", birthDateObj.toDateString());
+      console.log("Exact weeks lived:", exactWeeksLived);
+      console.log("Full weeks lived:", fullWeeks);
+      console.log("Real birth week:", originalBirthWeek);
+      console.log("Adjusted birth week for alignment:", adjustedBirthWeek);
+      console.log("Current calendar week:", currentWeekInYear);
+      
+      const finalPosition = adjustedBirthWeek + fullWeeks;
+      const finalYear = Math.floor(finalPosition / 52);
+      const finalWeek = finalPosition % 52;
+      console.log(`Final position: Year ${finalYear}, Week ${finalWeek}`);
+      console.log("=========================");
+      
+      const birthYear = birthDateObj.getFullYear();
       generateAxisLabels(birthYear);
-      generateGrid(fullWeeks, partialWeekFraction, birthWeek);
+      generateGrid(fullWeeks, partialWeekFraction, adjustedBirthWeek, originalBirthWeek);
       await loadUserEvents();
       updateLegend();
     }
@@ -949,26 +1002,20 @@
     /********* Render Preset Chart *********/
     function renderPresetChart(preset) {
       const currentDate = preset.deathDate ? new Date(preset.deathDate) : new Date();
-      let weeksLived = (currentDate - new Date(preset.dob)) / msPerWeek;
+      const birthDateObj = new Date(preset.dob);
+      
+      // Calculate total weeks lived from birth to current/death date
+      let weeksLived = (currentDate - birthDateObj) / msPerWeek;
       if(weeksLived > totalWeeks) weeksLived = totalWeeks;
       const fullWeeks = Math.floor(weeksLived);
       const partialWeekFraction = weeksLived - fullWeeks;
-      let birthDateObj = new Date(preset.dob);
-      let birthYear = birthDateObj.getFullYear();
-      let startOfYear = new Date(birthYear, 0, 1);
-      let timeDiff = birthDateObj - startOfYear;
-      let dayOfYear = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1;
-      let birthWeek = Math.floor((dayOfYear - 1) / 7);
-      // Adjust birthWeek to align target position
-      const targetDate = preset.deathDate ? new Date(preset.deathDate) : new Date();
-      const targetStartOfYear = new Date(targetDate.getFullYear(), 0, 1);
-      const timeDiffTarget = targetDate - targetStartOfYear;
-      const targetDayOfYear = Math.floor(timeDiffTarget / (1000 * 60 * 60 * 24)) + 1;
-      const targetWeekOfYear = Math.floor((targetDayOfYear - 1) / 7);
-      const adjustedBirthWeek = (targetWeekOfYear - (fullWeeks % 52) + 52) % 52;
-      birthWeek = adjustedBirthWeek;
+      
+      // Calculate which week of the year the person was born using the grid's month structure
+      const birthYear = birthDateObj.getFullYear();
+      birthWeekInYear = getWeekPositionFromDate(birthDateObj);
+      
       generateAxisLabels(birthYear);
-      generateGrid(fullWeeks, partialWeekFraction, birthWeek);
+      generateGrid(fullWeeks, partialWeekFraction, birthWeekInYear);
       
       const sortedEvents = preset.lifeEvents.slice().sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
       let prevEventColor = null;
@@ -1008,9 +1055,8 @@
       if (preset.deathDate) {
         const deathDateObj = new Date(preset.deathDate);
         const deathLifeWeek = Math.floor((deathDateObj - birthDateObj) / msPerWeek);
-        const deathGridIndex = birthWeek + deathLifeWeek;
-        if (deathGridIndex >= 0 && deathGridIndex < totalWeeks) {
-          overlaySkull(deathGridIndex);
+        if (deathLifeWeek >= 0 && deathLifeWeek < totalWeeks) {
+          overlaySkull(deathLifeWeek);
         }
       }
       updatePresetLegend(sortedEvents);
@@ -1021,7 +1067,7 @@
       const start = ev.startWeek;
       const end = ev.endWeek;
       for (let lifeWeek = start; lifeWeek < end; lifeWeek++) {
-        const gridIndex = lifeWeek + birthWeek;
+        const gridIndex = lifeWeekToGridIndex(lifeWeek, birthWeekInYear);
         if (gridIndex >= 0 && gridIndex < totalWeeks) {
           const cell = lifeGrid.querySelector(`.week[data-week-index='${gridIndex}']`);
           if(cell){
@@ -1036,8 +1082,9 @@
       }
     }
 
-    function overlaySkull(weekIndex) {
-      const cell = lifeGrid.querySelector(`.week[data-week-index='${weekIndex}']`);
+    function overlaySkull(lifeWeekIndex) {
+      const gridIndex = lifeWeekToGridIndex(lifeWeekIndex, birthWeekInYear);
+      const cell = lifeGrid.querySelector(`.week[data-week-index='${gridIndex}']`);
       if(cell){
         const inner = cell.querySelector(".week-inner");
         const skullDiv = document.createElement("div");
@@ -1094,8 +1141,10 @@
       }
     }
 
-    function generateGrid(fullWeeks, partialFraction, birthWeek = 0) {
+    function generateGrid(fullWeeks, partialFraction, adjustedBirthWeek = 0, realBirthWeek = null) {
       lifeGrid.innerHTML = "";
+      
+      // Create all grid cells first
       for (let gridIndex = 0; gridIndex < totalWeeks; gridIndex++) {
         const year = Math.floor(gridIndex / weeksPerYear);
         const weekInYear = gridIndex % weeksPerYear;
@@ -1110,18 +1159,75 @@
         }
         const innerDiv = document.createElement("div");
         innerDiv.classList.add("week-inner");
-        const lifeWeek = gridIndex - birthWeek;
-        if (lifeWeek >= 0) {
-          if (lifeWeek < fullWeeks) {
-            weekDiv.classList.add("lived");
-          } else if (lifeWeek === fullWeeks && partialFraction > 0) {
-            const percent = partialFraction * 100;
-            innerDiv.style.background = `linear-gradient(to right, #4cc9f0 ${percent}%, #f8f9fa ${percent}%)`;
-          }
-        }
         weekDiv.appendChild(innerDiv);
         lifeGrid.appendChild(weekDiv);
       }
+      
+      // Now shade the cells that represent weeks lived
+      // Start from the adjusted birth week position and shade chronologically
+      let currentGridIndex = adjustedBirthWeek; // Start at adjusted birth week in first year
+      
+      console.log("=== GRID SHADING DEBUG (WITH CLEANUP) ===");
+      console.log("Starting to shade from adjusted birth week:", adjustedBirthWeek);
+      console.log("Real birth week:", realBirthWeek);
+      console.log("Will shade", fullWeeks, "complete weeks");
+      
+      // Shade complete weeks lived
+      for (let lifeWeek = 0; lifeWeek < fullWeeks; lifeWeek++) {
+        if (currentGridIndex < totalWeeks) {
+          const weekCell = lifeGrid.querySelector(`.week[data-week-index='${currentGridIndex}']`);
+          if (weekCell) {
+            weekCell.classList.add("lived");
+          }
+        }
+        currentGridIndex++;
+      }
+      
+      // Handle partial week
+      if (partialFraction > 0 && currentGridIndex < totalWeeks) {
+        const weekCell = lifeGrid.querySelector(`.week[data-week-index='${currentGridIndex}']`);
+        if (weekCell) {
+          const innerDiv = weekCell.querySelector(".week-inner");
+          const percent = partialFraction * 100;
+          innerDiv.style.background = `linear-gradient(to right, #4cc9f0 ${percent}%, #f8f9fa ${percent}%)`;
+        }
+      }
+      
+      // CLEANUP: Remove shading from cells that appear before the real birth week
+      if (realBirthWeek !== null && adjustedBirthWeek !== realBirthWeek) {
+        console.log("Cleaning up shading before real birth week...");
+        
+        // Calculate how many cells to clean up in the first year
+        if (adjustedBirthWeek < realBirthWeek) {
+          // Clean up cells from adjustedBirthWeek to realBirthWeek-1
+          for (let weekIndex = adjustedBirthWeek; weekIndex < realBirthWeek; weekIndex++) {
+            const weekCell = lifeGrid.querySelector(`.week[data-week-index='${weekIndex}']`);
+            if (weekCell) {
+              weekCell.classList.remove("lived");
+              const innerDiv = weekCell.querySelector(".week-inner");
+              innerDiv.style.background = ""; // Remove any gradient
+              console.log(`Removed shading from week ${weekIndex} (before birth)`);
+            }
+          }
+        } else {
+          // Clean up cells from 0 to adjustedBirthWeek if we wrapped around
+          const weeksToClean = adjustedBirthWeek + fullWeeks - realBirthWeek - fullWeeks;
+          for (let i = 0; i < weeksToClean; i++) {
+            const weekIndex = i;
+            const weekCell = lifeGrid.querySelector(`.week[data-week-index='${weekIndex}']`);
+            if (weekCell) {
+              weekCell.classList.remove("lived");
+              const innerDiv = weekCell.querySelector(".week-inner");
+              innerDiv.style.background = ""; // Remove any gradient
+              console.log(`Removed shading from week ${weekIndex} (before birth)`);
+            }
+          }
+        }
+      }
+      
+      console.log("Final current position grid index:", currentGridIndex);
+      console.log("=========================");
+      
       if (!isPresetMode) {
         overlayEvents();
       }
@@ -1204,7 +1310,7 @@
         const start = ev.startWeek;
         const end = ev.endWeek;
         for (let lifeWeek = start; lifeWeek < end; lifeWeek++) {
-          const gridIndex = lifeWeek + birthWeek;
+          const gridIndex = lifeWeekToGridIndex(lifeWeek, birthWeekInYear);
           if (gridIndex >= 0 && gridIndex < totalWeeks) {
             const cell = lifeGrid.querySelector(`.week[data-week-index='${gridIndex}']`);
             if (cell) {
