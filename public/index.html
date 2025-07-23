@@ -430,7 +430,7 @@
       gap: 1rem;
       margin-top: 1.5rem;
     }
-    #printButton, #galleryButton {
+    #printButton, #galleryButton, #toggleAnnotationsButton {
       padding: 10px 16px;
       font-size: 14px;
       display: flex;
@@ -442,6 +442,65 @@
     }
     #galleryButton::before {
       content: "🖼️";
+    }
+    #toggleAnnotationsButton::before {
+      content: "🏷️";
+    }
+    
+    /* --- Live Event Annotations --- */
+    .live-event-annotation {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.98);
+      border: 2px solid #4361ee;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      max-width: 140px;
+      text-align: center;
+      line-height: 1.2;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    .live-event-annotation.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .live-event-annotation::before {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      border: 6px solid transparent;
+    }
+    .live-event-annotation.top::before {
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-top-color: #4361ee;
+    }
+    .live-event-annotation.bottom::before {
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-bottom-color: #4361ee;
+    }
+    .live-event-annotation.left::before {
+      right: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-left-color: #4361ee;
+    }
+    .live-event-annotation.right::before {
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-right-color: #4361ee;
     }
     
     /* --- Draggable Event Form --- */
@@ -676,6 +735,11 @@
       border-radius: 12px;
     }
     
+    /* Hide UI elements during print generation */
+    .hide-for-print {
+      display: none !important;
+    }
+    
     /* --- Responsive Adjustments --- */
     @media (max-width: 768px) {
       .grid-controls {
@@ -729,7 +793,7 @@
     
     <!-- Main Life Tracker UI -->
     <div id="gridContainer">
-      <h2>Your Life in Weeks</h2>
+      <h2 id="chartTitle">Your Life in Weeks</h2>
       
       <!-- Grid Controls -->
       <div class="grid-controls">
@@ -758,6 +822,7 @@
       <div class="button-group">
         <button id="printButton">Save as Image</button>
         <button id="galleryButton">View Gallery</button>
+        <button id="toggleAnnotationsButton">Show Event Labels</button>
       </div>
     </div>
   </div>
@@ -1090,6 +1155,7 @@
     const toggleAuthMode = document.getElementById("toggleAuthMode");
 
     const gridContainer = document.getElementById("gridContainer");
+    const chartTitle = document.getElementById("chartTitle");
     const logoutButton = document.getElementById("logoutButton");
     const presetSelect = document.getElementById("presetSelect");
     const loadPresetButton = document.getElementById("loadPresetButton");
@@ -1116,6 +1182,7 @@
 
     const printButton = document.getElementById("printButton");
     const galleryButton = document.getElementById("galleryButton");
+    const toggleAnnotationsButton = document.getElementById("toggleAnnotationsButton");
     const printArea = document.getElementById("printArea");
 
     const galleryModal = document.getElementById("galleryModal");
@@ -1201,6 +1268,13 @@
         gridContainer.style.display = "block";
         eventForm.style.display = "block";
         isPresetMode = false;
+        
+        // Set chart title with user's name
+        const firstName = localStorage.getItem("firstName");
+        if (firstName) {
+          chartTitle.textContent = `${firstName}'s Life in Weeks`;
+        }
+        
         initializeMainApp();
       } catch (err) {
         console.error(err);
@@ -1219,6 +1293,8 @@
       gridContainer.style.display = "none";
       eventForm.style.display = "none";
       introSection.style.display = "block";
+      // Reset chart title
+      chartTitle.textContent = "Your Life in Weeks";
     });
 
     /********* On Page Load, Check for Existing Token *********/
@@ -1229,6 +1305,13 @@
         authContainer.style.display = "none";
         gridContainer.style.display = "block";
         eventForm.style.display = "block";
+        
+        // Set chart title with user's name
+        const firstName = localStorage.getItem("firstName");
+        if (firstName) {
+          chartTitle.textContent = `${firstName}'s Life in Weeks`;
+        }
+        
         initializeMainApp();
       } else {
         introSection.style.display = "block";
@@ -1252,12 +1335,19 @@
       const selected = presetSelect.value;
       if(selected === "my") {
         isPresetMode = false;
+        // Set chart title back to user's name
+        const firstName = localStorage.getItem("firstName");
+        if (firstName) {
+          chartTitle.textContent = `${firstName}'s Life in Weeks`;
+        }
         initializeMainApp();
       } else {
         const preset = celebPresets.find(c => c.name === selected);
         if(preset) {
           isPresetMode = true;
           clearPersonalEvents();
+          // Set chart title with celebrity's name
+          chartTitle.textContent = `${preset.name}'s Life in Weeks`;
           renderPresetChart(preset);
         }
       }
@@ -1874,9 +1964,30 @@
     printButton.addEventListener("click", printLifeGrid);
     galleryButton.addEventListener("click", openGallery);
     closeGalleryButton.addEventListener("click", closeGallery);
+    
+    // Toggle annotations functionality
+    let annotationsVisible = false;
+    toggleAnnotationsButton.addEventListener("click", () => {
+      annotationsVisible = !annotationsVisible;
+      if (annotationsVisible) {
+        toggleAnnotationsButton.textContent = "Hide Event Labels";
+        showLiveAnnotations();
+      } else {
+        toggleAnnotationsButton.textContent = "Show Event Labels";
+        hideLiveAnnotations();
+      }
+    });
 
     function printLifeGrid() {
       printArea.innerHTML = "";
+      
+      // Hide only UI elements that might interfere with the image (not event annotations)
+      const uiElements = document.querySelectorAll('#showEventFormButton, #eventForm, #legend, #toggleAnnotationsButton, .button-group');
+      const originalDisplays = [];
+      uiElements.forEach(el => {
+        originalDisplays.push(el.style.display);
+        el.style.display = 'none';
+      });
       
       const printPage = document.createElement("div");
       printPage.id = "printPage";
@@ -1898,49 +2009,137 @@
           background: #fff !important;
           border: none !important;
         }
+        .event-annotation {
+          position: absolute;
+          background: rgba(255, 255, 255, 0.95);
+          border: 2px solid #4361ee;
+          border-radius: 8px;
+          padding: 8px 12px;
+          font-size: 12px;
+          font-weight: 600;
+          color: #333;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          z-index: 100;
+          max-width: 120px;
+          text-align: center;
+          line-height: 1.2;
+        }
+        .event-annotation::before {
+          content: '';
+          position: absolute;
+          width: 0;
+          height: 0;
+          border: 6px solid transparent;
+        }
+        .event-annotation.top::before {
+          bottom: -8px;
+          left: 50%;
+          transform: translateX(-50%);
+          border-top-color: #4361ee;
+        }
+        .event-annotation.bottom::before {
+          top: -8px;
+          left: 50%;
+          transform: translateX(-50%);
+          border-bottom-color: #4361ee;
+        }
+        .event-annotation.left::before {
+          right: -8px;
+          top: 50%;
+          transform: translateY(-50%);
+          border-left-color: #4361ee;
+        }
+        .event-annotation.right::before {
+          left: -8px;
+          top: 50%;
+          transform: translateY(-50%);
+          border-right-color: #4361ee;
+        }
       `;
       printPage.appendChild(printStyle);
       
-      const firstName = localStorage.getItem("firstName") || "User";
+      // Get the current chart title
+      const currentTitle = chartTitle.textContent;
       const headerDiv = document.createElement("div");
       headerDiv.style.textAlign = "center";
-      headerDiv.style.marginBottom = "10px";
-      headerDiv.innerHTML = `<h2>Name: ${firstName}</h2>`;
+      headerDiv.style.marginBottom = "20px";
+      headerDiv.style.fontSize = "24px";
+      headerDiv.style.fontWeight = "600";
+      headerDiv.style.color = "#333";
+      headerDiv.innerHTML = `<h1>${currentTitle}</h1>`;
       printPage.appendChild(headerDiv);
       
       const originalGrid = document.getElementById("gridArea");
       const gridClone = originalGrid.cloneNode(true);
       gridClone.style.width = originalGrid.offsetWidth + "px";
       gridClone.style.height = originalGrid.offsetHeight + "px";
+      gridClone.style.position = "relative";
+      
+      // Add event annotations to the cloned grid
+      if (isPresetMode) {
+        const selectedPreset = celebPresets.find(p => p.name === presetSelect.value);
+        if (selectedPreset && selectedPreset.lifeEvents) {
+          console.log(`Adding ${selectedPreset.lifeEvents.length} preset events to print`);
+          selectedPreset.lifeEvents.forEach((event, index) => {
+            addEventAnnotation(gridClone, event, index, selectedPreset.dob);
+          });
+        }
+      } else {
+        console.log(`Adding ${lifeEvents.length} personal events to print`);
+        lifeEvents.forEach((event, index) => {
+          addEventAnnotation(gridClone, event, index, localStorage.getItem("birthDate"));
+        });
+      }
+      
       const gridContainerPrint = document.createElement("div");
       gridContainerPrint.style.marginBottom = "20px";
       gridContainerPrint.appendChild(gridClone);
       printPage.appendChild(gridContainerPrint);
       
-      const legendClone = document.getElementById("legend").cloneNode(true);
-      legendClone.style.position = "static";
-      legendClone.style.margin = "0 auto";
-      const legendContainerPrint = document.createElement("div");
-      legendContainerPrint.appendChild(legendClone);
-      printPage.appendChild(legendContainerPrint);
+      // Remove legend from print - user requested no legend in generated image
+      // const legendClone = document.getElementById("legend").cloneNode(true);
+      // legendClone.style.position = "static";
+      // legendClone.style.margin = "0 auto";
+      // const legendContainerPrint = document.createElement("div");
+      // legendContainerPrint.appendChild(legendClone);
+      // printPage.appendChild(legendContainerPrint);
       
       printArea.appendChild(printPage);
       
-      html2canvas(printPage).then(canvas => {
-        const maxWidth = 1200;
+      // Use higher quality settings for html2canvas
+      html2canvas(printPage, {
+        scale: 2, // Higher resolution
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        width: printPage.offsetWidth,
+        height: printPage.offsetHeight,
+        logging: false,
+        imageTimeout: 0,
+        removeContainer: true
+      }).then(canvas => {
+        // Create a high-quality final image
+        const maxWidth = 2400; // Higher max width for better quality
         let newWidth = canvas.width;
         let newHeight = canvas.height;
+        
         if (canvas.width > maxWidth) {
           const scaleFactor = maxWidth / canvas.width;
           newWidth = maxWidth;
           newHeight = canvas.height * scaleFactor;
         }
+        
         const scaledCanvas = document.createElement("canvas");
         scaledCanvas.width = newWidth;
         scaledCanvas.height = newHeight;
         const ctx = scaledCanvas.getContext("2d");
+        
+        // Enable high-quality image smoothing
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        
         ctx.drawImage(canvas, 0, 0, newWidth, newHeight);
-        const dataUrl = scaledCanvas.toDataURL("image/jpeg", 1.0);
+        const dataUrl = scaledCanvas.toDataURL("image/png", 1.0); // Use PNG for better quality
         
         const imageWindow = window.open('', '_blank');
         imageWindow.document.write(`
@@ -1962,7 +2161,7 @@
                 document.getElementById("saveImageButton").addEventListener("click", function(){
                   var a = document.createElement("a");
                   a.href = document.getElementById("printedImage").src;
-                  a.download = "LifeGrid_" + new Date().getTime() + ".jpg";
+                  a.download = "LifeGrid_" + new Date().getTime() + ".png";
                   document.body.appendChild(a);
                   a.click();
                   document.body.removeChild(a);
@@ -1972,8 +2171,18 @@
           </html>
         `);
         imageWindow.document.close();
+        
+        // Restore UI elements
+        uiElements.forEach((el, index) => {
+          el.style.display = originalDisplays[index];
+        });
       }).catch(err => {
         console.error("Error generating print image:", err);
+        
+        // Restore UI elements even if there's an error
+        uiElements.forEach((el, index) => {
+          el.style.display = originalDisplays[index];
+        });
       });
     }
 
@@ -1998,7 +2207,7 @@
           
           const downloadBtn = document.createElement("button");
           downloadBtn.innerText = "Download";
-          downloadBtn.addEventListener("click", () => downloadImage(item.imageData, `lifeGrid_${item.timestamp}.jpg`));
+          downloadBtn.addEventListener("click", () => downloadImage(item.imageData, `lifeGrid_${item.timestamp}.png`));
           
           const printBtn = document.createElement("button");
           printBtn.innerText = "Print";
@@ -2066,6 +2275,223 @@
         </html>
       `);
       printWindow.document.close();
+    }
+
+    function addEventAnnotation(gridClone, event, index, birthDate) {
+      const birthDateObj = new Date(birthDate);
+      const eventStart = new Date(event.startDate);
+      const startWeek = Math.floor((eventStart - birthDateObj) / msPerWeek);
+      const gridIndex = lifeWeekToGridIndex(startWeek, birthWeekInYear);
+      
+      if (gridIndex >= 0 && gridIndex < totalWeeks) {
+        const cell = gridClone.querySelector(`.week[data-week-index='${gridIndex}']`);
+        console.log(`Event "${event.title}" - gridIndex: ${gridIndex}, cell found: ${!!cell}`);
+        if (cell) {
+          const annotation = document.createElement("div");
+          annotation.className = "event-annotation";
+          annotation.textContent = event.title;
+          annotation.style.backgroundColor = event.color || "#4361ee";
+          annotation.style.borderColor = event.color || "#4361ee";
+          annotation.style.color = "#fff";
+          
+          // Position the annotation intelligently with collision detection
+          const cellRect = cell.getBoundingClientRect();
+          const gridRect = gridClone.getBoundingClientRect();
+          
+          // Calculate position relative to the cell
+          const cellLeft = cellRect.left - gridRect.left;
+          const cellTop = cellRect.top - gridRect.top;
+          const cellWidth = cellRect.width;
+          const cellHeight = cellRect.height;
+          
+          // Get existing annotations to check for overlaps
+          const existingAnnotations = gridClone.querySelectorAll('.event-annotation');
+          const existingPositions = Array.from(existingAnnotations).map(ann => ({
+            left: parseInt(ann.style.left),
+            top: parseInt(ann.style.top),
+            width: 120,
+            height: 40
+          }));
+          
+          // Try different positions to avoid overlap with more spacing
+          const positions = [
+            { pos: "top", left: cellLeft + cellWidth / 2, top: cellTop - 60 },
+            { pos: "bottom", left: cellLeft + cellWidth / 2, top: cellTop + cellHeight + 20 },
+            { pos: "right", left: cellLeft + cellWidth + 20, top: cellTop + cellHeight / 2 },
+            { pos: "left", left: cellLeft - 150, top: cellTop + cellHeight / 2 },
+            { pos: "top", left: cellLeft + cellWidth / 2, top: cellTop - 100 },
+            { pos: "bottom", left: cellLeft + cellWidth / 2, top: cellTop + cellHeight + 60 },
+            { pos: "right", left: cellLeft + cellWidth + 60, top: cellTop + cellHeight / 2 },
+            { pos: "left", left: cellLeft - 200, top: cellTop + cellHeight / 2 },
+            { pos: "top", left: cellLeft + cellWidth / 2, top: cellTop - 140 },
+            { pos: "bottom", left: cellLeft + cellWidth / 2, top: cellTop + cellHeight + 100 },
+            { pos: "right", left: cellLeft + cellWidth + 100, top: cellTop + cellHeight / 2 },
+            { pos: "left", left: cellLeft - 250, top: cellTop + cellHeight / 2 }
+          ];
+          
+          let bestPosition = null;
+          for (const pos of positions) {
+            // Check if position is within grid bounds
+            if (pos.left < 0 || pos.left > gridRect.width - 120 || 
+                pos.top < 0 || pos.top > gridRect.height - 40) {
+              continue;
+            }
+            
+            // Check for overlap with existing annotations with more padding
+            let hasOverlap = false;
+            for (const existing of existingPositions) {
+              // Add 10px padding around each annotation to prevent touching
+              if (pos.left < existing.left + existing.width + 10 &&
+                  pos.left + 120 + 10 > existing.left &&
+                  pos.top < existing.top + existing.height + 10 &&
+                  pos.top + 40 + 10 > existing.top) {
+                hasOverlap = true;
+                break;
+              }
+            }
+            
+            if (!hasOverlap) {
+              bestPosition = pos;
+              break;
+            }
+          }
+          
+          // If no non-overlapping position found, use the first valid position
+          if (!bestPosition) {
+            bestPosition = positions[0];
+          }
+          
+          annotation.style.left = bestPosition.left + "px";
+          annotation.style.top = bestPosition.top + "px";
+          annotation.classList.add(bestPosition.pos);
+          
+          gridClone.appendChild(annotation);
+          console.log(`Added annotation "${event.title}" at position ${bestPosition.left},${bestPosition.top}`);
+        }
+      }
+    }
+
+    function showLiveAnnotations() {
+      // Remove existing annotations first
+      hideLiveAnnotations();
+      
+      const gridArea = document.getElementById("gridArea");
+      gridArea.style.position = "relative";
+      
+      if (isPresetMode) {
+        const selectedPreset = celebPresets.find(p => p.name === presetSelect.value);
+        if (selectedPreset && selectedPreset.lifeEvents) {
+          selectedPreset.lifeEvents.forEach((event, index) => {
+            addLiveEventAnnotation(gridArea, event, index, selectedPreset.dob);
+          });
+        }
+      } else {
+        lifeEvents.forEach((event, index) => {
+          addLiveEventAnnotation(gridArea, event, index, localStorage.getItem("birthDate"));
+        });
+      }
+    }
+
+    function hideLiveAnnotations() {
+      const existingAnnotations = document.querySelectorAll(".live-event-annotation");
+      existingAnnotations.forEach(annotation => annotation.remove());
+    }
+
+    function addLiveEventAnnotation(gridArea, event, index, birthDate) {
+      const birthDateObj = new Date(birthDate);
+      const eventStart = new Date(event.startDate);
+      const startWeek = Math.floor((eventStart - birthDateObj) / msPerWeek);
+      const gridIndex = lifeWeekToGridIndex(startWeek, birthWeekInYear);
+      
+      if (gridIndex >= 0 && gridIndex < totalWeeks) {
+        const cell = lifeGrid.querySelector(`.week[data-week-index='${gridIndex}']`);
+        if (cell) {
+          const annotation = document.createElement("div");
+          annotation.className = "live-event-annotation";
+          annotation.textContent = event.title;
+          annotation.style.backgroundColor = event.color || "#4361ee";
+          annotation.style.borderColor = event.color || "#4361ee";
+          annotation.style.color = "#fff";
+          
+          // Position the annotation intelligently with collision detection
+          const cellRect = cell.getBoundingClientRect();
+          const gridRect = gridArea.getBoundingClientRect();
+          
+          // Calculate position relative to the cell
+          const cellLeft = cellRect.left - gridRect.left;
+          const cellTop = cellRect.top - gridRect.top;
+          const cellWidth = cellRect.width;
+          const cellHeight = cellRect.height;
+          
+          // Get existing annotations to check for overlaps
+          const existingAnnotations = gridArea.querySelectorAll('.live-event-annotation');
+          const existingPositions = Array.from(existingAnnotations).map(ann => ({
+            left: parseInt(ann.style.left),
+            top: parseInt(ann.style.top),
+            width: 140,
+            height: 40
+          }));
+          
+          // Try different positions to avoid overlap with more spacing
+          const positions = [
+            { pos: "top", left: cellLeft + cellWidth / 2, top: cellTop - 60 },
+            { pos: "bottom", left: cellLeft + cellWidth / 2, top: cellTop + cellHeight + 20 },
+            { pos: "right", left: cellLeft + cellWidth + 20, top: cellTop + cellHeight / 2 },
+            { pos: "left", left: cellLeft - 150, top: cellTop + cellHeight / 2 },
+            { pos: "top", left: cellLeft + cellWidth / 2, top: cellTop - 100 },
+            { pos: "bottom", left: cellLeft + cellWidth / 2, top: cellTop + cellHeight + 60 },
+            { pos: "right", left: cellLeft + cellWidth + 60, top: cellTop + cellHeight / 2 },
+            { pos: "left", left: cellLeft - 200, top: cellTop + cellHeight / 2 },
+            { pos: "top", left: cellLeft + cellWidth / 2, top: cellTop - 140 },
+            { pos: "bottom", left: cellLeft + cellWidth / 2, top: cellTop + cellHeight + 100 },
+            { pos: "right", left: cellLeft + cellWidth + 100, top: cellTop + cellHeight / 2 },
+            { pos: "left", left: cellLeft - 250, top: cellTop + cellHeight / 2 }
+          ];
+          
+          let bestPosition = null;
+          for (const pos of positions) {
+            // Check if position is within grid bounds
+            if (pos.left < 0 || pos.left > gridRect.width - 140 || 
+                pos.top < 0 || pos.top > gridRect.height - 40) {
+              continue;
+            }
+            
+            // Check for overlap with existing annotations with more padding
+            let hasOverlap = false;
+            for (const existing of existingPositions) {
+              // Add 10px padding around each annotation to prevent touching
+              if (pos.left < existing.left + existing.width + 10 &&
+                  pos.left + 140 + 10 > existing.left &&
+                  pos.top < existing.top + existing.height + 10 &&
+                  pos.top + 40 + 10 > existing.top) {
+                hasOverlap = true;
+                break;
+              }
+            }
+            
+            if (!hasOverlap) {
+              bestPosition = pos;
+              break;
+            }
+          }
+          
+          // If no non-overlapping position found, use the first valid position
+          if (!bestPosition) {
+            bestPosition = positions[0];
+          }
+          
+          annotation.style.left = bestPosition.left + "px";
+          annotation.style.top = bestPosition.top + "px";
+          annotation.classList.add(bestPosition.pos);
+          
+          gridArea.appendChild(annotation);
+          
+          // Show the annotation with animation
+          setTimeout(() => {
+            annotation.classList.add("show");
+          }, index * 100); // Stagger the animations
+        }
+      }
     }
 
     function deleteGalleryItem(timestamp) {
