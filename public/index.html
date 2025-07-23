@@ -2298,11 +2298,13 @@
           const cellRect = cell.getBoundingClientRect();
           const gridRect = gridClone.getBoundingClientRect();
           
-          // Calculate position relative to the cell
+          // Calculate position relative to the cell with precise centering
           const cellLeft = cellRect.left - gridRect.left;
           const cellTop = cellRect.top - gridRect.top;
           const cellWidth = cellRect.width;
           const cellHeight = cellRect.height;
+          const cellCenterX = cellLeft + cellWidth / 2;
+          const cellCenterY = cellTop + cellHeight / 2;
           
           // Get existing annotations to check for overlaps
           const existingAnnotations = gridClone.querySelectorAll('.event-annotation');
@@ -2313,20 +2315,20 @@
             height: 40
           }));
           
-          // Try different positions to avoid overlap with more spacing
+          // Try different positions to avoid overlap with precise alignment
           const positions = [
-            { pos: "top", left: cellLeft + cellWidth / 2, top: cellTop - 60 },
-            { pos: "bottom", left: cellLeft + cellWidth / 2, top: cellTop + cellHeight + 20 },
-            { pos: "right", left: cellLeft + cellWidth + 20, top: cellTop + cellHeight / 2 },
-            { pos: "left", left: cellLeft - 150, top: cellTop + cellHeight / 2 },
-            { pos: "top", left: cellLeft + cellWidth / 2, top: cellTop - 100 },
-            { pos: "bottom", left: cellLeft + cellWidth / 2, top: cellTop + cellHeight + 60 },
-            { pos: "right", left: cellLeft + cellWidth + 60, top: cellTop + cellHeight / 2 },
-            { pos: "left", left: cellLeft - 200, top: cellTop + cellHeight / 2 },
-            { pos: "top", left: cellLeft + cellWidth / 2, top: cellTop - 140 },
-            { pos: "bottom", left: cellLeft + cellWidth / 2, top: cellTop + cellHeight + 100 },
-            { pos: "right", left: cellLeft + cellWidth + 100, top: cellTop + cellHeight / 2 },
-            { pos: "left", left: cellLeft - 250, top: cellTop + cellHeight / 2 }
+            { pos: "top", left: cellCenterX - 60, top: cellTop - 50 }, // Center horizontally, above cell
+            { pos: "bottom", left: cellCenterX - 60, top: cellTop + cellHeight + 10 }, // Center horizontally, below cell
+            { pos: "right", left: cellLeft + cellWidth + 10, top: cellCenterY - 20 }, // Right of cell, center vertically
+            { pos: "left", left: cellLeft - 130, top: cellCenterY - 20 }, // Left of cell, center vertically
+            { pos: "top", left: cellCenterX - 60, top: cellTop - 90 }, // Further above
+            { pos: "bottom", left: cellCenterX - 60, top: cellTop + cellHeight + 50 }, // Further below
+            { pos: "right", left: cellLeft + cellWidth + 50, top: cellCenterY - 20 }, // Further right
+            { pos: "left", left: cellLeft - 180, top: cellCenterY - 20 }, // Further left
+            { pos: "top", left: cellCenterX - 60, top: cellTop - 130 }, // Even further above
+            { pos: "bottom", left: cellCenterX - 60, top: cellTop + cellHeight + 90 }, // Even further below
+            { pos: "right", left: cellLeft + cellWidth + 90, top: cellCenterY - 20 }, // Even further right
+            { pos: "left", left: cellLeft - 230, top: cellCenterY - 20 } // Even further left
           ];
           
           let bestPosition = null;
@@ -2417,11 +2419,13 @@
           const cellRect = cell.getBoundingClientRect();
           const gridRect = gridArea.getBoundingClientRect();
           
-          // Calculate position relative to the cell
+          // Calculate position relative to the cell with precise centering
           const cellLeft = cellRect.left - gridRect.left;
           const cellTop = cellRect.top - gridRect.top;
           const cellWidth = cellRect.width;
           const cellHeight = cellRect.height;
+          const cellCenterX = cellLeft + cellWidth / 2;
+          const cellCenterY = cellTop + cellHeight / 2;
           
           // Get existing annotations to check for overlaps
           const existingAnnotations = gridArea.querySelectorAll('.live-event-annotation');
@@ -2432,20 +2436,20 @@
             height: 40
           }));
           
-          // Try different positions to avoid overlap with more spacing
+          // Try different positions to avoid overlap with precise alignment
           const positions = [
-            { pos: "top", left: cellLeft + cellWidth / 2, top: cellTop - 60 },
-            { pos: "bottom", left: cellLeft + cellWidth / 2, top: cellTop + cellHeight + 20 },
-            { pos: "right", left: cellLeft + cellWidth + 20, top: cellTop + cellHeight / 2 },
-            { pos: "left", left: cellLeft - 150, top: cellTop + cellHeight / 2 },
-            { pos: "top", left: cellLeft + cellWidth / 2, top: cellTop - 100 },
-            { pos: "bottom", left: cellLeft + cellWidth / 2, top: cellTop + cellHeight + 60 },
-            { pos: "right", left: cellLeft + cellWidth + 60, top: cellTop + cellHeight / 2 },
-            { pos: "left", left: cellLeft - 200, top: cellTop + cellHeight / 2 },
-            { pos: "top", left: cellLeft + cellWidth / 2, top: cellTop - 140 },
-            { pos: "bottom", left: cellLeft + cellWidth / 2, top: cellTop + cellHeight + 100 },
-            { pos: "right", left: cellLeft + cellWidth + 100, top: cellTop + cellHeight / 2 },
-            { pos: "left", left: cellLeft - 250, top: cellTop + cellHeight / 2 }
+            { pos: "top", left: cellCenterX - 70, top: cellTop - 50 }, // Center horizontally, above cell
+            { pos: "bottom", left: cellCenterX - 70, top: cellTop + cellHeight + 10 }, // Center horizontally, below cell
+            { pos: "right", left: cellLeft + cellWidth + 10, top: cellCenterY - 20 }, // Right of cell, center vertically
+            { pos: "left", left: cellLeft - 150, top: cellCenterY - 20 }, // Left of cell, center vertically
+            { pos: "top", left: cellCenterX - 70, top: cellTop - 90 }, // Further above
+            { pos: "bottom", left: cellCenterX - 70, top: cellTop + cellHeight + 50 }, // Further below
+            { pos: "right", left: cellLeft + cellWidth + 50, top: cellCenterY - 20 }, // Further right
+            { pos: "left", left: cellLeft - 200, top: cellCenterY - 20 }, // Further left
+            { pos: "top", left: cellCenterX - 70, top: cellTop - 130 }, // Even further above
+            { pos: "bottom", left: cellCenterX - 70, top: cellTop + cellHeight + 90 }, // Even further below
+            { pos: "right", left: cellLeft + cellWidth + 90, top: cellCenterY - 20 }, // Even further right
+            { pos: "left", left: cellLeft - 250, top: cellCenterY - 20 } // Even further left
           ];
           
           let bestPosition = null;
