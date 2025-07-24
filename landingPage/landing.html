@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life in Weeks - A Visual Philosophy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=EB+Garamond:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            --stoic-primary: #1a1a1a;
+            --stoic-accent: #ff4444;
+            --stoic-text: #f0f0f0;
+            --mindful-primary: #fafaf8;
+            --mindful-accent: #2d5016;
+            --mindful-text: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow-x: hidden;
+            background: #000;
+            cursor: none;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            width: 40px;
+            height: 40px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 10000;
+            mix-blend-mode: difference;
+            transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: transform 0.2s ease;
+        }
+
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: all 0.15s ease;
+        }
+
+        .cursor.hover .cursor-outline {
+            transform: scale(1.5);
+            opacity: 0.5;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease;
+        }
+
+        .loading-text {
+            font-size: 14px;
+            letter-spacing: 0.2em;
+            color: #666;
+            font-weight: 200;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Initial Choice */
+        .choice-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+
+        .choice-container.active {
+            opacity: 1;
+        }
+
+        .choice-half {
+            width: 50%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            cursor: none;
+            transition: width 0.8s cubic-bezier(0.7, 0, 0.3, 1);
+        }
+
+        .choice-half::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--noise);
+            opacity: 0.5;
+            z-index: 1;
+        }
+
+        .choice-half:hover {
+            width: 65%;
+        }
+
+        .choice-half.stoic {
+            background: var(--stoic-primary);
+        }
+
+        .choice-half.mindful {
+            background: var(--mindful-primary);
+        }
+
+        .choice-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 2;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        .choice-number {
+            font-size: 200px;
+            font-weight: 100;
+            line-height: 1;
+            margin-bottom: 40px;
+            opacity: 0.1;
+            font-family: 'EB Garamond', serif;
+        }
+
+        .stoic .choice-number {
+            color: var(--stoic-text);
+        }
+
+        .mindful .choice-number {
+            color: var(--mindful-text);
+        }
+
+        .choice-title {
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            margin-bottom: 24px;
+            line-height: 1.2;
+        }
+
+        .stoic .choice-title {
+            color: var(--stoic-text);
+        }
+
+        .mindful .choice-title {
+            color: var(--mindful-text);
+        }
+
+        .choice-subtitle {
+            font-size: 16px;
+            font-weight: 400;
+            opacity: 0.7;
+            margin-bottom: 48px;
+            line-height: 1.6;
+        }
+
+        .stoic .choice-subtitle {
+            color: var(--stoic-text);
+        }
+
+        .mindful .choice-subtitle {
+            color: var(--mindful-text);
+        }
+
+        .choice-enter {
+            font-size: 13px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 500;
+            padding: 16px 32px;
+            background: transparent;
+            border: 1px solid;
+            cursor: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stoic .choice-enter {
+            color: var(--stoic-text);
+            border-color: var(--stoic-text);
+        }
+
+        .stoic .choice-enter:hover {
+            color: var(--stoic-primary);
+            background: var(--stoic-text);
+        }
+
+        .mindful .choice-enter {
+            color: var(--mindful-text);
+            border-color: var(--mindful-text);
+        }
+
+        .mindful .choice-enter:hover {
+            color: var(--mindful-primary);
+            background: var(--mindful-text);
+        }
+
+        /* Content Screens */
+        .content-screen {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.5s ease;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .content-screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .content-screen.stoic-theme {
+            background: var(--stoic-primary);
+            color: var(--stoic-text);
+        }
+
+        .content-screen.mindful-theme {
+            background: var(--mindful-primary);
+            color: var(--mindful-text);
+        }
+
+        /* Noise Texture Overlay */
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            z-index: 1;
+            background: var(--noise);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 40px;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            width: 100%;
+            z-index: 2;
+        }
+
+        .hero-quote {
+            font-size: clamp(32px, 5vw, 72px);
+            font-weight: 200;
+            line-height: 1.2;
+            margin-bottom: 48px;
+            letter-spacing: -0.03em;
+            font-family: 'EB Garamond', serif;
+        }
+
+        .stoic-theme .hero-quote {
+            color: var(--stoic-text);
+        }
+
+        .mindful-theme .hero-quote {
+            color: var(--mindful-text);
+        }
+
+        .quote-author {
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            opacity: 0.6;
+            text-transform: uppercase;
+            margin-top: 24px;
+            font-weight: 500;
+        }
+
+        /* 3D Week Visualization */
+        .week-visualization {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            margin: 80px 0;
+            perspective: 1000px;
+        }
+
+        .week-grid-3d {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotate3d 30s linear infinite;
+        }
+
+        @keyframes rotate3d {
+            0% { transform: rotateY(0) rotateX(10deg); }
+            100% { transform: rotateY(360deg) rotateX(10deg); }
+        }
+
+        .week-plane {
+            position: absolute;
+            width: 600px;
+            height: 300px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: grid;
+            grid-template-columns: repeat(52, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 2px;
+            transform-style: preserve-3d;
+        }
+
+        .week-cell {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: none;
+        }
+
+        .week-cell:hover {
+            transform: translateZ(20px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .week-cell.lived {
+            background: rgba(255, 68, 68, 0.3);
+            border-color: rgba(255, 68, 68, 0.5);
+        }
+
+        .mindful-theme .week-cell.lived {
+            background: rgba(45, 80, 22, 0.3);
+            border-color: rgba(45, 80, 22, 0.5);
+        }
+
+        /* Philosophy Sections */
+        .philosophy-section {
+            padding: 120px 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .philosophy-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .section-number {
+            font-size: 120px;
+            font-weight: 100;
+            opacity: 0.05;
+            position: absolute;
+            top: 80px;
+            right: 80px;
+            font-family: 'EB Garamond', serif;
+        }
+
+        .section-title {
+            font-size: clamp(32px, 4vw, 48px);
+            font-weight: 300;
+            margin-bottom: 32px;
+            letter-spacing: -0.02em;
+            font-family: 'EB Garamond', serif;
+        }
+
+        .section-text {
+            font-size: 18px;
+            line-height: 1.8;
+            font-weight: 300;
+            margin-bottom: 32px;
+            opacity: 0.9;
+        }
+
+        .highlight-text {
+            font-size: 24px;
+            font-weight: 400;
+            line-height: 1.6;
+            padding: 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 48px 0;
+        }
+
+        .mindful-theme .highlight-text {
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Interactive Elements */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            opacity: 0.5;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        /* CTA Section */
+        .cta-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-content {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .cta-title {
+            font-size: clamp(36px, 5vw, 56px);
+            font-weight: 200;
+            margin-bottom: 32px;
+            letter-spacing: -0.02em;
+            font-family: 'EB Garamond', serif;
+        }
+
+        .cta-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 48px;
+            opacity: 0.8;
+        }
+
+        .cta-button {
+            font-size: 14px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 500;
+            padding: 20px 48px;
+            background: transparent;
+            border: 1px solid;
+            cursor: none;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stoic-theme .cta-button {
+            color: var(--stoic-text);
+            border-color: var(--stoic-text);
+        }
+
+        .stoic-theme .cta-button:hover {
+            color: var(--stoic-primary);
+            background: var(--stoic-text);
+        }
+
+        .mindful-theme .cta-button {
+            color: var(--mindful-text);
+            border-color: var(--mindful-text);
+        }
+
+        .mindful-theme .cta-button:hover {
+            color: var(--mindful-primary);
+            background: var(--mindful-text);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .choice-container {
+                flex-direction: column;
+            }
+
+            .choice-half {
+                width: 100%;
+                height: 50%;
+            }
+
+            .choice-half:hover {
+                width: 100%;
+                height: 65%;
+            }
+
+            .week-visualization {
+                height: 300px;
+            }
+
+            .week-plane {
+                width: 90%;
+                height: 200px;
+            }
+
+            .section-number {
+                display: none;
+            }
+
+            .cursor {
+                display: none;
+            }
+
+            body {
+                cursor: auto;
+            }
+
+            * {
+                cursor: auto !important;
+            }
+        }
+
+        /* Reveal Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Navigation Dots */
+        .nav-dots {
+            position: fixed;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 16px 0;
+            cursor: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: rgba(255, 255, 255, 0.8);
+            transform: scale(1.5);
+        }
+
+        .mindful-theme .nav-dot {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .mindful-theme .nav-dot.active {
+            background: rgba(0, 0, 0, 0.8);
+        }
+    </style>
+</head>
+<body>
+<!-- Loading Screen -->
+<div class="loading-screen" id="loadingScreen">
+    <div class="loading-text">WAKING UP</div>
+</div>
+
+<!-- Custom Cursor -->
+<div class="cursor" id="cursor">
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+</div>
+
+<!-- Choice Container -->
+<div class="choice-container" id="choiceContainer">
+    <div class="choice-half stoic" data-choice="stoic">
+        <div class="choice-content">
+            <div class="choice-number">I</div>
+            <h2 class="choice-title">Embrace the End</h2>
+            <p class="choice-subtitle">Life's fleeting. Face your mortality.<br>Make every day count before it's gone.</p>
+            <button class="choice-enter">Let's Go</button>
+        </div>
+    </div>
+    
+    <div class="choice-half mindful" data-choice="mindful">
+        <div class="choice-content">
+            <div class="choice-number">II</div>
+            <h2 class="choice-title">Savor the Moment</h2>
+            <p class="choice-subtitle">Pause the rush. Awaken fully.<br>Life unfolds in the here and now.</p>
+            <button class="choice-enter">I'm Ready</button>
+        </div>
+    </div>
+</div>
+
+<!-- Stoic Content -->
+<div class="content-screen stoic-theme" id="stoicContent">
+    <div class="noise-overlay"></div>
+    
+    <section class="hero">
+        <div class="hero-content reveal">
+            <blockquote class="hero-quote">
+                "Think of your life as a candle—burning bright but finite. Don't waste the wax on what doesn't matter."
+                <div class="quote-author">— Ancient wisdom, modern spark</div>
+            </blockquote>
+        </div>
+    </section>
+
+    <div class="week-visualization">
+        <div class="week-grid-3d">
+            <div class="week-plane" id="stoicWeekPlane"></div>
+        </div>
+    </div>
+
+    <section class="philosophy-section">
+        <div class="section-number">01</div>
+        <div class="philosophy-content reveal">
+            <h2 class="section-title">The Eternal Recurrence</h2>
+            <p class="section-text">
+                Imagine this: After death, the universe hits replay. Same life, same choices, same everything—forever.
+            </p>
+            <p class="section-text">
+                Thrilled? Or terrified at reliving that endless meeting or ignored dream?
+            </p>
+            <p class="section-text">
+                If you'd rewrite your story, why wait? This is your one shot to craft a life worth repeating eternally.
+            </p>
+            <p class="section-text">
+                Inspired by Nietzsche, this thought experiment cuts through excuses. If tomorrow's loop horrifies you, transform it today into something extraordinary.
+            </p>
+        </div>
+    </section>
+
+    <section class="philosophy-section">
+        <div class="section-number">02</div>
+        <div class="philosophy-content reveal">
+            <h2 class="section-title">Memento Mori: Remember Death</h2>
+            <p class="section-text">
+                In Roman triumphs, a servant whispered to victorious generals: "Remember, you will die." Amid glory, a reminder of impermanence.
+            </p>
+            <p class="section-text">
+                Why? Because mortality sharpens focus. Petty arguments fade; hated jobs become trades of irreplaceable time for fleeting gains.
+            </p>
+            <p class="section-text">
+                Death isn't the villain—oblivious living is. Embrace your end to truly begin.
+            </p>
+            <p class="section-text">
+                Test it: Facing stress? Ask, "With months left, does this matter?" Often, no—and you've uncovered your true priorities.
+            </p>
+        </div>
+    </section>
+
+    <section class="philosophy-section">
+        <div class="section-number">03</div>
+        <div class="philosophy-content reveal">
+            <h2 class="section-title">Life as a Cosmic Thrill Ride</h2>
+            <p class="section-text">
+                Comedian Bill Hicks compared life to a rollercoaster: Terrifying drops feel fatal, but it's just illusion—our minds amplifying the drama.
+            </p>
+            <p class="section-text">
+                We obsess over news, drama, status, forgetting we're hurtling through space on a fragile rock, existence itself a profound mystery.
+            </p>
+            <p class="section-text">
+                The ride ends soon. Grip tight in fear, or raise your hands in exhilaration—the choice is yours.
+            </p>
+            <p class="section-text">
+                Unlike theme parks, you steer this one. Stop fearing the turns; grab the controls and make it unforgettable.
+            </p>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="cta-content reveal">
+            <h2 class="cta-title">Time to Face Reality</h2>
+            <p class="cta-text">
+                Visualize your life in weeks: Past, present, potential future. It's confronting, clarifying, and could redefine your path.
+            </p>
+            <button class="cta-button" onclick="launchApp()">Reveal My Weeks</button>
+        </div>
+    </section>
+
+    <div class="scroll-indicator">Scroll Deeper</div>
+    
+    <div class="nav-dots">
+        <div class="nav-dot active"></div>
+        <div class="nav-dot"></div>
+        <div class="nav-dot"></div>
+        <div class="nav-dot"></div>
+    </div>
+</div>
+
+<!-- Mindful Content -->
+<div class="content-screen mindful-theme" id="mindfulContent">
+    <div class="noise-overlay"></div>
+    
+    <section class="hero">
+        <div class="hero-content reveal">
+            <blockquote class="hero-quote">
+                "Life is what happens to you while you're busy making other plans."
+                <div class="quote-author">— John Lennon (popularised; originally by Allen Saunders)</div>
+            </blockquote>
+        </div>
+    </section>
+
+    <div class="week-visualization">
+        <div class="week-grid-3d">
+            <div class="week-plane" id="mindfulWeekPlane"></div>
+        </div>
+    </div>
+
+    <section class="philosophy-section">
+        <div class="section-number">01</div>
+        <div class="philosophy-content reveal">
+            <h2 class="section-title">Impermanence: The Gift of Change</h2>
+            <p class="section-text">
+                Recall your darkest hour—a heartbreak, failure, embarrassment. It's passed, right? That's impermanence in action: Nothing endures forever.
+            </p>
+            <p class="section-text">
+                Cells renew at varying paces; societies evolve; even mountains erode. Your current struggles? They'll transform too.
+            </p>
+            <p class="section-text">
+                Joy fades, pain dissolves—and in this flux lies freedom: You can reshape any aspect of your existence.
+            </p>
+            <p class="section-text">
+                In tough times, whisper: "This too shall pass." In bliss, savor it fully, knowing its transience makes it precious.
+            </p>
+        </div>
+    </section>
+
+    <section class="philosophy-section">
+        <div class="section-number">02</div>
+        <div class="philosophy-content reveal">
+            <h2 class="section-title">Awakening to the Present</h2>
+            <p class="section-text">
+                Quick check: Recall today's breakfast details? Your breath's rhythm now? If not, you're in autopilot—like most of us.
+            </p>
+            <p class="section-text">
+                Minds wander to past regrets or future fantasies, missing the vivid now: A concert viewed through screens, meals gulped unnoticed.
+            </p>
+            <p class="section-text">
+                Existence pulses here, in this instant—not in memories, plans, or feeds. Reclaim it.
+            </p>
+            <p class="section-text">
+                Practice: Touch your heart. Feel its beat? That's life, raw and immediate. The rest? Mere mental echoes.
+            </p>
+        </div>
+    </section>
+
+    <section class="philosophy-section">
+        <div class="section-number">03</div>
+        <div class="philosophy-content reveal">
+            <h2 class="section-title">Interconnectedness: One Vast Web</h2>
+            <p class="section-text">
+                Mind-bend: Your breath's atoms danced in ancient forests; your body's water flowed through history's veins. We're woven from the cosmos.
+            </p>
+            <p class="section-text">
+                That road-rager? Shares your hidden fears and hopes. Lives entwine invisibly, forming a tapestry of shared humanity.
+            </p>
+            <p class="section-text">
+                Not a mere drop in the ocean—you're the ocean, condensed in a drop. Ponder that unity.
+            </p>
+            <p class="section-text">
+                Kindness ripples back to you; harm boomerangs. Ultimately, we're companions, guiding each other through the journey.
+            </p>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="cta-content reveal">
+            <h2 class="cta-title">Awaken to Your Journey</h2>
+            <p class="cta-text">
+                Map your weeks lived and ahead: A gentle mirror to life's flow, inspiring deeper presence and peace.
+            </p>
+            <button class="cta-button" onclick="launchApp()">Reveal My Weeks</button>
+        </div>
+    </section>
+
+    <div class="scroll-indicator">Scroll Deeper</div>
+    
+    <div class="nav-dots">
+        <div class="nav-dot active"></div>
+        <div class="nav-dot"></div>
+        <div class="nav-dot"></div>
+        <div class="nav-dot"></div>
+    </div>
+</div>
+    <script>
+        // Custom Cursor
+        const cursor = document.getElementById('cursor');
+        let mouseX = 0, mouseY = 0;
+        let cursorX = 0, cursorY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateCursor() {
+            const dx = mouseX - cursorX;
+            const dy = mouseY - cursorY;
+            
+            cursorX += dx * 0.1;
+            cursorY += dy * 0.1;
+            
+            cursor.style.transform = `translate(${cursorX - 20}px, ${cursorY - 20}px)`;
+            
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // Hover Effects
+        const hoverElements = document.querySelectorAll('button, a, .choice-half');
+        hoverElements.forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+
+        // Loading Screen
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    document.getElementById('choiceContainer').classList.add('active');
+                    createWeekVisualization();
+                }, 1000);
+            }, 2000);
+        });
+
+        // Choice Selection
+        const choiceHalves = document.querySelectorAll('.choice-half');
+        choiceHalves.forEach(half => {
+            half.addEventListener('click', (e) => {
+                if (e.target.classList.contains('choice-enter') || e.target.closest('.choice-enter')) {
+                    const choice = half.dataset.choice;
+                    showContent(choice);
+                }
+            });
+        });
+
+        function showContent(choice) {
+            document.getElementById('choiceContainer').style.opacity = '0';
+            
+            setTimeout(() => {
+                document.getElementById('choiceContainer').style.display = 'none';
+                
+                if (choice === 'stoic') {
+                    document.getElementById('stoicContent').classList.add('active');
+                    createWeekGrid('stoicWeekPlane', true);
+                } else {
+                    document.getElementById('mindfulContent').classList.add('active');
+                    createWeekGrid('mindfulWeekPlane', false);
+                }
+                
+                initScrollAnimations();
+                initNavDots();
+            }, 1500);
+        }
+
+        // 3D Week Grid
+        function createWeekVisualization() {
+            // Placeholder for more complex 3D visualization
+            // Could integrate Three.js here for true 3D experience
+        }
+
+        function createWeekGrid(planeId, isStoic) {
+            const plane = document.getElementById(planeId);
+            const totalWeeks = 520; // 10 years for visualization
+            const livedWeeks = Math.floor(Math.random() * 200) + 100;
+            
+            for (let i = 0; i < totalWeeks; i++) {
+                const week = document.createElement('div');
+                week.className = 'week-cell';
+                
+                if (i < livedWeeks) {
+                    week.classList.add('lived');
+                }
+                
+                // Add hover interaction
+                week.addEventListener('mouseenter', function() {
+                    this.style.transform = `translateZ(${Math.random() * 30 + 10}px)`;
+                });
+                
+                week.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateZ(0)';
+                });
+                
+                plane.appendChild(week);
+            }
+        }
+
+        // Scroll Animations
+        function initScrollAnimations() {
+            const reveals = document.querySelectorAll('.reveal');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -100px 0px'
+            });
+            
+            reveals.forEach(reveal => observer.observe(reveal));
+        }
+
+        // Navigation Dots
+        function initNavDots() {
+            const sections = document.querySelectorAll('section');
+            const dots = document.querySelectorAll('.nav-dot');
+            
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const index = Array.from(sections).indexOf(entry.target);
+                        dots.forEach((dot, i) => {
+                            dot.classList.toggle('active', i === index);
+                        });
+                    }
+                });
+            }, {
+                threshold: 0.5
+            });
+            
+            sections.forEach(section => sectionObserver.observe(section));
+            
+            // Click to scroll
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    sections[index].scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+        }
+
+        // Launch App
+        function launchApp() {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: #000;
+                opacity: 0;
+                transition: opacity 1s ease;
+                z-index: 10000;
+            `;
+            document.body.appendChild(overlay);
+            
+            requestAnimationFrame(() => {
+                overlay.style.opacity = '1';
+                setTimeout(() => {
+                    window.location.href = 'app.html'; // Change to your app location
+                }, 1000);
+            });
+        }
+
+        // Parallax on Mouse Move
+        let ticking = false;
+        function updateParallax(e) {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    const x = (e.clientX / window.innerWidth - 0.5) * 2;
+                    const y = (e.clientY / window.innerHeight - 0.5) * 2;
+                    
+                    document.querySelectorAll('.week-grid-3d').forEach(grid => {
+                        grid.style.transform = `rotateY(${x * 10}deg) rotateX(${-y * 10 + 10}deg)`;
+                    });
+                    
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }
+        
+        document.addEventListener('mousemove', updateParallax);
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // Return to choice screen
+                location.reload();
+            }
+        });
+    </script>
+</body>
+</html>

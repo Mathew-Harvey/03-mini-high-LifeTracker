@@ -3,20 +3,18 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node --experimental-sqlite server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "Life tracker build with 03-mini-high",
   "dependencies": {
-    "express": "^4.18.2",
-    "body-parser": "^1.20.2",
     "bcrypt": "^5.1.0",
-    "jsonwebtoken": "^9.0.0",
+    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "better-sqlite3": "^8.4.0"
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0"
   }
-  
 }

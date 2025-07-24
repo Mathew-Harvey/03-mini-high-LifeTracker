@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Life Grid Gallery</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="gallery.css">
+</head>
+<body>
+  <div class="gallery-page">
+    <!-- Header with back button -->
+    <header class="gallery-header" role="banner">
+      <button id="backToChartButton" class="back-button" aria-label="Go back to your life chart">
+        ← Back to Your Life Chart
+      </button>
+      <h1>Life Grid Gallery</h1>
+      <button id="refreshGalleryButton" class="refresh-button" aria-label="Refresh gallery content">
+        🔄 Refresh
+      </button>
+      <button id="regenerateCelebrityChartsButton" class="regenerate-button" aria-label="Regenerate celebrity charts">
+        ⭐ Regenerate Celebrity Charts
+      </button>
+    </header>
+
+    <!-- Gallery content -->
+    <main class="gallery-main" role="main">
+      <div id="galleryItems" class="gallery-grid" role="grid" aria-label="Life charts gallery">
+        <!-- Gallery items will be populated by JavaScript -->
+      </div>
+    </main>
+
+    <!-- Loading and error states -->
+    <div id="loadingState" class="loading-state" style="display: none;" role="status" aria-live="polite">
+      <div class="loading-spinner" aria-hidden="true"></div>
+      <p>Loading gallery...</p>
+    </div>
+
+    <div id="errorState" class="error-state" style="display: none;" role="alert" aria-live="assertive">
+      <p>Error loading gallery. Please try again.</p>
+    </div>
+  </div>
+
+  <script src="gallery.js"></script>
+</body>
+</html> 
