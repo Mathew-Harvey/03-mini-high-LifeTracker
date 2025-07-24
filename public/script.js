@@ -481,9 +481,21 @@ window.addEventListener("load", () => {
       }, 1000); // Small delay to ensure everything is loaded
     }
   } else {
-    introSection.style.display = "block";
-    authContainer.style.display = "none";
-    gridContainer.style.display = "none";
+    // Check if user came from landing page (no intro needed)
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromLanding = urlParams.get('fromLanding');
+    
+    if (fromLanding === 'true') {
+      // Skip intro, go directly to login
+      introSection.style.display = "none";
+      authContainer.style.display = "block";
+      gridContainer.style.display = "none";
+    } else {
+      // Show intro section for direct app access
+      introSection.style.display = "block";
+      authContainer.style.display = "none";
+      gridContainer.style.display = "none";
+    }
   }
 });
 
