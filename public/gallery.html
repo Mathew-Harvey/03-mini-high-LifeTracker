@@ -25,8 +25,31 @@
 
     <!-- Gallery content -->
     <main class="gallery-main" role="main">
-      <div id="galleryItems" class="gallery-grid" role="grid" aria-label="Life charts gallery">
-        <!-- Gallery items will be populated by JavaScript -->
+      <!-- Tab Navigation -->
+      <div class="gallery-tabs" role="tablist">
+        <button id="celebritiesTab" class="tab-button active" role="tab" aria-selected="true" aria-controls="celebritiesContent">
+          🌟 Celebrities
+        </button>
+        <button id="usersTab" class="tab-button" role="tab" aria-selected="false" aria-controls="usersContent">
+          👥 Community
+        </button>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="tab-content">
+        <!-- Celebrities Tab -->
+        <div id="celebritiesContent" class="tab-panel active" role="tabpanel" aria-labelledby="celebritiesTab">
+          <div id="celebritiesItems" class="gallery-grid" role="grid" aria-label="Celebrity life charts gallery">
+            <!-- Celebrity items will be populated by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="usersContent" class="tab-panel" role="tabpanel" aria-labelledby="usersTab">
+          <div id="usersItems" class="gallery-grid" role="grid" aria-label="Community life charts gallery">
+            <!-- User items will be populated by JavaScript -->
+          </div>
+        </div>
       </div>
     </main>
 
@@ -40,6 +63,9 @@
       <p>Error loading gallery. Please try again.</p>
     </div>
   </div>
+
+  <!-- Notification Container -->
+  <div id="notificationContainer" class="notification-container"></div>
 
   <script src="gallery.js"></script>
 </body>

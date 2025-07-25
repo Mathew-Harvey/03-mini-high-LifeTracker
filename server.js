@@ -90,7 +90,15 @@ const createChartPlaceholder = (preset) => {
   const monthGap = 6;
   const yearGap = 12;
   const monthWeeks = [4,4,5,4,4,5,4,4,5,4,4,5];
-  const gridStartX = 100;
+  
+  // Calculate total grid width to center it
+  let totalGridWidth = 0;
+  for (let month = 0; month < 12; month++) {
+    totalGridWidth += monthWeeks[month] * (cellWidth + 1);
+    if (month < 11) totalGridWidth += monthGap;
+  }
+  
+  const gridStartX = (1400 - totalGridWidth) / 2; // Center the grid
   const gridStartY = 140;
   
   // Calculate grid positions with gaps
@@ -156,7 +164,6 @@ const createChartPlaceholder = (preset) => {
   // Create event overlays with colors - use same logic as client-side
   const presetColors = ['#4361ee', '#3a0ca3', '#7209b7', '#f72585', '#4cc9f0', '#4895ef', '#560bad', '#b5179e', '#f15bb5', '#fee440'];
   let eventSvg = '';
-  let eventLegendSvg = '';
   
   // Helper functions for color contrast (same as client-side)
   const hexToRgb = (hex) => {
@@ -247,14 +254,8 @@ const createChartPlaceholder = (preset) => {
        }
      }
      
-     // Add to legend (limit to first 12 events)
-     if (index < 12) {
-       const legendY = 750 + index * 20;
-       eventLegendSvg += `
-         <rect x="100" y="${legendY}" width="14" height="8" fill="${color}"/>
-         <text x="120" y="${legendY + 12}" font-family="Arial, sans-serif" font-size="12" fill="#333">${event.title.length > 50 ? event.title.substring(0, 47) + '...' : event.title}</text>
-       `;
-     }
+     // Store event color for later use in life events list
+     event.color = color;
   });
   
   // Add death marker if applicable
@@ -277,9 +278,13 @@ const createChartPlaceholder = (preset) => {
     }
   }
   
-  const svg = `<svg width="1400" height="${1100 + Math.min(sortedEvents.length, 12) * 20}" xmlns="http://www.w3.org/2000/svg">
-    <rect width="1400" height="${1100 + Math.min(sortedEvents.length, 12) * 20}" fill="#fafafa"/>
+  // Remove eventsListHeight and set fixed height
+  const svgHeight = 1100;
+  
+  const svg = `<svg width="1400" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1400" height="${svgHeight}" fill="#fafafa"/>
     
+    <!-- NEW FORMAT - No Overlapping Legend - Centered Grid - v2.0 -->
     <!-- Title -->
     <text x="700" y="40" font-family="Arial, sans-serif" font-size="32" font-weight="bold" text-anchor="middle" fill="#333">${name}'s Life in Weeks</text>
     <text x="700" y="70" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#666">by ${name} • ${new Date().toLocaleDateString()}</text>
@@ -298,22 +303,6 @@ const createChartPlaceholder = (preset) => {
     
     <!-- Death marker -->
     ${deathMarkerSvg}
-    
-    <!-- Legend -->
-    <text x="100" y="730" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#333">Life Events (${Math.min(sortedEvents.length, 12)}${sortedEvents.length > 12 ? '+ more' : ''})</text>
-    ${eventLegendSvg}
-    
-    <!-- Footer legend -->
-    <g transform="translate(100, ${1040 + Math.min(sortedEvents.length, 12) * 20})">
-      <rect x="0" y="0" width="14" height="8" fill="#4cc9f0" stroke="#eaeaea" stroke-width="0.5"/>
-      <text x="25" y="12" font-family="Arial, sans-serif" font-size="14" fill="#333">Lived weeks</text>
-             <rect x="150" y="0" width="14" height="8" fill="#e9ecef" stroke="#eaeaea" stroke-width="0.5"/>
-       <text x="175" y="12" font-family="Arial, sans-serif" font-size="14" fill="#333">Not yet lived</text>
-      ${sortedEvents.length > 0 ? `
-        <rect x="300" y="1" width="12" height="6" fill="#4361ee" opacity="0.8"/>
-        <text x="325" y="12" font-family="Arial, sans-serif" font-size="14" fill="#333">Life events</text>
-      ` : ''}
-    </g>
   </svg>`;
   
   const base64 = Buffer.from(svg).toString('base64');
@@ -366,6 +355,22 @@ app.post('/api/login', async (req, res) => {
     console.error(err);
     res.status(500).json({ error: "Server error, please try again" });
   }
+});
+
+app.get('/api/check-auth', (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) {
+    return res.json({ authenticated: false });
+  }
+  
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.json({ authenticated: false });
+    }
+    return res.json({ authenticated: true, userId: user.id });
+  });
 });
 
 app.post('/api/event', authenticateToken, async (req, res) => {
@@ -522,7 +527,55 @@ app.post('/api/seed-celebrity-charts', async (req, res) => {
   }
 });
 
-// Modified public charts endpoint to include celebrity charts
+// Celebrity charts endpoint (always available)
+app.get('/api/celebrity-charts', authenticateToken, async (req, res) => {
+  try {
+    // Get only celebrity charts (owner = -1)
+    const celebrityCharts = db.prepare('SELECT id, owner, ownerName, chartTitle, imageData, chartData, createdAt FROM public_charts WHERE owner = -1 ORDER BY createdAt DESC').all();
+    
+    // For celebrity charts, ensure they have proper chartData with events
+    const processedCharts = celebrityCharts.map(chart => {
+      try {
+        const chartData = JSON.parse(chart.chartData);
+        // Ensure the chart has events data
+        if (chartData && chartData.events && chartData.events.length > 0) {
+          return chart; // Chart already has proper data
+        } else {
+          return null;
+        }
+      } catch (e) {
+        console.error(`Error parsing chart data for ${chart.ownerName}:`, e);
+        return null;
+      }
+    }).filter(Boolean);
+    
+    res.json({ celebrityCharts: processedCharts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to retrieve celebrity charts" });
+  }
+});
+
+// Community charts endpoint (only if user has shared their chart)
+app.get('/api/community-charts', authenticateToken, async (req, res) => {
+  try {
+    // First check if user has made their chart public
+    const userPublicChart = db.prepare('SELECT id FROM public_charts WHERE owner = ?').get(req.user.id);
+    if (!userPublicChart) {
+      return res.status(403).json({ error: "You must make your chart public to view community charts", requiresPublic: true });
+    }
+    
+    // Get only user charts (owner != -1)
+    const communityCharts = db.prepare('SELECT id, owner, ownerName, chartTitle, imageData, chartData, createdAt FROM public_charts WHERE owner != -1 ORDER BY createdAt DESC').all();
+    
+    res.json({ communityCharts: communityCharts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to retrieve community charts" });
+  }
+});
+
+// Legacy public charts endpoint (kept for backward compatibility)
 app.get('/api/public-charts', authenticateToken, async (req, res) => {
   try {
     // First check if user has made their chart public
@@ -568,7 +621,7 @@ app.post('/api/regenerate-celebrity-charts', authenticateToken, async (req, res)
     
     for (const preset of celebPresets) {
       try {
-        // Create new image with events
+        // Create new image with events (no legend for celebrity charts)
         const imageData = createChartPlaceholder(preset);
         
         // Update the chart data to ensure it has proper events

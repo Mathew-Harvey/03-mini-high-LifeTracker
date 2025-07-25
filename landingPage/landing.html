@@ -27,11 +27,12 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             overflow-x: hidden;
             background: #000;
-            cursor: none;
+            cursor: auto;
         }
 
-        /* Custom Cursor */
+        /* Custom Cursor - Disabled */
         .cursor {
+            display: none !important;
             width: 40px;
             height: 40px;
             position: fixed;
@@ -116,7 +117,7 @@
             height: 100%;
             position: relative;
             overflow: hidden;
-            cursor: none;
+            cursor: pointer;
             transition: width 0.8s cubic-bezier(0.7, 0, 0.3, 1);
         }
 
@@ -212,7 +213,7 @@
             padding: 16px 32px;
             background: transparent;
             border: 1px solid;
-            cursor: none;
+            cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -360,7 +361,7 @@
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
-            cursor: none;
+            cursor: pointer;
         }
 
         .week-cell:hover {
@@ -487,7 +488,7 @@
             padding: 20px 48px;
             background: transparent;
             border: 1px solid;
-            cursor: none;
+            cursor: pointer;
             transition: all 0.4s ease;
             position: relative;
             overflow: hidden;
@@ -582,7 +583,7 @@
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.3);
             margin: 16px 0;
-            cursor: none;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
 
@@ -826,6 +827,8 @@
 </div>
     <script>
         // Custom Cursor
+        // Custom cursor disabled
+        /*
         const cursor = document.getElementById('cursor');
         let mouseX = 0, mouseY = 0;
         let cursorX = 0, cursorY = 0;
@@ -854,6 +857,7 @@
             el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
             el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
         });
+        */
 
         // Loading Screen
         window.addEventListener('load', () => {

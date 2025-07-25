@@ -3,6 +3,18 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  cursor: auto; /* Ensure cursor is visible */
+}
+
+/* Ensure cursor is visible on all elements */
+.gallery-page * {
+  cursor: auto;
+}
+
+.gallery-page button,
+.gallery-page .public-gallery-item,
+.gallery-page .tab-button {
+  cursor: pointer;
 }
 
 /* Header */
@@ -108,6 +120,78 @@
   margin: 0 auto;
 }
 
+/* Tab Navigation */
+.gallery-tabs {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  padding: 0.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  gap: 0.5rem;
+}
+
+.tab-button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #666;
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-button:hover {
+  background: rgba(67, 97, 238, 0.1);
+  color: #4361ee;
+}
+
+.tab-button.active {
+  background: linear-gradient(135deg, #4361ee, #7209b7);
+  color: white;
+  box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+}
+
+.tab-button.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Tab Content */
+.tab-content {
+  position: relative;
+}
+
+.tab-panel {
+  display: none;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
@@ -124,6 +208,81 @@
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
+}
+
+/* Owner name overlay - always visible */
+.owner-overlay {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.owner-badge {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.owner-icon {
+  font-size: 1rem;
+}
+
+.owner-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+/* Celebrity-specific owner badge */
+.celebrity-gallery-item .owner-badge {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(255, 165, 0, 0.9));
+  color: #333;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.celebrity-gallery-item .owner-badge .owner-icon {
+  color: #b8860b;
+}
+
+/* Community-specific owner badge - now identical to celebrity badge */
+.user-gallery-item .owner-badge {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(255, 165, 0, 0.9));
+  color: #333;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.user-gallery-item .owner-badge .owner-icon {
+  color: #b8860b;
+}
+
+/* Hover effects for owner badge */
+.public-gallery-item:hover .owner-badge {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.celebrity-gallery-item:hover .owner-badge {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 1), rgba(255, 165, 0, 1));
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+}
+
+/* Community-specific owner badge hover effects - now identical to celebrity hover effects */
+.user-gallery-item:hover .owner-badge {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 1), rgba(255, 165, 0, 1));
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
 }
 
 .public-gallery-item:hover {
@@ -150,12 +309,83 @@
   transition: transform 0.3s ease;
 }
 
+/* Celebrity-specific styles */
+.celebrity-gallery-item {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.celebrity-gallery-item .chart-overlay {
+  background: linear-gradient(transparent, rgba(0,0,0,0.9));
+}
+
+.celebrity-gallery-item .chart-info h4 {
+  color: white;
+  font-size: 1.3rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.celebrity-gallery-item .chart-info p {
+  color: rgba(255,255,255,0.9);
+  font-weight: 500;
+}
+
+.celebrity-gallery-item .chart-date {
+  color: rgba(255,255,255,0.7);
+}
+
+.celebrity-gallery-item .chart-action-btn {
+  background: rgba(255,255,255,0.25);
+  border: 1px solid rgba(255,255,255,0.4);
+  font-weight: 600;
+}
+
+.celebrity-gallery-item .chart-action-btn:hover {
+  background: rgba(255,255,255,0.35);
+  border-color: rgba(255,255,255,0.6);
+}
+
+/* User-specific styles - now identical to celebrity styles */
+.user-gallery-item {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.user-gallery-item .chart-overlay {
+  background: linear-gradient(transparent, rgba(0,0,0,0.9));
+}
+
+.user-gallery-item .chart-info h4 {
+  color: white;
+  font-size: 1.3rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.user-gallery-item .chart-info p {
+  color: rgba(255,255,255,0.9);
+  font-weight: 500;
+}
+
+.user-gallery-item .chart-date {
+  color: rgba(255,255,255,0.7);
+}
+
+.user-gallery-item .chart-action-btn {
+  background: rgba(255,255,255,0.25);
+  border: 1px solid rgba(255,255,255,0.4);
+  font-weight: 600;
+}
+
+.user-gallery-item .chart-action-btn:hover {
+  background: rgba(255,255,255,0.35);
+  border-color: rgba(255,255,255,0.6);
+}
+
 .chart-overlay {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(transparent, rgba(0,0,0,0.8));
   color: white;
   padding: 1.5rem;
   transform: translateY(100%);
@@ -171,7 +401,6 @@
 
 .chart-info h4 {
   margin: 0 0 0.5rem 0;
-  font-size: 1.2rem;
   font-weight: 600;
 }
 
@@ -192,9 +421,6 @@
 }
 
 .chart-action-btn {
-  background: rgba(255,255,255,0.2);
-  color: white;
-  border: 1px solid rgba(255,255,255,0.3);
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 0.9rem;
@@ -203,9 +429,28 @@
   backdrop-filter: blur(10px);
 }
 
-.chart-action-btn:hover {
-  background: rgba(255,255,255,0.3);
-  border-color: rgba(255,255,255,0.5);
+/* Empty state for tabs */
+.empty-tab {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+
+.empty-tab h3 {
+  color: #4361ee;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.empty-tab p {
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
 /* Private gallery prompt */
@@ -291,6 +536,42 @@
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
+}
+
+/* Community prompt (shown in community tab) */
+.community-prompt {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+  margin: 2rem auto;
+  max-width: 600px;
+}
+
+.prompt-content {
+  position: relative;
+  z-index: 2;
+  background: rgba(255,255,255,0.95);
+  padding: 2rem;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+}
+
+.prompt-content h3 {
+  color: #4361ee;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.prompt-content p {
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
 }
 
 /* Empty gallery state */
@@ -427,6 +708,16 @@
     padding: 1rem;
   }
 
+  .gallery-tabs {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .tab-button {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
+
   .gallery-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
@@ -443,5 +734,25 @@
   .sample-charts {
     grid-template-columns: 1fr;
     padding: 1rem;
+  }
+
+  /* Mobile adjustments for owner badge */
+  .owner-overlay {
+    top: 8px;
+    left: 8px;
+  }
+
+  .owner-badge {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    gap: 4px;
+  }
+
+  .owner-name {
+    max-width: 80px;
+  }
+
+  .owner-icon {
+    font-size: 0.9rem;
   }
 } 

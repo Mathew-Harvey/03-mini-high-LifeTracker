@@ -49,7 +49,7 @@ body {
   overflow-x: hidden;
   font-weight: 300;
   letter-spacing: -0.01em;
-  cursor: none;
+  cursor: auto;
 }
 
 /* Noise texture overlay */
@@ -66,8 +66,9 @@ body::before {
   z-index: 1;
 }
 
-/* Custom Cursor */
+/* Custom Cursor - Disabled */
 .cursor {
+  display: none !important;
   width: 40px;
   height: 40px;
   position: fixed;
@@ -1013,6 +1014,7 @@ button.primary:hover {
   background: linear-gradient(135deg, var(--accent-color), var(--week-lived));
   color: var(--primary-bg);
   border-color: var(--accent-color);
+  display: none; /* Hidden by default, shown only for personal charts */
 }
 #makePublicBtn:hover {
   transform: translateY(-3px);
@@ -1366,6 +1368,173 @@ button.primary:hover {
   
   * {
     cursor: auto !important;
+  }
+}
+
+/* --- Notification System --- */
+.notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10001;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.notification {
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: var(--shadow-medium);
+  backdrop-filter: blur(10px);
+  max-width: 400px;
+  min-width: 300px;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: var(--transition-smooth);
+  pointer-events: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.notification::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-color), #4cc9f0);
+  border-radius: 12px 12px 0 0;
+}
+
+.notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.notification.hide {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.notification.success {
+  border-left: 4px solid #10b981;
+}
+
+.notification.success::before {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.notification.info {
+  border-left: 4px solid #3b82f6;
+}
+
+.notification.info::before {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+.notification.warning {
+  border-left: 4px solid #f59e0b;
+}
+
+.notification.warning::before {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.notification.error {
+  border-left: 4px solid #ef4444;
+}
+
+.notification.error::before {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.notification-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.notification-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--primary-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notification-icon {
+  font-size: 16px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  color: var(--primary-text);
+  opacity: 0.6;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: var(--transition-quick);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.notification-close:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.notification-message {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--primary-text);
+  opacity: 0.9;
+}
+
+.notification-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: var(--accent-color);
+  transition: width linear;
+}
+
+/* Dark theme adjustments for notifications */
+@media (prefers-color-scheme: dark) {
+  .notification {
+    background: rgba(37, 37, 37, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .notification-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Mobile responsive notifications */
+@media (max-width: 768px) {
+  .notification-container {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+  }
+  
+  .notification {
+    max-width: none;
+    min-width: auto;
   }
 }
 

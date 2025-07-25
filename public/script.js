@@ -54,6 +54,78 @@ let celebPresets = [];
 // Global variable to store birth week for event mapping
 let birthWeekInYear = 0;
 
+/********* Notification System *********/
+function showNotification(title, message, type = 'info', duration = 5000) {
+  const container = document.getElementById('notificationContainer');
+  if (!container) return;
+
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  
+  const icon = getNotificationIcon(type);
+  
+  notification.innerHTML = `
+    <div class="notification-header">
+      <div class="notification-title">
+        <span class="notification-icon">${icon}</span>
+        ${title}
+      </div>
+      <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+    </div>
+    <div class="notification-message">${message}</div>
+    <div class="notification-progress" style="width: 100%"></div>
+  `;
+
+  container.appendChild(notification);
+
+  // Trigger animation
+  setTimeout(() => {
+    notification.classList.add('show');
+  }, 10);
+
+  // Animate progress bar
+  const progressBar = notification.querySelector('.notification-progress');
+  if (progressBar) {
+    setTimeout(() => {
+      progressBar.style.width = '0%';
+    }, 100);
+  }
+
+  // Auto remove after duration
+  if (duration > 0) {
+    setTimeout(() => {
+      hideNotification(notification);
+    }, duration);
+  }
+
+  return notification;
+}
+
+function hideNotification(notification) {
+  if (!notification) return;
+  
+  notification.classList.add('hide');
+  setTimeout(() => {
+    if (notification.parentElement) {
+      notification.remove();
+    }
+  }, 300);
+}
+
+function getNotificationIcon(type) {
+  switch (type) {
+    case 'success':
+      return '✅';
+    case 'error':
+      return '❌';
+    case 'warning':
+      return '⚠️';
+    case 'info':
+    default:
+      return 'ℹ️';
+  }
+}
+
 /********* Helper function to convert life weeks to grid indices *********/
 function lifeWeekToGridIndex(lifeWeek, birthWeekInYear) {
   return birthWeekInYear + lifeWeek; // Simple addition
@@ -378,7 +450,12 @@ authButton.addEventListener("click", async () => {
   const email = authEmail.value.trim();
   const password = authPassword.value.trim();
   if(!email || !password) {
-    alert("Please fill in email and password.");
+    showNotification(
+      "Missing Information", 
+      "Please fill in email and password.", 
+      'warning', 
+      3000
+    );
     return;
   }
   let endpoint = isRegisterMode ? "/api/register" : "/api/login";
@@ -387,11 +464,21 @@ authButton.addEventListener("click", async () => {
     const bd = authBirthdate.value;
     const firstName = authFirstName.value.trim();
     if(!firstName) {
-      alert("Please enter your first name.");
+      showNotification(
+        "Missing Information", 
+        "Please enter your first name.", 
+        'warning', 
+        3000
+      );
       return;
     }
     if(!bd) {
-      alert("Please enter your birth date for registration.");
+      showNotification(
+        "Missing Information", 
+        "Please enter your birth date for registration.", 
+        'warning', 
+        3000
+      );
       return;
     }
     localStorage.setItem("firstName", firstName);
@@ -405,13 +492,29 @@ authButton.addEventListener("click", async () => {
     });
     const data = await response.json();
     if(!response.ok) {
-      alert(data.error || "Authentication error");
+      showNotification(
+        "Authentication Error", 
+        data.error || "Authentication error", 
+        'error', 
+        4000
+      );
       return;
     }
     token = data.token;
     localStorage.setItem("token", token);
     const myBD = data.birthDate || authBirthdate.value;
     localStorage.setItem("birthDate", myBD);
+    
+    // Check if user came from the Don't Panic button
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromPanic = urlParams.get('fromPanic');
+    
+    if (fromPanic === 'true') {
+      // Redirect to gallery with Douglas Adams chart
+      window.location.href = '/gallery?celebrity=Douglas%20Adams&fromPanic=true';
+      return;
+    }
+    
     authContainer.style.display = "none";
     gridContainer.style.display = "block";
     eventForm.style.display = "block";
@@ -423,13 +526,21 @@ authButton.addEventListener("click", async () => {
       chartTitle.textContent = `${firstName}'s Life in Weeks`;
     }
     
+    // Show Make Public button for personal charts
+    makePublicBtn.style.display = "inline-block";
+    
     initializeMainApp();
     
     // Seed celebrity charts after successful login
     seedCelebrityCharts();
   } catch (err) {
     console.error(err);
-    alert("Error communicating with server.");
+    showNotification(
+      "Connection Error", 
+      "Error communicating with server.", 
+      'error', 
+      4000
+    );
   }
 });
 
@@ -463,12 +574,15 @@ window.addEventListener("load", () => {
       chartTitle.textContent = `${firstName}'s Life in Weeks`;
     }
     
+    // Show Make Public button for personal charts
+    makePublicBtn.style.display = "inline-block";
+    
     initializeMainApp();
     
     // Seed celebrity charts for existing session
     seedCelebrityCharts();
     
-    // Check for makePublic URL parameter
+    // Check for URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('makePublic') === 'true') {
       // Remove the parameter from URL without reloading
@@ -479,17 +593,125 @@ window.addEventListener("load", () => {
       setTimeout(() => {
         makeChartPublicWorkflow();
       }, 1000); // Small delay to ensure everything is loaded
+    } else if (urlParams.get('action') === 'makePublicFromGallery') {
+      // Remove the parameter from URL without reloading
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+      
+      // Check if user has necessary data
+      if (!token || !localStorage.getItem("birthDate")) {
+        showNotification("Error", "Please log in and create your chart first.", "error", 5000);
+        setTimeout(() => {
+          window.location.href = "/gallery";
+        }, 2000);
+        return;
+      }
+      
+      // Ensure the user's chart is initialized first
+      if (!document.getElementById("gridArea") || document.getElementById("gridArea").offsetWidth === 0) {
+        // Initialize the main app if not already done
+        initializeMainApp();
+      }
+      
+      // Wait for the chart to be loaded before proceeding
+      let chartCheckCount = 0;
+      const waitForChart = setInterval(() => {
+        chartCheckCount++;
+        const gridArea = document.getElementById("gridArea");
+        const hasValidGrid = gridArea && gridArea.offsetWidth > 0 && gridArea.offsetHeight > 0;
+        const hasWeeks = gridArea && gridArea.querySelectorAll('.week').length > 0;
+        
+        if (hasValidGrid && hasWeeks) {
+          clearInterval(waitForChart);
+          
+          // Give the chart a moment to fully render
+          setTimeout(async () => {
+            try {
+              // Don't show loading screen yet - it hides the grid!
+              // Instead, show a temporary loading indicator
+              const tempLoading = document.createElement("div");
+              tempLoading.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 20px 40px;
+                border-radius: 8px;
+                z-index: 9999;
+                font-family: 'Inter', -apple-system, sans-serif;
+              `;
+              tempLoading.innerHTML = "⏳ Generating chart image...";
+              document.body.appendChild(tempLoading);
+              
+              // Start the workflow without showing the full loading screen yet
+              await makeChartPublicWorkflow(true, tempLoading); // Pass loading element
+              
+              // Remove temp loading
+              if (tempLoading.parentNode) {
+                tempLoading.remove();
+              }
+              
+              // Add a small delay to ensure the success message is visible
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              // After successful publish, redirect back to gallery with refresh parameter
+              window.location.href = "/gallery?refresh=true&tab=community";
+            } catch (error) {
+              console.error("Error in make public workflow:", error);
+              // Remove temp loading on error
+              const tempLoading = document.querySelector("div[style*='Generating chart image']");
+              if (tempLoading) tempLoading.remove();
+              
+              // Show error screen
+              showMakePublicLoadingScreen();
+              const loadingScreen = document.getElementById("makePublicLoadingScreen");
+              if (loadingScreen) {
+                loadingScreen.innerHTML = `
+                  <div style="text-align: center;">
+                    <div style="width: 60px; height: 60px; margin: 0 auto 20px; font-size: 60px;">❌</div>
+                    <h2 style="margin: 0 0 10px 0; font-size: 1.8rem; font-weight: 600;">Publishing Error</h2>
+                    <p style="margin: 0; font-size: 1.1rem; opacity: 0.9;">${error.message}</p>
+                    <button onclick="window.location.href='/gallery'" style="margin-top: 20px; padding: 10px 20px; background: white; color: #4361ee; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Back to Gallery</button>
+                  </div>
+                `;
+              }
+            }
+          }, 500); // Give chart time to render
+        }
+      }, 100); // Check every 100ms
+      
+      // Timeout after 5 seconds
+      setTimeout(() => {
+        clearInterval(waitForChart);
+        showNotification("Error", "Failed to load chart. Please try again from the main app.", "error", 5000);
+        setTimeout(() => {
+          window.location.href = "/gallery";
+        }, 2000);
+      }, 5000);
+    } else if (urlParams.get('fromGallery') === 'true') {
+      // Remove the parameter from URL without reloading
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
     }
   } else {
-    // Check if user came from landing page (no intro needed)
+    // Check if user came from landing page or gallery (no intro needed)
     const urlParams = new URLSearchParams(window.location.search);
     const fromLanding = urlParams.get('fromLanding');
+    const fromGallery = urlParams.get('fromGallery');
+    const fromPanic = urlParams.get('fromPanic');
     
-    if (fromLanding === 'true') {
+    if (fromLanding === 'true' || fromGallery === 'true' || fromPanic === 'true') {
       // Skip intro, go directly to login
       introSection.style.display = "none";
       authContainer.style.display = "block";
       gridContainer.style.display = "none";
+      
+      // Clean up URL parameters (except fromPanic which needs to be preserved for login redirect)
+      if (fromGallery === 'true') {
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
     } else {
       // Show intro section for direct app access
       introSection.style.display = "block";
@@ -541,6 +763,8 @@ loadPresetButton.addEventListener("click", () => {
     if (firstName) {
       chartTitle.textContent = `${firstName}'s Life in Weeks`;
     }
+    // Show Make Public button for personal charts
+    makePublicBtn.style.display = "inline-block";
     initializeMainApp();
   } else {
     const preset = celebPresets.find(c => c.name === selected);
@@ -549,6 +773,8 @@ loadPresetButton.addEventListener("click", () => {
       clearPersonalEvents();
       // Set chart title with celebrity's name
       chartTitle.textContent = `${preset.name}'s Life in Weeks`;
+      // Hide Make Public button for celebrity presets
+      makePublicBtn.style.display = "none";
       renderPresetChart(preset);
     }
   }
@@ -602,6 +828,12 @@ async function initializeMainApp() {
   generateGrid(fullWeeks, partialWeekFraction, adjustedBirthWeek, originalBirthWeek);
   await loadUserEvents();
   updateLegend();
+  
+  // Refresh live annotations if they were previously visible
+  if (annotationsVisible) {
+    hideLiveAnnotations();
+    showLiveAnnotations();
+  }
 }
 
 /********* Render Preset Chart *********/
@@ -666,7 +898,19 @@ function renderPresetChart(preset) {
     }
   }
   updatePresetLegend(sortedEvents);
-  alert("Loaded preset: " + preset.name + ". Your own chart remains saved as 'My Life Chart'.");
+  
+  // Refresh live annotations if they were previously visible
+  if (annotationsVisible) {
+    hideLiveAnnotations();
+    showLiveAnnotations();
+  }
+  
+  showNotification(
+    "Chart Loaded Successfully", 
+    `Loaded preset: ${preset.name}. Your own chart remains saved as 'My Life Chart'.`, 
+    'success', 
+    4000
+  );
 }
 
 function overlayPresetEvent(ev) {
@@ -726,7 +970,12 @@ function updatePresetLegend(sortedEvents) {
     const itemDiv = document.createElement("div");
     itemDiv.className = "legend-item";
     itemDiv.addEventListener("click", function(){
-      alert("Preset events cannot be deleted.");
+      showNotification(
+        "Preset Events", 
+        "Preset events cannot be deleted. They are part of the celebrity's life story.", 
+        'info', 
+        3000
+      );
     });
     const colorDiv = document.createElement("div");
     colorDiv.className = "legend-color";
@@ -953,13 +1202,23 @@ addEventButton.addEventListener("click", async () => {
   const startDateValue = eventStartInput.value;
   const endDateValue = eventEndInput.value;
   if(!title || !startDateValue || !endDateValue){
-    alert("Please fill in all fields for the event.");
+    showNotification(
+      "Missing Information", 
+      "Please fill in all fields for the event.", 
+      'warning', 
+      3000
+    );
     return;
   }
   const startDate = new Date(startDateValue);
   const endDate = new Date(endDateValue);
   if(startDate > endDate){
-    alert("Start date cannot be after end date.");
+    showNotification(
+      "Invalid Date Range", 
+      "Start date cannot be after end date.", 
+      'warning', 
+      3000
+    );
     return;
   }
   const eventStartWeek = Math.floor((startDate - new Date(localStorage.getItem("birthDate"))) / msPerWeek);
@@ -983,7 +1242,12 @@ addEventButton.addEventListener("click", async () => {
     });
     const data = await response.json();
     if(!response.ok){
-      alert(data.error || "Error saving event");
+      showNotification(
+        "Error", 
+        data.error || "Error saving event", 
+        'error', 
+        4000
+      );
       return;
     }
     lifeEvents.push(data.event);
@@ -994,7 +1258,12 @@ addEventButton.addEventListener("click", async () => {
     updateLegend();
   } catch(err) {
     console.error(err);
-    alert("Error communicating with server.");
+    showNotification(
+      "Connection Error", 
+      "Error communicating with server.", 
+      'error', 
+      4000
+    );
   }
 });
 
@@ -1010,7 +1279,12 @@ async function loadUserEvents() {
       overlayEvents();
       updateLegend();
     } else {
-      alert(data.error || "Error loading events");
+      showNotification(
+        "Error", 
+        data.error || "Error loading events", 
+        'error', 
+        4000
+      );
     }
   } catch(err) {
     console.error(err);
@@ -1074,7 +1348,12 @@ async function deleteEvent(id) {
         updateLegend();
       }
     } else {
-      alert(data.error || "Error deleting event");
+      showNotification(
+        "Error", 
+        data.error || "Error deleting event", 
+        'error', 
+        4000
+      );
     }
   } catch(err) {
     console.error(err);
@@ -1375,12 +1654,7 @@ function printLifeGrid() {
     `);
     imageWindow.document.close();
 
-    // Ask user if they want to make their chart public (only for personal charts, not presets)
-    if (!isPresetMode) {
-      setTimeout(() => {
-        askToMakePublic(dataUrl, currentTitle);
-      }, 1000);
-    }
+    // Removed automatic public chart prompt - users can use the "Make Public" button when they want to share
     
     // Restore UI elements
     uiElements.forEach((el, index) => {
@@ -1681,50 +1955,19 @@ function askToMakePublic(imageData, chartTitle) {
 }
 
 makePublicBtn.addEventListener("click", async () => {
-  if (!window.pendingPublicChart) return;
-  
-  // Show loading state
-  const originalText = makePublicBtn.textContent;
-  makePublicBtn.textContent = "⏳ Publishing...";
-  makePublicBtn.disabled = true;
-  
-  const ownerName = localStorage.getItem("firstName") || "Anonymous";
-  const payload = {
-    chartTitle: window.pendingPublicChart.chartTitle,
-    imageData: window.pendingPublicChart.imageData,
-    chartData: window.pendingPublicChart.chartData,
-    ownerName: ownerName
-  };
-
-  try {
-    const response = await fetch(baseUrl + "/api/make-public", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await response.json();
-    if (response.ok) {
-      makePublicBtn.textContent = "✅ Published!";
-      setTimeout(() => {
-        alert("🎉 Your life chart is now public! Others can view it in the gallery.");
-        publicModal.style.display = "none";
-        window.pendingPublicChart = null;
-      }, 500);
-    } else {
-      throw new Error(data.error || "Unknown error");
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Error making chart public: " + err.message);
-    
-    // Restore button state on error
-    makePublicBtn.textContent = originalText;
-    makePublicBtn.disabled = false;
+  // Only allow making chart public for personal charts, not presets
+  if (isPresetMode) {
+    showNotification(
+      "Preset Charts", 
+      "You can only make your personal life chart public, not celebrity presets.", 
+      'warning', 
+      4000
+    );
+    return;
   }
+  
+  // Call the complete workflow for making chart public
+  await makeChartPublicWorkflow(false); // false for normal workflow
 });
 
 keepPrivateBtn.addEventListener("click", () => {
@@ -1740,28 +1983,101 @@ publicModal.addEventListener("click", (e) => {
   }
 });
 
+// Show loading screen for make public from gallery workflow
+function showMakePublicLoadingScreen() {
+  // Hide all main app sections
+  const introSection = document.getElementById("introSection");
+  const authContainer = document.getElementById("authContainer");
+  const gridContainer = document.getElementById("gridContainer");
+  
+  if (introSection) introSection.style.display = "none";
+  if (authContainer) authContainer.style.display = "none";
+  if (gridContainer) gridContainer.style.display = "none";
+  
+  // Create and show loading screen
+  let loadingScreen = document.getElementById("makePublicLoadingScreen");
+  if (!loadingScreen) {
+    loadingScreen = document.createElement("div");
+    loadingScreen.id = "makePublicLoadingScreen";
+    loadingScreen.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #4361ee, #7209b7);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      color: white;
+      font-family: 'Inter', -apple-system, sans-serif;
+    `;
+    
+    loadingScreen.innerHTML = `
+      <div style="text-align: center;">
+        <div style="width: 60px; height: 60px; border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+        <h2 style="margin: 0 0 10px 0; font-size: 1.8rem; font-weight: 600;">Making Your Chart Public</h2>
+        <p style="margin: 0; font-size: 1.1rem; opacity: 0.9;">Please wait while we generate and publish your life chart...</p>
+      </div>
+    `;
+    
+    // Add CSS animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+    document.body.appendChild(loadingScreen);
+  } else {
+    loadingScreen.style.display = "flex";
+  }
+}
+
 // Complete workflow for making chart public
-async function makeChartPublicWorkflow() {
+async function makeChartPublicWorkflow(fromGallery = false, tempLoadingElement = null) {
   try {
     // Show loading state
-    const originalText = makePublicBtn.textContent;
-    makePublicBtn.textContent = "⏳ Generating Chart...";
-    makePublicBtn.disabled = true;
+    let originalText = "🌍 Make Public";
+    if (makePublicBtn) {
+      originalText = makePublicBtn.textContent;
+      makePublicBtn.textContent = "⏳ Generating Chart...";
+      makePublicBtn.disabled = true;
+    }
     
     // Step 1: Show event labels if not already shown
-    if (!annotationsVisible) {
+    if (!annotationsVisible && toggleAnnotationsButton) {
       annotationsVisible = true;
       toggleAnnotationsButton.textContent = "Hide Event Labels";
       showLiveAnnotations();
     }
 
     // Step 2: Create chart image (without opening new window)
-    const chartTitle = document.getElementById("chartTitle").textContent;
-    makePublicBtn.textContent = "⏳ Creating Image...";
+    const chartTitleElement = document.getElementById("chartTitle");
+    if (!chartTitleElement) {
+      throw new Error("Chart not loaded. Please try again.");
+    }
+    const chartTitle = chartTitleElement.textContent;
+    if (makePublicBtn) {
+      makePublicBtn.textContent = "⏳ Creating Image...";
+    }
     const imageData = await generateChartImageForPublic(chartTitle);
+    
+    // Now that we have the image, we can show the full loading screen if from gallery
+    if (fromGallery && !tempLoadingElement) {
+      showMakePublicLoadingScreen();
+    } else if (tempLoadingElement) {
+      tempLoadingElement.innerHTML = "⏳ Publishing to gallery...";
+    }
 
     // Step 3: Make chart public and publish it
-    makePublicBtn.textContent = "⏳ Publishing...";
+    if (makePublicBtn) {
+      makePublicBtn.textContent = "⏳ Publishing...";
+    }
     const ownerName = localStorage.getItem("firstName") || "Anonymous";
     const payload = {
       chartTitle: chartTitle,
@@ -1788,21 +2104,80 @@ async function makeChartPublicWorkflow() {
       throw new Error(data.error || "Failed to make chart public");
     }
 
-    // Step 4: Show success message and open gallery with public charts
-    makePublicBtn.textContent = "✅ Published!";
-    setTimeout(() => {
-      alert("🎉 Your life chart is now public! Opening gallery...");
-      openGallery(); // This will now show the public charts since user has one
-    }, 500);
+    // Step 4: Handle success based on context
+    if (fromGallery) {
+      // For gallery workflow, update the loading indicator
+      if (tempLoadingElement) {
+        tempLoadingElement.innerHTML = "✅ Chart Published!";
+      } else {
+        const loadingScreen = document.getElementById("makePublicLoadingScreen");
+        if (loadingScreen) {
+          loadingScreen.innerHTML = `
+            <div style="text-align: center;">
+              <div style="width: 60px; height: 60px; margin: 0 auto 20px; font-size: 60px;">✅</div>
+              <h2 style="margin: 0 0 10px 0; font-size: 1.8rem; font-weight: 600;">Chart Published!</h2>
+              <p style="margin: 0; font-size: 1.1rem; opacity: 0.9;">Redirecting to gallery...</p>
+            </div>
+          `;
+        }
+      }
+      // Add a small delay to ensure database is updated before redirect
+      await new Promise(resolve => setTimeout(resolve, 500));
+    } else {
+      // For normal workflow, show success message and restore button state
+      if (makePublicBtn) {
+        makePublicBtn.textContent = "✅ Published!";
+      }
+      setTimeout(() => {
+        showNotification(
+          "Chart Published! 🎉", 
+          "Your life chart is now public! Others can view it in the gallery.", 
+          'success', 
+          5000
+        );
+        // Restore button state after showing success
+        setTimeout(() => {
+          if (makePublicBtn) {
+            makePublicBtn.textContent = "🌍 Make Public";
+            makePublicBtn.disabled = false;
+          }
+        }, 2000);
+      }, 500);
+    }
 
   } catch (error) {
     console.error("Error in makeChartPublicWorkflow:", error);
     
-    // Restore button state on error
-    makePublicBtn.textContent = "🌍 Make My Chart Public";
-    makePublicBtn.disabled = false;
-    
-    alert("Error making chart public: " + error.message);
+    if (fromGallery) {
+      // If we have a temp loading element, the error will be handled by the caller
+      if (!tempLoadingElement) {
+        // For gallery workflow, show error in loading screen
+        const loadingScreen = document.getElementById("makePublicLoadingScreen");
+        if (loadingScreen) {
+          loadingScreen.innerHTML = `
+            <div style="text-align: center;">
+              <div style="width: 60px; height: 60px; margin: 0 auto 20px; font-size: 60px;">❌</div>
+              <h2 style="margin: 0 0 10px 0; font-size: 1.8rem; font-weight: 600;">Publishing Error</h2>
+              <p style="margin: 0; font-size: 1.1rem; opacity: 0.9;">${error.message}</p>
+              <button onclick="window.location.href='/gallery'" style="margin-top: 20px; padding: 10px 20px; background: white; color: #4361ee; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Back to Gallery</button>
+            </div>
+          `;
+        }
+      }
+    } else {
+      // For normal workflow, restore button state on error
+      if (makePublicBtn) {
+        makePublicBtn.textContent = "🌍 Make Public";
+        makePublicBtn.disabled = false;
+      }
+      
+      showNotification(
+        "Publishing Error", 
+        "Error making chart public: " + error.message, 
+        'error', 
+        5000
+      );
+    }
   }
 }
 
@@ -1870,6 +2245,15 @@ async function generateChartImageForPublic(currentTitle) {
     
     // Clone grid
     const originalGrid = document.getElementById("gridArea");
+    if (!originalGrid || originalGrid.offsetWidth === 0 || originalGrid.offsetHeight === 0) {
+      reject(new Error("Chart grid not loaded. Please ensure you're on the main app page with your chart visible."));
+      // Restore UI elements
+      uiElements.forEach((el, i) => {
+        el.style.display = originalDisplays[i];
+      });
+      return;
+    }
+    
     const gridClone = originalGrid.cloneNode(true);
     gridClone.style.width = originalGrid.offsetWidth + "px";
     gridClone.style.height = originalGrid.offsetHeight + "px";
@@ -1889,18 +2273,34 @@ async function generateChartImageForPublic(currentTitle) {
     
     printArea.appendChild(printPage);
     
-    // Generate image
-    html2canvas(printPage, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#ffffff',
-      width: printPage.offsetWidth,
-      height: printPage.offsetHeight,
-      logging: false,
-      imageTimeout: 0,
-      removeContainer: true
-    }).then(canvas => {
+    // Ensure printPage has dimensions
+    if (printPage.offsetWidth === 0 || printPage.offsetHeight === 0) {
+      // Force layout calculation
+      printPage.style.width = "1200px";
+      printPage.style.minHeight = "800px";
+      
+      // If still no dimensions, wait a bit for rendering
+      setTimeout(() => {
+        generateImageFromPrintPage();
+      }, 100);
+      return;
+    }
+    
+    generateImageFromPrintPage();
+    
+    function generateImageFromPrintPage() {
+      // Generate image
+      html2canvas(printPage, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        width: printPage.offsetWidth || 1200,
+        height: printPage.offsetHeight || 800,
+        logging: false,
+        imageTimeout: 0,
+        removeContainer: true
+      }).then(canvas => {
       const maxWidth = 2400;
       let newWidth = canvas.width;
       let newHeight = canvas.height;
@@ -1927,14 +2327,15 @@ async function generateChartImageForPublic(currentTitle) {
         el.style.display = originalDisplays[index];
       });
       
-      resolve(dataUrl);
-    }).catch(err => {
-      // Restore UI elements even on error
-      uiElements.forEach((el, index) => {
-        el.style.display = originalDisplays[index];
+        resolve(dataUrl);
+      }).catch(err => {
+        // Restore UI elements even on error
+        uiElements.forEach((el, index) => {
+          el.style.display = originalDisplays[index];
+        });
+        reject(err);
       });
-      reject(err);
-    });
+    }
   });
 }
 
@@ -1944,6 +2345,7 @@ async function openGallery() {
 }
 
 // Initialize custom cursor when page loads
-document.addEventListener('DOMContentLoaded', function() {
-  initCustomCursor();
-});
+// Disabled custom cursor
+// document.addEventListener('DOMContentLoaded', function() {
+//   initCustomCursor();
+// });

@@ -27,48 +27,7 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             overflow-x: hidden;
             background: #000;
-            cursor: none;
-        }
-
-        /* Custom Cursor */
-        .cursor {
-            width: 40px;
-            height: 40px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 10000;
-            mix-blend-mode: difference;
-            transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        .cursor-dot {
-            width: 8px;
-            height: 8px;
-            background: #fff;
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            transition: transform 0.2s ease;
-        }
-
-        .cursor-outline {
-            width: 40px;
-            height: 40px;
-            border: 1px solid #fff;
-            border-radius: 50%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            transition: all 0.15s ease;
-        }
-
-        .cursor.hover .cursor-outline {
-            transform: scale(1.5);
-            opacity: 0.5;
+            cursor: auto;
         }
 
         /* Loading Screen */
@@ -116,8 +75,17 @@
             height: 100%;
             position: relative;
             overflow: hidden;
-            cursor: none;
-            transition: width 0.8s cubic-bezier(0.7, 0, 0.3, 1);
+            cursor: pointer;
+            transition: width 0.8s cubic-bezier(0.7, 0, 0.3, 1), transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Curtain effect classes */
+        .choice-half.curtain-left {
+            transform: translateX(-20%);
+        }
+
+        .choice-half.curtain-right {
+            transform: translateX(20%);
         }
 
         .choice-half::before {
@@ -212,7 +180,7 @@
             padding: 16px 32px;
             background: transparent;
             border: 1px solid;
-            cursor: none;
+            cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -236,6 +204,194 @@
         .mindful .choice-enter:hover {
             color: var(--mindful-primary);
             background: var(--mindful-text);
+        }
+
+        /* Vertical Divider Line */
+        .divider-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 30px;
+            height: 100%;
+            transform: translateX(-50%);
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        .divider-line::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 1px;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.2) 20%, 
+                rgba(255, 255, 255, 0.2) 80%, 
+                transparent 100%);
+            transform: translateX(-50%);
+            transition: opacity 0.3s ease;
+        }
+
+        .divider-line.active::before {
+            opacity: 0.5;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            letter-spacing: 0.05em;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 10001;
+            white-space: nowrap;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-bottom: 4px solid rgba(0, 0, 0, 0.9);
+        }
+
+        /* Hidden Button Container */
+        .secret-button-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 1s ease 0.5s;
+            pointer-events: none;
+        }
+
+        .secret-button-container.revealed {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Cartoon Red Button */
+        .panic-button {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            transform: scale(0);
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            pointer-events: all;
+        }
+
+        .panic-button.show {
+            transform: scale(1);
+        }
+
+        .panic-button-outer {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ff3333, #cc0000);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.5),
+                inset 0 -5px 10px rgba(0, 0, 0, 0.4),
+                inset 0 5px 10px rgba(255, 255, 255, 0.3);
+            position: relative;
+            transition: all 0.1s ease-out;
+            transform: translateY(0);
+        }
+
+        .panic-button:hover .panic-button-outer {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 22px 45px rgba(0, 0, 0, 0.6),
+                inset 0 -5px 10px rgba(0, 0, 0, 0.4),
+                inset 0 5px 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .panic-button.pressing .panic-button-outer {
+            transform: translateY(4px);
+            transition: all 0.05s ease-out;
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.4),
+                inset 0 -2px 5px rgba(0, 0, 0, 0.6),
+                inset 0 2px 5px rgba(255, 255, 255, 0.1);
+        }
+
+        .panic-button-inner {
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            background: radial-gradient(ellipse at 30% 30%, #ff6666, #ff0000);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                inset 0 -3px 5px rgba(0, 0, 0, 0.3),
+                inset 0 3px 5px rgba(255, 255, 255, 0.5);
+            transition: all 0.1s ease-out;
+        }
+
+        .panic-button.pressing .panic-button-inner {
+            background: radial-gradient(ellipse at 30% 30%, #ff5555, #dd0000);
+        }
+
+        .panic-button-text {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            text-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.5),
+                0 -1px 0 rgba(0, 0, 0, 0.7);
+            user-select: none;
+            line-height: 1.2;
+            transition: all 0.1s ease-out;
+        }
+
+        .panic-button.pressing .panic-button-text {
+            transform: scale(0.95);
+        }
+
+        .panic-button-highlight {
+            position: absolute;
+            top: 15%;
+            left: 25%;
+            width: 50%;
+            height: 30%;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.6), transparent);
+            border-radius: 50%;
+            filter: blur(10px);
+            transition: all 0.1s ease-out;
+        }
+
+        .panic-button.pressing .panic-button-highlight {
+            opacity: 0.7;
+            transform: scale(0.9);
         }
 
         /* Content Screens */
@@ -360,7 +516,7 @@
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
-            cursor: none;
+            cursor: pointer;
         }
 
         .week-cell:hover {
@@ -487,7 +643,7 @@
             padding: 20px 48px;
             background: transparent;
             border: 1px solid;
-            cursor: none;
+            cursor: pointer;
             transition: all 0.4s ease;
             position: relative;
             overflow: hidden;
@@ -529,6 +685,14 @@
                 height: 65%;
             }
 
+            .divider-line {
+                display: none;
+            }
+
+            .secret-button-container {
+                display: none;
+            }
+
             .week-visualization {
                 height: 300px;
             }
@@ -540,18 +704,6 @@
 
             .section-number {
                 display: none;
-            }
-
-            .cursor {
-                display: none;
-            }
-
-            body {
-                cursor: auto;
-            }
-
-            * {
-                cursor: auto !important;
             }
         }
 
@@ -582,7 +734,7 @@
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.3);
             margin: 16px 0;
-            cursor: none;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
 
@@ -606,11 +758,8 @@
     <div class="loading-text">WAKING UP</div>
 </div>
 
-<!-- Custom Cursor -->
-<div class="cursor" id="cursor">
-    <div class="cursor-dot"></div>
-    <div class="cursor-outline"></div>
-</div>
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip"></div>
 
 <!-- Choice Container -->
 <div class="choice-container" id="choiceContainer">
@@ -629,6 +778,21 @@
             <h2 class="choice-title">Savor the Moment</h2>
             <p class="choice-subtitle">Pause the rush. Awaken fully.<br>Life unfolds in the here and now.</p>
             <button class="choice-enter">I'm Ready</button>
+        </div>
+    </div>
+
+    <!-- Vertical Divider -->
+    <div class="divider-line" id="dividerLine"></div>
+
+    <!-- Secret Button -->
+    <div class="secret-button-container" id="secretButtonContainer">
+        <div class="panic-button" id="panicButton">
+            <div class="panic-button-outer">
+                <div class="panic-button-highlight"></div>
+                <div class="panic-button-inner">
+                    <div class="panic-button-text">DON'T<br>PANIC</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -825,34 +989,171 @@
     </div>
 </div>
     <script>
-        // Custom Cursor
-        const cursor = document.getElementById('cursor');
-        let mouseX = 0, mouseY = 0;
-        let cursorX = 0, cursorY = 0;
+        // Tooltip System
+        const tooltip = document.getElementById('tooltip');
+        let tooltipTimeout;
 
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
+        function showTooltip(text, x, y) {
+            clearTimeout(tooltipTimeout);
+            tooltip.textContent = text;
+            tooltip.classList.add('show');
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = (y + 20) + 'px';
+        }
+
+        function hideTooltip() {
+            tooltipTimeout = setTimeout(() => {
+                tooltip.classList.remove('show');
+            }, 100);
+        }
+
+        // Secret Button Logic
+        const dividerLine = document.getElementById('dividerLine');
+        const secretButtonContainer = document.getElementById('secretButtonContainer');
+        const panicButton = document.getElementById('panicButton');
+        const choiceContainer = document.getElementById('choiceContainer');
+        const stoicHalf = document.querySelector('.choice-half.stoic');
+        const mindfulHalf = document.querySelector('.choice-half.mindful');
+        
+        let isRevealed = false;
+        let scrollAccumulator = 0;
+        const SCROLL_THRESHOLD = 300; // Amount of scroll needed to reveal
+
+        // Divider hover detection
+        dividerLine.addEventListener('mouseenter', (e) => {
+            if (!isRevealed) {
+                dividerLine.classList.add('active');
+                showTooltip('Scroll', e.clientX, e.clientY);
+            }
         });
 
-        function animateCursor() {
-            const dx = mouseX - cursorX;
-            const dy = mouseY - cursorY;
-            
-            cursorX += dx * 0.1;
-            cursorY += dy * 0.1;
-            
-            cursor.style.transform = `translate(${cursorX - 20}px, ${cursorY - 20}px)`;
-            
-            requestAnimationFrame(animateCursor);
-        }
-        animateCursor();
+        dividerLine.addEventListener('mouseleave', () => {
+            if (!isRevealed) {
+                dividerLine.classList.remove('active');
+                hideTooltip();
+            }
+        });
 
-        // Hover Effects
-        const hoverElements = document.querySelectorAll('button, a, .choice-half');
-        hoverElements.forEach(el => {
-            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        dividerLine.addEventListener('mousemove', (e) => {
+            if (!isRevealed && dividerLine.classList.contains('active')) {
+                tooltip.style.left = e.clientX + 'px';
+                tooltip.style.top = (e.clientY + 20) + 'px';
+            }
+        });
+
+        // Scroll detection on divider
+        dividerLine.addEventListener('wheel', (e) => {
+            if (!isRevealed && choiceContainer.classList.contains('active')) {
+                e.preventDefault();
+                
+                scrollAccumulator += Math.abs(e.deltaY);
+                
+                // Calculate progress
+                const progress = Math.min(scrollAccumulator / SCROLL_THRESHOLD, 1);
+                
+                // Apply curtain effect
+                const translateAmount = progress * 20; // Max 20% translation
+                stoicHalf.style.transform = `translateX(-${translateAmount}%)`;
+                mindfulHalf.style.transform = `translateX(${translateAmount}%)`;
+                
+                // Reveal button when fully scrolled
+                if (progress >= 1 && !isRevealed) {
+                    isRevealed = true;
+                    stoicHalf.classList.add('curtain-left');
+                    mindfulHalf.classList.add('curtain-right');
+                    secretButtonContainer.classList.add('revealed');
+                    
+                    setTimeout(() => {
+                        panicButton.classList.add('show');
+                        hideTooltip();
+                    }, 500);
+                }
+            }
+        });
+
+        // Button hover
+        panicButton.addEventListener('mouseenter', (e) => {
+            if (isRevealed) {
+                showTooltip('Click', e.clientX, e.clientY);
+            }
+        });
+
+        panicButton.addEventListener('mouseleave', () => {
+            hideTooltip();
+        });
+
+        panicButton.addEventListener('mousemove', (e) => {
+            if (isRevealed) {
+                tooltip.style.left = e.clientX + 'px';
+                tooltip.style.top = (e.clientY + 20) + 'px';
+            }
+        });
+
+        // Button press animation
+        panicButton.addEventListener('mousedown', () => {
+            if (isRevealed) {
+                panicButton.classList.add('pressing');
+            }
+        });
+
+        panicButton.addEventListener('mouseup', () => {
+            panicButton.classList.remove('pressing');
+        });
+
+        panicButton.addEventListener('mouseleave', () => {
+            panicButton.classList.remove('pressing');
+        });
+
+        // Button click - check auth and navigate
+        panicButton.addEventListener('click', async () => {
+            if (!isRevealed) return;
+            
+            // Add satisfying click feedback
+            panicButton.classList.add('pressing');
+            
+            // Wait a bit for the animation to be visible
+            setTimeout(async () => {
+                // Create dramatic transition
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: radial-gradient(circle at center, #ff0000, #000);
+                    opacity: 0;
+                    transition: opacity 0.8s ease;
+                    z-index: 10000;
+                `;
+                document.body.appendChild(overlay);
+                
+                requestAnimationFrame(() => {
+                    overlay.style.opacity = '1';
+                    
+                    setTimeout(async () => {
+                        // Check if user is authenticated
+                        try {
+                            const token = localStorage.getItem('token');
+                            const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+                            
+                            const response = await fetch('/api/check-auth', { headers });
+                            const data = await response.json();
+                            
+                            if (data.authenticated) {
+                                // User is logged in, go to their personal chart
+                                window.location.href = '/app?fromPanic=true';
+                            } else {
+                                // User not logged in, go to login page
+                                window.location.href = '/app?fromPanic=true';
+                            }
+                        } catch (error) {
+                            // If check fails, default to login page
+                            window.location.href = '/app?fromPanic=true';
+                        }
+                    }, 800);
+                });
+            }, 150); // Small delay to show the button press
         });
 
         // Loading Screen
@@ -1025,6 +1326,21 @@
             if (e.key === 'Escape') {
                 // Return to choice screen
                 location.reload();
+            }
+        });
+
+        // Reset curtain on window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 768) {
+                // Reset for mobile
+                stoicHalf.style.transform = '';
+                mindfulHalf.style.transform = '';
+                stoicHalf.classList.remove('curtain-left');
+                mindfulHalf.classList.remove('curtain-right');
+                secretButtonContainer.classList.remove('revealed');
+                panicButton.classList.remove('show');
+                isRevealed = false;
+                scrollAccumulator = 0;
             }
         });
     </script>

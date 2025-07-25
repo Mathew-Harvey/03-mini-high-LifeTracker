@@ -1,5 +1,277 @@
 [
   {
+    "name": "Bill Hicks",
+    "dob": "1961-12-16",
+    "deathDate": "1994-02-26",
+    "lifeEvents": [
+      {
+        "title": "Born in Valdosta, Georgia",
+        "startDate": "1961-12-16",
+        "endDate": "1961-12-16",
+        "description": "Born William Melvin Hicks to James Melvin and Mary Reese Hicks, youngest of three children"
+      },
+      {
+        "title": "Family moved to Houston, Texas",
+        "startDate": "1969-01-01",
+        "endDate": "1969-01-01",
+        "description": "Family relocated to Little York Acres suburb of Houston when Bill was 7 years old"
+      },
+      {
+        "title": "Began performing comedy",
+        "startDate": "1975-01-01",
+        "endDate": "1975-01-01",
+        "description": "Started doing stand-up comedy at age 13, sneaking out to perform at Comedy Workshop in Houston"
+      },
+      {
+        "title": "Formed comedy troupe",
+        "startDate": "1976-01-01",
+        "endDate": "1976-01-01",
+        "description": "Formed comedy troupe with friends Dwight Slade and Kevin Booth while in high school"
+      },
+      {
+        "title": "Moved to Los Angeles",
+        "startDate": "1978-01-01",
+        "endDate": "1978-01-01",
+        "description": "Moved to LA after high school graduation to pursue comedy career, performed at The Comedy Store"
+      },
+      {
+        "title": "Returned to Houston",
+        "startDate": "1981-01-01",
+        "endDate": "1981-01-01",
+        "description": "Moved back to Houston after Comedy Store strike, continued performing locally"
+      },
+      {
+        "title": "Began national touring",
+        "startDate": "1983-01-01",
+        "endDate": "1983-01-01",
+        "description": "Started touring comedy clubs across the United States"
+      },
+      {
+        "title": "First appearance on Late Night with David Letterman",
+        "startDate": "1984-01-30",
+        "endDate": "1984-01-30",
+        "description": "Made national television debut on Late Night with David Letterman"
+      },
+      {
+        "title": "Quit drugs and alcohol",
+        "startDate": "1988-01-01",
+        "endDate": "1988-01-01",
+        "description": "Stopped using drugs and drinking, which influenced his material"
+      },
+      {
+        "title": "Released first video 'Sane Man'",
+        "startDate": "1989-01-01",
+        "endDate": "1989-01-01",
+        "description": "Released first comedy special 'Sane Man', filmed in Austin, Texas"
+      },
+      {
+        "title": "Breakthrough at Just for Laughs festival",
+        "startDate": "1990-07-01",
+        "endDate": "1990-07-01",
+        "description": "Performed at Montreal's Just for Laughs comedy festival, gained international attention"
+      },
+      {
+        "title": "Released 'Dangerous'",
+        "startDate": "1990-01-01",
+        "endDate": "1990-01-01",
+        "description": "Released first comedy album 'Dangerous'"
+      },
+      {
+        "title": "Toured United Kingdom",
+        "startDate": "1991-01-01",
+        "endDate": "1991-01-01",
+        "description": "First UK tour, gained cult following in Britain"
+      },
+      {
+        "title": "Released 'Relentless'",
+        "startDate": "1992-01-01",
+        "endDate": "1992-01-01",
+        "description": "Released second album 'Relentless', recorded at London's Dominion Theatre"
+      },
+      {
+        "title": "Diagnosed with pancreatic cancer",
+        "startDate": "1993-06-16",
+        "endDate": "1993-06-16",
+        "description": "Diagnosed with stage 4 pancreatic cancer, kept diagnosis private"
+      },
+      {
+        "title": "Last public performance",
+        "startDate": "1994-01-06",
+        "endDate": "1994-01-06",
+        "description": "Final stand-up show at Caroline's in New York City"
+      },
+      {
+        "title": "Moved to parents' home",
+        "startDate": "1994-01-01",
+        "endDate": "1994-01-01",
+        "description": "Returned to parents' home in Little Rock, Arkansas for final weeks"
+      },
+      {
+        "title": "Died at parents' home",
+        "startDate": "1994-02-26",
+        "endDate": "1994-02-26",
+        "description": "Died at age 32 from pancreatic cancer complications"
+      },
+      {
+        "title": "Posthumous albums released",
+        "startDate": "1997-01-01",
+        "endDate": "1997-01-01",
+        "description": "Albums 'Arizona Bay' and 'Rant in E-Minor' released posthumously"
+      }
+    ]
+  },
+  {
+    "name": "Douglas Adams",
+    "dob": "1952-03-11",
+    "deathDate": "2001-05-11",
+    "lifeEvents": [
+      {
+        "title": "Born in Cambridge, England",
+        "startDate": "1952-03-11",
+        "endDate": "1952-03-11",
+        "description": "Born Douglas Noël Adams to Janet and Christopher Douglas Adams"
+      },
+      {
+        "title": "Attended Brentwood School",
+        "startDate": "1959-09-01",
+        "endDate": "1970-07-01",
+        "description": "Attended independent school in Essex, developed interest in writing and science"
+      },
+      {
+        "title": "Idea for Hitchhiker's Guide",
+        "startDate": "1971-01-01",
+        "endDate": "1971-01-01",
+        "description": "Conceived idea while lying drunk in a field in Innsbruck, Austria, inspired by hitchhiking guide"
+      },
+      {
+        "title": "Attended Cambridge University",
+        "startDate": "1971-10-01",
+        "endDate": "1974-06-01",
+        "description": "Studied English at Fitzwilliam College, joined Footlights comedy club"
+      },
+      {
+        "title": "Collaborated with Monty Python",
+        "startDate": "1974-01-01",
+        "endDate": "1974-01-01",
+        "description": "Wrote sketches for Monty Python's Flying Circus, only non-Python credited writer"
+      },
+      {
+        "title": "Moved to London",
+        "startDate": "1974-07-01",
+        "endDate": "1974-07-01",
+        "description": "Moved to London after graduation, began freelance writing career"
+      },
+      {
+        "title": "Wrote for Doctor Who",
+        "startDate": "1978-01-01",
+        "endDate": "1979-01-01",
+        "description": "Script editor and wrote episodes including 'The Pirate Planet'"
+      },
+      {
+        "title": "Hitchhiker's Guide radio series",
+        "startDate": "1978-03-08",
+        "endDate": "1978-04-12",
+        "description": "BBC Radio 4 broadcast first series of The Hitchhiker's Guide to the Galaxy"
+      },
+      {
+        "title": "Published first Hitchhiker's book",
+        "startDate": "1979-10-12",
+        "endDate": "1979-10-12",
+        "description": "Published 'The Hitchhiker's Guide to the Galaxy' novel, became bestseller"
+      },
+      {
+        "title": "Published Restaurant at the End of the Universe",
+        "startDate": "1980-10-01",
+        "endDate": "1980-10-01",
+        "description": "Second book in Hitchhiker's series published"
+      },
+      {
+        "title": "Hitchhiker's TV series",
+        "startDate": "1981-01-05",
+        "endDate": "1981-02-09",
+        "description": "BBC television adaptation aired"
+      },
+      {
+        "title": "Published Life, the Universe and Everything",
+        "startDate": "1982-08-01",
+        "endDate": "1982-08-01",
+        "description": "Third book in series, adapted from unused Doctor Who script"
+      },
+      {
+        "title": "Published So Long, and Thanks for All the Fish",
+        "startDate": "1984-11-01",
+        "endDate": "1984-11-01",
+        "description": "Fourth book in 'increasingly inaccurately named trilogy'"
+      },
+      {
+        "title": "Collaborated on Starship Titanic game",
+        "startDate": "1986-01-01",
+        "endDate": "1998-01-01",
+        "description": "Created text adventure game, later became multimedia project"
+      },
+      {
+        "title": "Published Dirk Gently's Holistic Detective Agency",
+        "startDate": "1987-05-01",
+        "endDate": "1987-05-01",
+        "description": "First book in Dirk Gently series"
+      },
+      {
+        "title": "Published The Long Dark Tea-Time of the Soul",
+        "startDate": "1988-10-01",
+        "endDate": "1988-10-01",
+        "description": "Second Dirk Gently novel"
+      },
+      {
+        "title": "Published Last Chance to See",
+        "startDate": "1990-10-01",
+        "endDate": "1990-10-01",
+        "description": "Book about endangered species with Mark Carwardine"
+      },
+      {
+        "title": "Published Mostly Harmless",
+        "startDate": "1992-10-01",
+        "endDate": "1992-10-01",
+        "description": "Fifth and final Hitchhiker's book"
+      },
+      {
+        "title": "Married Jane Belson",
+        "startDate": "1991-11-25",
+        "endDate": "1991-11-25",
+        "description": "Married lawyer Jane Belson after long relationship"
+      },
+      {
+        "title": "Daughter Polly born",
+        "startDate": "1994-06-22",
+        "endDate": "1994-06-22",
+        "description": "Only child Polly Jane Rocket Adams born"
+      },
+      {
+        "title": "Created h2g2 website",
+        "startDate": "1999-04-28",
+        "endDate": "1999-04-28",
+        "description": "Launched collaborative online encyclopedia predating Wikipedia"
+      },
+      {
+        "title": "Moved to Santa Barbara",
+        "startDate": "1999-01-01",
+        "endDate": "1999-01-01",
+        "description": "Relocated family to California for daughter's education"
+      },
+      {
+        "title": "Published The Salmon of Doubt posthumously",
+        "startDate": "2002-05-01",
+        "endDate": "2002-05-01",
+        "description": "Unfinished Dirk Gently novel and writings published after death"
+      },
+      {
+        "title": "Died in Santa Barbara",
+        "startDate": "2001-05-11",
+        "endDate": "2001-05-11",
+        "description": "Died suddenly of heart attack at gym at age 49"
+      }
+    ]
+  },
+  {
     "name": "Barack Obama",
     "dob": "1961-08-04",
     "lifeEvents": [
