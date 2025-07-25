@@ -1,7 +1,7 @@
-/* Gallery Page Styles */
+/* Gallery Page Styles - E-Ink Display Theme */
 .gallery-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: var(--eink-bg);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   cursor: auto; /* Ensure cursor is visible */
 }
@@ -19,27 +19,28 @@
 
 /* Header */
 .gallery-header {
-  background: white;
+  background: var(--eink-surface);
   padding: 1.5rem 2rem;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px var(--eink-shadow);
   display: flex;
   align-items: center;
   gap: 2rem;
   position: sticky;
   top: 0;
   z-index: 100;
+  border-bottom: 1px solid var(--eink-border-light);
 }
 
 .gallery-header h1 {
   margin: 0;
-  color: #333;
+  color: var(--eink-text);
   font-size: 2rem;
   font-weight: 700;
 }
 
 .back-button {
-  background: linear-gradient(135deg, #4361ee, #7209b7);
-  color: white;
+  background: var(--eink-accent);
+  color: var(--eink-surface);
   border: none;
   padding: 12px 20px;
   border-radius: 8px;
@@ -54,12 +55,13 @@
 
 .back-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+  box-shadow: 0 5px 15px var(--eink-shadow-medium);
+  background: var(--eink-accent-light);
 }
 
 .refresh-button {
-  background: linear-gradient(135deg, #4cc9f0, #4361ee);
-  color: white;
+  background: var(--eink-accent);
+  color: var(--eink-surface);
   border: none;
   padding: 12px 20px;
   border-radius: 8px;
@@ -75,7 +77,8 @@
 
 .refresh-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(76, 201, 240, 0.4);
+  box-shadow: 0 5px 15px var(--eink-shadow-medium);
+  background: var(--eink-accent-light);
 }
 
 .refresh-button:disabled {
@@ -86,8 +89,8 @@
 }
 
 .regenerate-button {
-  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-  color: white;
+  background: #d32f2f;
+  color: var(--eink-surface);
   border: none;
   padding: 12px 20px;
   border-radius: 8px;
@@ -103,7 +106,8 @@
 
 .regenerate-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+  box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
+  background: #b71c1c;
 }
 
 .regenerate-button:disabled {
@@ -123,12 +127,13 @@
 /* Tab Navigation */
 .gallery-tabs {
   display: flex;
-  background: white;
+  background: var(--eink-surface);
   border-radius: 12px;
   padding: 0.5rem;
   margin-bottom: 2rem;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 20px var(--eink-shadow);
   gap: 0.5rem;
+  border: 1px solid var(--eink-border-light);
 }
 
 .tab-button {
@@ -141,20 +146,20 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: #666;
+  color: var(--eink-text-muted);
   position: relative;
   overflow: hidden;
 }
 
 .tab-button:hover {
-  background: rgba(67, 97, 238, 0.1);
-  color: #4361ee;
+  background: var(--eink-hover);
+  color: var(--eink-text);
 }
 
 .tab-button.active {
-  background: linear-gradient(135deg, #4361ee, #7209b7);
-  color: white;
-  box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+  background: var(--eink-accent);
+  color: var(--eink-surface);
+  box-shadow: 0 4px 15px var(--eink-shadow-medium);
 }
 
 .tab-button.active::before {
@@ -201,13 +206,14 @@
 
 /* Gallery items */
 .public-gallery-item {
-  background: white;
+  background: var(--eink-surface);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 20px var(--eink-shadow);
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
+  border: 1px solid var(--eink-border-light);
 }
 
 /* Owner name overlay - always visible */
@@ -247,24 +253,24 @@
 
 /* Celebrity-specific owner badge */
 .celebrity-gallery-item .owner-badge {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(255, 165, 0, 0.9));
-  color: #333;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: var(--eink-accent);
+  color: var(--eink-surface);
+  border: 1px solid var(--eink-accent-light);
 }
 
 .celebrity-gallery-item .owner-badge .owner-icon {
-  color: #b8860b;
+  color: var(--eink-surface);
 }
 
 /* Community-specific owner badge - now identical to celebrity badge */
 .user-gallery-item .owner-badge {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(255, 165, 0, 0.9));
-  color: #333;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: var(--eink-accent);
+  color: var(--eink-surface);
+  border: 1px solid var(--eink-accent-light);
 }
 
 .user-gallery-item .owner-badge .owner-icon {
-  color: #b8860b;
+  color: var(--eink-surface);
 }
 
 /* Hover effects for owner badge */
@@ -275,26 +281,26 @@
 }
 
 .celebrity-gallery-item:hover .owner-badge {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 1), rgba(255, 165, 0, 1));
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+  background: var(--eink-accent-light);
+  box-shadow: 0 4px 12px var(--eink-shadow-medium);
 }
 
 /* Community-specific owner badge hover effects - now identical to celebrity hover effects */
 .user-gallery-item:hover .owner-badge {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 1), rgba(255, 165, 0, 1));
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+  background: var(--eink-accent-light);
+  box-shadow: 0 4px 12px var(--eink-shadow-medium);
 }
 
 .public-gallery-item:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 30px var(--eink-shadow-heavy);
 }
 
 .public-gallery-item:focus {
-  outline: 3px solid #4361ee;
+  outline: 3px solid var(--eink-accent);
   outline-offset: 2px;
   transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 30px var(--eink-shadow-heavy);
 }
 
 .public-gallery-item img {
@@ -311,8 +317,8 @@
 
 /* Celebrity-specific styles */
 .celebrity-gallery-item {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--eink-surface);
+  color: var(--eink-text);
 }
 
 .celebrity-gallery-item .chart-overlay {
@@ -347,8 +353,8 @@
 
 /* User-specific styles - now identical to celebrity styles */
 .user-gallery-item {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--eink-surface);
+  color: var(--eink-text);
 }
 
 .user-gallery-item .chart-overlay {
@@ -433,20 +439,21 @@
 .empty-tab {
   text-align: center;
   padding: 4rem 2rem;
-  background: white;
+  background: var(--eink-surface);
   border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 40px var(--eink-shadow);
+  border: 1px solid var(--eink-border-light);
 }
 
 .empty-tab h3 {
-  color: #4361ee;
+  color: var(--eink-accent);
   font-size: 1.8rem;
   margin-bottom: 1rem;
   font-weight: 700;
 }
 
 .empty-tab p {
-  color: #666;
+  color: var(--eink-text-secondary);
   font-size: 1.1rem;
   line-height: 1.6;
   max-width: 500px;
@@ -460,40 +467,42 @@
 }
 
 .blurred-preview {
-  background: white;
+  background: var(--eink-surface);
   border-radius: 20px;
   padding: 3rem;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 40px var(--eink-shadow);
   position: relative;
   overflow: hidden;
+  border: 1px solid var(--eink-border-light);
 }
 
 .blur-overlay {
   position: relative;
   z-index: 2;
-  background: rgba(255,255,255,0.95);
+  background: var(--eink-surface);
   padding: 2rem;
   border-radius: 15px;
   backdrop-filter: blur(10px);
+  border: 1px solid var(--eink-border);
 }
 
 .blur-overlay h3 {
-  color: #4361ee;
+  color: var(--eink-accent);
   font-size: 1.8rem;
   margin-bottom: 1rem;
   font-weight: 700;
 }
 
 .blur-overlay p {
-  color: #666;
+  color: var(--eink-text-secondary);
   font-size: 1.1rem;
   line-height: 1.6;
   margin-bottom: 2rem;
 }
 
 .make-public-action-btn {
-  background: linear-gradient(135deg, #4361ee, #7209b7);
-  color: white;
+  background: var(--eink-accent);
+  color: var(--eink-surface);
   border: none;
   padding: 15px 30px;
   border-radius: 10px;
@@ -505,7 +514,8 @@
 
 .make-public-action-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+  box-shadow: 0 8px 25px var(--eink-shadow-heavy);
+  background: var(--eink-accent-light);
 }
 
 .sample-charts {
@@ -523,7 +533,7 @@
 }
 
 .sample-chart {
-  background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+  background: linear-gradient(45deg, var(--eink-bg), var(--eink-hover));
   border-radius: 8px;
   height: 120px;
   animation: float 3s ease-in-out infinite;
@@ -542,33 +552,35 @@
 .community-prompt {
   text-align: center;
   padding: 3rem 2rem;
-  background: white;
+  background: var(--eink-surface);
   border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 40px var(--eink-shadow);
   position: relative;
   overflow: hidden;
   margin: 2rem auto;
   max-width: 600px;
+  border: 1px solid var(--eink-border-light);
 }
 
 .prompt-content {
   position: relative;
   z-index: 2;
-  background: rgba(255,255,255,0.95);
+  background: var(--eink-surface);
   padding: 2rem;
   border-radius: 15px;
   backdrop-filter: blur(10px);
+  border: 1px solid var(--eink-border);
 }
 
 .prompt-content h3 {
-  color: #4361ee;
+  color: var(--eink-accent);
   font-size: 1.8rem;
   margin-bottom: 1rem;
   font-weight: 700;
 }
 
 .prompt-content p {
-  color: #666;
+  color: var(--eink-text-secondary);
   font-size: 1.1rem;
   line-height: 1.6;
   margin-bottom: 2rem;
@@ -578,20 +590,21 @@
 .empty-gallery {
   text-align: center;
   padding: 4rem 2rem;
-  background: white;
+  background: var(--eink-surface);
   border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 40px var(--eink-shadow);
+  border: 1px solid var(--eink-border-light);
 }
 
 .empty-gallery h3 {
-  color: #4361ee;
+  color: var(--eink-accent);
   font-size: 2rem;
   margin-bottom: 1rem;
   font-weight: 700;
 }
 
 .empty-gallery p {
-  color: #666;
+  color: var(--eink-text-secondary);
   font-size: 1.1rem;
   line-height: 1.6;
   max-width: 500px;
@@ -602,26 +615,28 @@
 .loading-state, .error-state {
   text-align: center;
   padding: 4rem 2rem;
-  background: white;
+  background: var(--eink-surface);
   border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 40px var(--eink-shadow);
   margin: 2rem auto;
   max-width: 400px;
+  border: 1px solid var(--eink-border-light);
 }
 
 /* Skeleton loading for gallery items */
 .skeleton-item {
-  background: white;
+  background: var(--eink-surface);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 20px var(--eink-shadow);
   position: relative;
+  border: 1px solid var(--eink-border-light);
 }
 
 .skeleton-image {
   width: 100%;
   height: 250px;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, var(--eink-bg) 25%, var(--eink-hover) 50%, var(--eink-bg) 75%);
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
 }
@@ -669,8 +684,8 @@
 .loading-spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #4361ee;
+  border: 4px solid var(--eink-border);
+  border-top: 4px solid var(--eink-accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem;
@@ -682,13 +697,13 @@
 }
 
 .loading-state p, .error-state p {
-  color: #666;
+  color: var(--eink-text-secondary);
   font-size: 1.1rem;
   margin: 0;
 }
 
 .error-state p {
-  color: #e74c3c;
+  color: #d32f2f;
 }
 
 /* Responsive design */

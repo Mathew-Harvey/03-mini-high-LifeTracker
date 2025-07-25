@@ -1,35 +1,55 @@
 /* --- Import Fonts --- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=EB+Garamond:wght@400;500;600;700&display=swap');
 
-/* --- CSS Custom Properties (Landing Page Themes) --- */
+/* --- CSS Custom Properties (E-Ink Display Theme) --- */
 :root {
-  --noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
-  --primary-bg: #fafaf8;
-  --primary-text: #1a1a1a;
-  --accent-color: #2d5016;
-  --secondary-bg: #ffffff;
-  --border-color: #eaeaea;
-  --hover-bg: #f5f7ff;
-  --week-default: #f8f9fa;
-  --week-lived: #4cc9f0;
-  --shadow-light: 0 4px 12px rgba(0,0,0,0.05);
-  --shadow-medium: 0 5px 20px rgba(0,0,0,0.15);
-  --shadow-heavy: 0 20px 40px rgba(0,0,0,0.15);
+  --noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+  
+  /* E-Ink Display Color Palette */
+  --eink-bg: #f8f8f6;
+  --eink-surface: #ffffff;
+  --eink-text: #1a1a1a;
+  --eink-text-secondary: #4a4a4a;
+  --eink-text-muted: #6b6b6b;
+  --eink-border: #e0e0e0;
+  --eink-border-light: #f0f0f0;
+  --eink-accent: #2d5016;
+  --eink-accent-light: #4a7c2a;
+  --eink-hover: #f5f5f3;
+  --eink-shadow: rgba(0, 0, 0, 0.04);
+  --eink-shadow-medium: rgba(0, 0, 0, 0.08);
+  --eink-shadow-heavy: rgba(0, 0, 0, 0.12);
+  
+  /* Week Grid Colors */
+  --week-default: #f8f8f6;
+  --week-lived: #2d5016;
+  --week-lived-hover: #4a7c2a;
+  
+  /* Transitions */
   --transition-smooth: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
   --transition-quick: all 0.2s ease;
 }
 
-/* Dark theme override */
+/* Dark theme override - sophisticated dark e-ink */
 @media (prefers-color-scheme: dark) {
   :root {
-    --primary-bg: #1a1a1a;
-    --primary-text: #f0f0f0;
-    --accent-color: #ff4444;
-    --secondary-bg: #252525;
-    --border-color: rgba(255, 255, 255, 0.1);
-    --hover-bg: rgba(255, 255, 255, 0.05);
-    --week-default: rgba(255, 255, 255, 0.05);
-    --week-lived: #ff4444;
+    --eink-bg: #1a1a1a;
+    --eink-surface: #252525;
+    --eink-text: #f0f0f0;
+    --eink-text-secondary: #d0d0d0;
+    --eink-text-muted: #a0a0a0;
+    --eink-border: #333333;
+    --eink-border-light: #2a2a2a;
+    --eink-accent: #4a7c2a;
+    --eink-accent-light: #6b9c4a;
+    --eink-hover: #2a2a2a;
+    --eink-shadow: rgba(0, 0, 0, 0.2);
+    --eink-shadow-medium: rgba(0, 0, 0, 0.3);
+    --eink-shadow-heavy: rgba(0, 0, 0, 0.4);
+    
+    --week-default: #2a2a2a;
+    --week-lived: #4a7c2a;
+    --week-lived-hover: #6b9c4a;
   }
 }
 
@@ -42,8 +62,8 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--primary-bg);
-  color: var(--primary-text);
+  background: var(--eink-bg);
+  color: var(--eink-text);
   line-height: 1.6;
   position: relative;
   overflow-x: hidden;
@@ -52,7 +72,7 @@ body {
   cursor: auto;
 }
 
-/* Noise texture overlay */
+/* Noise texture overlay - very subtle for e-ink feel */
 body::before {
   content: '';
   position: fixed;
@@ -61,7 +81,7 @@ body::before {
   width: 100%;
   height: 100%;
   background: var(--noise);
-  opacity: 0.03;
+  opacity: 0.02;
   pointer-events: none;
   z-index: 1;
 }
@@ -83,7 +103,7 @@ body::before {
 .cursor-dot {
   width: 8px;
   height: 8px;
-  background: var(--primary-text);
+  background: var(--eink-text);
   border-radius: 50%;
   position: absolute;
   top: 50%;
@@ -95,7 +115,7 @@ body::before {
 .cursor-outline {
   width: 40px;
   height: 40px;
-  border: 1px solid var(--primary-text);
+  border: 1px solid var(--eink-text);
   border-radius: 50%;
   position: absolute;
   top: 0;
@@ -121,6 +141,7 @@ h1, h2, h3 {
   font-weight: 400;
   margin-bottom: 1rem;
   letter-spacing: -0.02em;
+  color: var(--eink-text);
 }
 
 h1 { font-size: clamp(2rem, 4vw, 2.5rem); }
@@ -128,9 +149,9 @@ h2 { font-size: clamp(1.5rem, 3vw, 2rem); }
 h3 { font-size: clamp(1.2rem, 2.5vw, 1.5rem); }
 
 button {
-  background: transparent;
-  color: var(--primary-text);
-  border: 1px solid var(--border-color);
+  background: var(--eink-surface);
+  color: var(--eink-text);
+  border: 1px solid var(--eink-border);
   border-radius: 8px;
   padding: 12px 20px;
   font-size: 14px;
@@ -141,13 +162,14 @@ button {
   font-family: inherit;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 1px 3px var(--eink-shadow);
 }
 
 button:hover {
-  color: var(--primary-bg);
-  background: var(--primary-text);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-medium);
+  color: var(--eink-surface);
+  background: var(--eink-text);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px var(--eink-shadow-medium);
 }
 
 button:active {
@@ -156,14 +178,14 @@ button:active {
 
 /* Primary button style */
 button.primary {
-  background: var(--accent-color);
-  color: var(--primary-bg);
-  border-color: var(--accent-color);
+  background: var(--eink-accent);
+  color: var(--eink-surface);
+  border-color: var(--eink-accent);
 }
 
 button.primary:hover {
-  background: var(--primary-text);
-  border-color: var(--primary-text);
+  background: var(--eink-accent-light);
+  border-color: var(--eink-accent-light);
 }
 
 /* --- Intro Section --- */
@@ -172,11 +194,12 @@ button.primary:hover {
   max-width: 800px;
   margin: 3rem auto;
   padding: 3rem 2rem;
-  background: var(--secondary-bg);
+  background: var(--eink-surface);
   border-radius: 20px;
-  box-shadow: var(--shadow-light);
+  box-shadow: 0 4px 12px var(--eink-shadow);
   position: relative;
   overflow: hidden;
+  border: 1px solid var(--eink-border-light);
 }
 
 .intro-section::before {
@@ -193,14 +216,13 @@ button.primary:hover {
 
 .intro-section h1 {
   margin-bottom: 1.5rem;
-  color: var(--primary-text);
+  color: var(--eink-text);
   position: relative;
   z-index: 2;
 }
 
 .intro-section p {
-  color: var(--primary-text);
-  opacity: 0.8;
+  color: var(--eink-text-secondary);
   margin-bottom: 2rem;
   font-size: 1.1rem;
   line-height: 1.7;
@@ -209,7 +231,7 @@ button.primary:hover {
 }
 
 .intro-highlight {
-  color: var(--accent-color);
+  color: var(--eink-accent);
   font-weight: 600;
 }
 
@@ -217,11 +239,12 @@ button.primary:hover {
   display: block;
   margin: 2rem auto;
   height: 120px;
-  background: linear-gradient(135deg, var(--week-default) 0%, var(--hover-bg) 100%);
+  background: linear-gradient(135deg, var(--week-default) 0%, var(--eink-hover) 100%);
   border-radius: 12px;
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: inset 0 1px 3px var(--eink-shadow);
+  border: 1px solid var(--eink-border-light);
 }
 
 .intro-visual::after {
@@ -252,15 +275,16 @@ button.primary:hover {
 
 /* --- Authentication UI --- */
 #authContainer {
-  background: var(--secondary-bg);
+  background: var(--eink-surface);
   padding: 3rem 2rem;
   border-radius: 20px;
-  box-shadow: var(--shadow-medium);
+  box-shadow: 0 5px 20px var(--eink-shadow-medium);
   max-width: 450px;
   margin: 3rem auto;
   text-align: center;
   position: relative;
   overflow: hidden;
+  border: 1px solid var(--eink-border-light);
 }
 
 #authContainer::before {
@@ -282,25 +306,25 @@ button.primary:hover {
 
 #authContainer h1 { 
   margin-bottom: 2rem; 
-  color: var(--primary-text);
+  color: var(--eink-text);
 }
 
 #authContainer input {
   width: 100%;
   padding: 16px 20px;
   margin-bottom: 1.5rem;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--eink-border);
   border-radius: 12px;
   font-size: 15px;
   font-family: inherit;
-  background: var(--primary-bg);
-  color: var(--primary-text);
+  background: var(--eink-bg);
+  color: var(--eink-text);
   transition: var(--transition-quick);
 }
 
 #authContainer input:focus {
   outline: none;
-  border-color: var(--accent-color);
+  border-color: var(--eink-accent);
   box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.1);
 }
 
@@ -313,7 +337,7 @@ button.primary:hover {
 
 .toggle-link { 
   margin-top: 1.5rem; 
-  color: var(--accent-color); 
+  color: var(--eink-accent); 
   text-decoration: none; 
   cursor: pointer; 
   font-size: 14px;
@@ -331,11 +355,12 @@ button.primary:hover {
   display: none; 
   margin: 2rem auto;
   position: relative;
-  background: var(--secondary-bg);
+  background: var(--eink-surface);
   padding: 3rem 2rem;
   border-radius: 20px;
-  box-shadow: var(--shadow-light);
+  box-shadow: 0 4px 12px var(--eink-shadow);
   overflow: hidden;
+  border: 1px solid var(--eink-border-light);
 }
 
 #gridContainer::before {
@@ -358,7 +383,7 @@ button.primary:hover {
 #gridContainer h2 { 
   margin-bottom: 2rem;
   text-align: center;
-  color: var(--primary-text);
+  color: var(--eink-text);
 }
 
 .grid-controls {
@@ -378,24 +403,24 @@ button.primary:hover {
 
 #logoutButton {
   background: transparent;
-  color: #f44336;
-  border-color: #f44336;
+  color: #d32f2f;
+  border-color: #d32f2f;
 }
 
 #logoutButton:hover {
-  background: #f44336;
-  color: white;
+  background: #d32f2f;
+  color: var(--eink-surface);
 }
 
 #galleryButton {
-  background: var(--accent-color);
-  color: var(--primary-bg);
-  border-color: var(--accent-color);
+  background: var(--eink-accent);
+  color: var(--eink-surface);
+  border-color: var(--eink-accent);
 }
 
 #galleryButton:hover {
-  background: var(--primary-text);
-  border-color: var(--primary-text);
+  background: var(--eink-accent-light);
+  border-color: var(--eink-accent-light);
 }
 
 /* Preset menu styling */
@@ -408,17 +433,17 @@ button.primary:hover {
 #presetSelect { 
   padding: 12px 16px; 
   border-radius: 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--eink-border);
   font-size: 14px;
   font-family: inherit;
-  background: var(--primary-bg);
-  color: var(--primary-text);
+  background: var(--eink-bg);
+  color: var(--eink-text);
   transition: var(--transition-quick);
 }
 
 #presetSelect:focus {
   outline: none;
-  border-color: var(--accent-color);
+  border-color: var(--eink-accent);
 }
 
 #gridArea {
@@ -426,21 +451,21 @@ button.primary:hover {
   grid-template-areas: "corner xAxis" "yAxis grid";
   grid-template-columns: auto 1fr;
   grid-template-rows: auto 1fr;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--eink-border);
   margin-bottom: 2rem;
   border-radius: 16px;
   overflow: hidden;
   min-width: 0;
-  box-shadow: var(--shadow-light);
-  background: var(--primary-bg);
+  box-shadow: 0 2px 8px var(--eink-shadow);
+  background: var(--eink-bg);
 }
 #corner {
   grid-area: corner;
   width: 60px;
   height: 30px;
   background: var(--week-default);
-  border-bottom: 1px solid var(--border-color);
-  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--eink-border);
+  border-right: 1px solid var(--eink-border);
 }
 #xAxis {
   grid-area: xAxis;
@@ -459,18 +484,17 @@ button.primary:hover {
     repeat(4, 1fr) 6px  /* Oct: 4 weeks + gap */
     repeat(4, 1fr) 6px  /* Nov: 4 weeks + gap */
     repeat(5, 1fr);     /* Dec: 5 weeks (no gap at end) */
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--eink-border);
   min-width: 0;
   overflow: visible;
 }
 #xAxis .month-label {
   text-align: center;
   font-size: 11px;
-  border-right: 1px solid var(--border-color);
+  border-right: 1px solid var(--eink-border);
   background: var(--week-default);
   padding: 6px 2px;
-  color: var(--primary-text);
-  opacity: 0.7;
+  color: var(--eink-text-muted);
   white-space: nowrap;
   overflow: visible;
   min-width: 0;
@@ -493,7 +517,7 @@ button.primary:hover {
     repeat(10, 1fr) 10px  /* Decade 7: 10 years + gap */
     repeat(10, 1fr) 10px  /* Decade 8: 10 years + gap */
     repeat(10, 1fr);      /* Decade 9: 10 years (no gap at end) */
-  border-right: 1px solid #eaeaea;
+  border-right: 1px solid var(--eink-border);
   min-width: 0;
   overflow: visible;
 }
@@ -502,11 +526,10 @@ button.primary:hover {
   font-size: 11px;
   padding-right: 8px;
   padding-left: 4px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--eink-border);
   background: var(--week-default);
   line-height: 1.2;
-  color: var(--primary-text);
-  opacity: 0.7;
+  color: var(--eink-text-muted);
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -524,7 +547,7 @@ button.primary:hover {
   border-radius: 0 0 16px 0;
   min-width: 0;
   min-height: 0;
-  background: var(--primary-bg);
+  background: var(--eink-bg);
 }
 #lifeGrid {
   display: grid;
@@ -571,8 +594,8 @@ button.primary:hover {
 /* --- Age Tooltip Styles --- */
 .age-tooltip {
   position: absolute;
-  background: rgba(0, 0, 0, 0.95);
-  color: white;
+  background: var(--eink-surface);
+  color: var(--eink-text);
   padding: 16px 20px;
   border-radius: 12px;
   font-size: 14px;
@@ -582,9 +605,9 @@ button.primary:hover {
   opacity: 0;
   transform: translateY(15px);
   transition: var(--transition-smooth);
-  box-shadow: var(--shadow-heavy);
+  box-shadow: 0 8px 24px var(--eink-shadow-heavy);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--eink-border);
   max-width: 300px;
   white-space: nowrap;
   font-family: 'Inter', sans-serif;
@@ -597,32 +620,32 @@ button.primary:hover {
   font-size: 17px;
   font-weight: 600;
   margin-bottom: 6px;
-  color: var(--week-lived);
+  color: var(--eink-accent);
   font-family: 'EB Garamond', serif;
 }
 .age-tooltip .age-details {
   font-size: 12px;
-  color: #ccc;
+  color: var(--eink-text-secondary);
   line-height: 1.4;
 }
 .age-tooltip .age-date {
-  color: #fff;
+  color: var(--eink-text);
   font-weight: 500;
   display: none;
 }
 .age-tooltip .event-info {
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid var(--eink-border);
 }
 .age-tooltip .event-title {
-  color: #4cc9f0;
+  color: var(--eink-accent);
   font-weight: 600;
   margin-bottom: 2px;
 }
 .age-tooltip .event-dates {
   font-size: 11px;
-  color: #aaa;
+  color: var(--eink-text-muted);
 }
 .age-tooltip .arrow {
   position: absolute;
@@ -632,19 +655,19 @@ button.primary:hover {
 }
 .age-tooltip .arrow.top {
   bottom: -6px;
-  border-top-color: rgba(0, 0, 0, 0.9);
+  border-top-color: var(--eink-surface);
 }
 .age-tooltip .arrow.bottom {
   top: -6px;
-  border-bottom-color: rgba(0, 0, 0, 0.9);
+  border-bottom-color: var(--eink-surface);
 }
 .age-tooltip .arrow.left {
   right: -6px;
-  border-left-color: rgba(0, 0, 0, 0.9);
+  border-left-color: var(--eink-surface);
 }
 .age-tooltip .arrow.right {
   left: -6px;
-  border-right-color: rgba(0, 0, 0, 0.9);
+  border-right-color: var(--eink-surface);
 }
 
 /* --- Enhanced Week Cell Hover Effects --- */
@@ -654,7 +677,7 @@ button.primary:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--eink-border);
   background-color: var(--week-default);
   border-radius: 4px;
   transition: var(--transition-smooth);
@@ -662,19 +685,19 @@ button.primary:hover {
 }
 .week-inner:hover {
   transform: scale(1.08);
-  box-shadow: var(--shadow-medium);
+  box-shadow: 0 4px 12px var(--eink-shadow-medium);
   z-index: 10;
-  border-color: var(--accent-color);
+  border-color: var(--eink-accent);
 }
 .week.lived .week-inner { 
   background-color: var(--week-lived); 
 }
 .week.lived .week-inner:hover {
-  background-color: var(--accent-color) !important;
+  background-color: var(--week-lived-hover) !important;
   filter: brightness(1.1);
 }
 .week:not(.lived) .week-inner:hover {
-  background-color: var(--hover-bg) !important;
+  background-color: var(--eink-hover) !important;
 }
 /* Removed thick borders - now using CSS grid gaps for spacing */
 /* Removed old boundary styling - now using CSS Grid gaps for clean separation */
@@ -704,7 +727,7 @@ button.primary:hover {
   align-items: center;
   justify-content: center;
   font-size: 24px;
-  color: #900;
+  color: #d32f2f;
   pointer-events: none;
   z-index: 3; /* Ensure skull appears above event overlays and gap borders */
 }
@@ -738,14 +761,14 @@ button.primary:hover {
 /* --- Live Event Annotations --- */
 .live-event-annotation {
   position: absolute;
-  background: rgba(255, 255, 255, 0.98);
-  border: 2px solid #4361ee;
+  background: var(--eink-surface);
+  border: 2px solid var(--eink-accent);
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 12px;
   font-weight: 600;
-  color: #333;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  color: var(--eink-text);
+  box-shadow: 0 4px 12px var(--eink-shadow-medium);
   z-index: 1000;
   max-width: 140px;
   text-align: center;
@@ -770,25 +793,25 @@ button.primary:hover {
   bottom: -8px;
   left: 50%;
   transform: translateX(-50%);
-  border-top-color: #4361ee;
+  border-top-color: var(--eink-accent);
 }
 .live-event-annotation.bottom::before {
   top: -8px;
   left: 50%;
   transform: translateX(-50%);
-  border-bottom-color: #4361ee;
+  border-bottom-color: var(--eink-accent);
 }
 .live-event-annotation.left::before {
   right: -8px;
   top: 50%;
   transform: translateY(-50%);
-  border-left-color: #4361ee;
+  border-left-color: var(--eink-accent);
 }
 .live-event-annotation.right::before {
   left: -8px;
   top: 50%;
   transform: translateY(-50%);
-  border-right-color: #4361ee;
+  border-right-color: var(--eink-accent);
 }
 
 /* --- Draggable Event Form --- */
@@ -797,13 +820,13 @@ button.primary:hover {
   bottom: 20px;
   left: 20px;
   width: 340px;
-  background: var(--secondary-bg);
+  background: var(--eink-surface);
   border-radius: 16px;
-  box-shadow: var(--shadow-heavy);
+  box-shadow: 0 8px 24px var(--eink-shadow-heavy);
   z-index: 1000;
   display: none;
   overflow: hidden;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--eink-border);
 }
 #eventFormHeader {
   background: var(--week-default);
@@ -812,17 +835,17 @@ button.primary:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--eink-border);
 }
 #eventFormHeader span { 
   font-weight: 600; 
-  color: var(--primary-text);
+  color: var(--eink-text);
   font-family: 'EB Garamond', serif;
   font-size: 16px;
 }
 #eventFormHeader button {
   background: none;
-  color: var(--primary-text);
+  color: var(--eink-text);
   opacity: 0.6;
   border: none;
   cursor: pointer;
@@ -833,7 +856,7 @@ button.primary:hover {
   transition: var(--transition-quick);
 }
 #eventFormHeader button:hover {
-  background-color: var(--hover-bg);
+  background-color: var(--eink-hover);
   opacity: 1;
 }
 #eventFormContent { 
@@ -843,7 +866,7 @@ button.primary:hover {
   font-weight: 500;
   margin-top: 16px;
   display: block;
-  color: var(--primary-text);
+  color: var(--eink-text-secondary);
   opacity: 0.8;
   font-size: 14px;
   letter-spacing: 0.02em;
@@ -852,25 +875,25 @@ button.primary:hover {
   width: 100%;
   padding: 12px 16px;
   margin: 8px 0 16px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--eink-border);
   border-radius: 8px;
   font-size: 14px;
   font-family: inherit;
-  background: var(--primary-bg);
-  color: var(--primary-text);
+  background: var(--eink-bg);
+  color: var(--eink-text);
   transition: var(--transition-quick);
 }
 #eventFormContent input:focus {
   outline: none;
-  border-color: var(--accent-color);
+  border-color: var(--eink-accent);
   box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.1);
 }
 #eventFormContent button { 
   width: 100%;
   margin-top: 20px;
-  background: var(--accent-color);
-  color: var(--primary-bg);
-  border-color: var(--accent-color);
+  background: var(--eink-accent);
+  color: var(--eink-surface);
+  border-color: var(--eink-accent);
 }
 
 /* --- Show Event Form Button --- */
@@ -881,11 +904,11 @@ button.primary:hover {
   z-index: 1000;
   padding: 16px;
   border-radius: 50%;
-  background: var(--accent-color);
-  color: var(--primary-bg);
-  border: 1px solid var(--accent-color);
+  background: var(--eink-accent);
+  color: var(--eink-surface);
+  border: 1px solid var(--eink-accent);
   cursor: pointer;
-  box-shadow: var(--shadow-medium);
+  box-shadow: 0 4px 12px var(--eink-shadow-medium);
   font-size: 20px;
   width: 56px;
   height: 56px;
@@ -902,7 +925,7 @@ button.primary:hover {
 
 #showEventFormButton:hover {
   transform: scale(1.1);
-  box-shadow: var(--shadow-heavy);
+  box-shadow: 0 8px 24px var(--eink-shadow-heavy);
 }
 
 /* --- Floating Draggable Legend --- */
@@ -910,26 +933,26 @@ button.primary:hover {
   position: fixed;
   top: 20px;
   right: 20px;
-  background: var(--secondary-bg);
+  background: var(--eink-surface);
   border-radius: 16px;
   max-width: 260px;
   z-index: 1000;
   display: none;
-  box-shadow: var(--shadow-heavy);
+  box-shadow: 0 8px 24px var(--eink-shadow-heavy);
   overflow: hidden;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--eink-border);
 }
 /* Legend header for dragging */
 #legendHeader {
   background: var(--week-default);
   padding: 16px 20px;
   cursor: move;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--eink-border);
 }
 #legendHeader h3 { 
   font-size: 16px; 
   margin: 0; 
-  color: var(--primary-text);
+  color: var(--eink-text);
   font-family: 'EB Garamond', serif;
   font-weight: 500;
 }
@@ -946,14 +969,14 @@ button.primary:hover {
   border-radius: 6px;
 }
 .legend-item:hover {
-  background-color: var(--hover-bg);
+  background-color: var(--eink-hover);
 }
 .legend-color {
   width: 16px;
   height: 16px;
   margin-right: 14px;
   border-radius: 4px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--eink-border);
 }
 
 
@@ -971,27 +994,26 @@ button.primary:hover {
   backdrop-filter: blur(10px);
 }
 #publicModalContent {
-  background: var(--secondary-bg);
+  background: var(--eink-surface);
   width: 90%;
   max-width: 550px;
   margin: 8% auto;
   padding: 3rem 2rem;
   border-radius: 24px;
   text-align: center;
-  box-shadow: var(--shadow-heavy);
+  box-shadow: 0 20px 40px var(--eink-shadow-heavy);
   position: relative;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--eink-border);
 }
 #publicModalContent h2 {
-  color: var(--accent-color);
+  color: var(--eink-accent);
   margin-bottom: 1.5rem;
   font-size: 2rem;
   font-family: 'EB Garamond', serif;
   font-weight: 500;
 }
 #publicModalContent p {
-  color: var(--primary-text);
-  opacity: 0.8;
+  color: var(--eink-text-secondary);
   margin-bottom: 2.5rem;
   line-height: 1.7;
   font-size: 1.1rem;
@@ -1011,24 +1033,24 @@ button.primary:hover {
   transition: var(--transition-smooth);
 }
 #makePublicBtn {
-  background: linear-gradient(135deg, var(--accent-color), var(--week-lived));
-  color: var(--primary-bg);
-  border-color: var(--accent-color);
+  background: var(--eink-accent);
+  color: var(--eink-surface);
+  border-color: var(--eink-accent);
   display: none; /* Hidden by default, shown only for personal charts */
 }
 #makePublicBtn:hover {
   transform: translateY(-3px);
-  box-shadow: var(--shadow-heavy);
-  filter: brightness(1.1);
+  box-shadow: 0 20px 40px var(--eink-shadow-heavy);
+  background: var(--eink-accent-light);
 }
 #keepPrivateBtn {
-  background: var(--week-default);
-  color: var(--primary-text);
-  border: 2px solid var(--border-color);
+  background: var(--eink-surface);
+  color: var(--eink-text);
+  border: 2px solid var(--eink-border);
 }
 #keepPrivateBtn:hover {
-  background: var(--hover-bg);
-  border-color: var(--accent-color);
+  background: var(--eink-hover);
+  border-color: var(--eink-accent);
 }
 
 
@@ -1036,11 +1058,11 @@ button.primary:hover {
 .loading, .error {
   text-align: center;
   padding: 3rem;
-  color: #666;
+  color: var(--eink-text-muted);
   font-size: 1.1rem;
 }
 .error {
-  color: #f44336;
+  color: #d32f2f;
 }
 
 /* Private Gallery Prompt Styles */
@@ -1051,40 +1073,41 @@ button.primary:hover {
 }
 .blurred-preview {
   position: relative;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, var(--eink-bg) 0%, var(--eink-hover) 100%);
   border-radius: 20px;
   overflow: hidden;
   min-height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid var(--eink-border-light);
 }
 .blur-overlay {
   position: relative;
   z-index: 2;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--eink-surface);
   padding: 3rem 2rem;
   border-radius: 16px;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--eink-border);
+  box-shadow: 0 20px 40px var(--eink-shadow-heavy);
   max-width: 500px;
 }
 .blur-overlay h3 {
-  color: #4361ee;
+  color: var(--eink-accent);
   font-size: 1.8rem;
   margin-bottom: 1rem;
   font-weight: 700;
 }
 .blur-overlay p {
-  color: #666;
+  color: var(--eink-text-secondary);
   font-size: 1.1rem;
   line-height: 1.6;
   margin-bottom: 2rem;
 }
 .make-public-action-btn {
-  background: linear-gradient(135deg, #4361ee, #7209b7);
-  color: white;
+  background: var(--eink-accent);
+  color: var(--eink-surface);
   border: none;
   padding: 16px 32px;
   border-radius: 12px;
@@ -1092,11 +1115,12 @@ button.primary:hover {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
+  box-shadow: 0 8px 25px var(--eink-shadow-medium);
 }
 .make-public-action-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(67, 97, 238, 0.4);
+  box-shadow: 0 12px 35px var(--eink-shadow-heavy);
+  background: var(--eink-accent-light);
 }
 .sample-charts {
   position: absolute;
@@ -1135,12 +1159,13 @@ button.primary:hover {
   grid-column: 1 / -1;
   text-align: center;
   padding: 4rem 2rem;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, var(--eink-bg) 0%, var(--eink-hover) 100%);
   border-radius: 20px;
-  color: #666;
+  color: var(--eink-text-muted);
+  border: 1px solid var(--eink-border-light);
 }
 .empty-gallery h3 {
-  color: #4361ee;
+  color: var(--eink-accent);
   margin-bottom: 1rem;
   font-size: 1.6rem;
 }
@@ -1152,13 +1177,14 @@ button.primary:hover {
   overflow: hidden;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  background: white;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  background: var(--eink-surface);
+  box-shadow: 0 4px 20px var(--eink-shadow);
   aspect-ratio: 4/3;
+  border: 1px solid var(--eink-border-light);
 }
 .public-gallery-item:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 40px var(--eink-shadow-heavy);
 }
 .public-gallery-item img {
   width: 100%;
@@ -1384,11 +1410,11 @@ button.primary:hover {
 }
 
 .notification {
-  background: var(--secondary-bg);
-  border: 1px solid var(--border-color);
+  background: var(--eink-surface);
+  border: 1px solid var(--eink-border);
   border-radius: 12px;
   padding: 16px 20px;
-  box-shadow: var(--shadow-medium);
+  box-shadow: 0 8px 24px var(--eink-shadow-heavy);
   backdrop-filter: blur(10px);
   max-width: 400px;
   min-width: 300px;
@@ -1407,7 +1433,7 @@ button.primary:hover {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--accent-color), #4cc9f0);
+  background: var(--eink-accent);
   border-radius: 12px 12px 0 0;
 }
 
@@ -1426,7 +1452,7 @@ button.primary:hover {
 }
 
 .notification.success::before {
-  background: linear-gradient(90deg, #10b981, #34d399);
+  background: #10b981;
 }
 
 .notification.info {
@@ -1434,7 +1460,7 @@ button.primary:hover {
 }
 
 .notification.info::before {
-  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  background: #3b82f6;
 }
 
 .notification.warning {
@@ -1442,15 +1468,15 @@ button.primary:hover {
 }
 
 .notification.warning::before {
-  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  background: #f59e0b;
 }
 
 .notification.error {
-  border-left: 4px solid #ef4444;
+  border-left: 4px solid #d32f2f;
 }
 
 .notification.error::before {
-  background: linear-gradient(90deg, #ef4444, #f87171);
+  background: #d32f2f;
 }
 
 .notification-header {
@@ -1463,7 +1489,7 @@ button.primary:hover {
 .notification-title {
   font-weight: 600;
   font-size: 14px;
-  color: var(--primary-text);
+  color: var(--eink-text);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1481,7 +1507,7 @@ button.primary:hover {
 .notification-close {
   background: none;
   border: none;
-  color: var(--primary-text);
+  color: var(--eink-text);
   opacity: 0.6;
   cursor: pointer;
   padding: 4px;
@@ -1493,14 +1519,13 @@ button.primary:hover {
 
 .notification-close:hover {
   opacity: 1;
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--eink-hover);
 }
 
 .notification-message {
   font-size: 13px;
   line-height: 1.5;
-  color: var(--primary-text);
-  opacity: 0.9;
+  color: var(--eink-text-secondary);
 }
 
 .notification-progress {
@@ -1508,19 +1533,19 @@ button.primary:hover {
   bottom: 0;
   left: 0;
   height: 2px;
-  background: var(--accent-color);
+  background: var(--eink-accent);
   transition: width linear;
 }
 
 /* Dark theme adjustments for notifications */
 @media (prefers-color-scheme: dark) {
   .notification {
-    background: rgba(37, 37, 37, 0.95);
-    border-color: rgba(255, 255, 255, 0.1);
+    background: var(--eink-surface);
+    border-color: var(--eink-border);
   }
   
   .notification-close:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--eink-hover);
   }
 }
 
