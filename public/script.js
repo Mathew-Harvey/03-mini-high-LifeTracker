@@ -206,11 +206,28 @@ function updateZoomIndicator(scale) {
   }
 }
 
+// Toggle legend minimized state
+function toggleLegendMinimized() {
+  const legend = document.getElementById('legend');
+  const minimizeBtn = document.getElementById('minimizeLegendButton');
+  
+  if (legend.classList.contains('minimized')) {
+    legend.classList.remove('minimized');
+    minimizeBtn.innerHTML = '−';
+    minimizeBtn.title = 'Minimize legend';
+  } else {
+    legend.classList.add('minimized');
+    minimizeBtn.innerHTML = '+';
+    minimizeBtn.title = 'Expand legend';
+  }
+}
+
 // Make functions available globally for onclick handlers
 window.zoomIn = zoomIn;
 window.zoomOut = zoomOut;
 window.resetZoom = resetZoom;
 window.closeMobileWelcome = closeMobileWelcome;
+window.toggleLegendMinimized = toggleLegendMinimized;
 
 /********* Custom Cursor from Landing Page *********/
 let mouseX = 0, mouseY = 0;
@@ -1184,6 +1201,26 @@ function updatePresetLegend(sortedEvents) {
     return;
   }
   legend.style.display = "block";
+  
+  // Add minimize button to legend header if not already present
+  if (!document.getElementById('minimizeLegendButton')) {
+    const legendHeader = document.getElementById('legendHeader');
+    const minimizeBtn = document.createElement('button');
+    minimizeBtn.id = 'minimizeLegendButton';
+    minimizeBtn.className = 'legend-minimize-btn';
+    minimizeBtn.innerHTML = '−';
+    minimizeBtn.title = 'Minimize legend';
+    minimizeBtn.onclick = toggleLegendMinimized;
+    legendHeader.appendChild(minimizeBtn);
+  }
+  
+  // Auto-minimize on mobile when loading celebrity charts
+  if (isMobile) {
+    setTimeout(() => {
+      legend.classList.add('minimized');
+    }, 500);
+  }
+  
   sortedEvents.forEach((ev) => {
     const itemDiv = document.createElement("div");
     itemDiv.className = "legend-item";
@@ -1585,6 +1622,19 @@ function updateLegend() {
     return;
   }
   legend.style.display = "block";
+  
+  // Add minimize button to legend header if not already present
+  if (!document.getElementById('minimizeLegendButton')) {
+    const legendHeader = document.getElementById('legendHeader');
+    const minimizeBtn = document.createElement('button');
+    minimizeBtn.id = 'minimizeLegendButton';
+    minimizeBtn.className = 'legend-minimize-btn';
+    minimizeBtn.innerHTML = '−';
+    minimizeBtn.title = 'Minimize legend';
+    minimizeBtn.onclick = toggleLegendMinimized;
+    legendHeader.appendChild(minimizeBtn);
+  }
+  
   lifeEvents.forEach(ev => {
     const itemDiv = document.createElement("div");
     itemDiv.className = "legend-item";
@@ -1606,20 +1656,45 @@ function updateLegend() {
 
 /********* Draggable, Minimizable Event Form *********/
 let isDraggingEventForm = false, eventFormOffsetX = 0, eventFormOffsetY = 0;
+
+// Mouse events
 eventFormHeader.addEventListener("mousedown", function(e){
+  if (e.target.closest('button')) return; // Don't drag when clicking buttons
   isDraggingEventForm = true;
   const rect = eventForm.getBoundingClientRect();
   eventForm.style.bottom = "auto";
   eventFormOffsetX = e.clientX - rect.left;
   eventFormOffsetY = e.clientY - rect.top;
 });
+
+// Touch events for mobile
+eventFormHeader.addEventListener("touchstart", function(e){
+  if (e.target.closest('button')) return; // Don't drag when clicking buttons
+  isDraggingEventForm = true;
+  const rect = eventForm.getBoundingClientRect();
+  eventForm.style.bottom = "auto";
+  const touch = e.touches[0];
+  eventFormOffsetX = touch.clientX - rect.left;
+  eventFormOffsetY = touch.clientY - rect.top;
+});
+
 document.addEventListener("mousemove", function(e){
   if(isDraggingEventForm){
     eventForm.style.left = (e.clientX - eventFormOffsetX) + "px";
     eventForm.style.top = (e.clientY - eventFormOffsetY) + "px";
   }
 });
+
+document.addEventListener("touchmove", function(e){
+  if(isDraggingEventForm){
+    const touch = e.touches[0];
+    eventForm.style.left = (touch.clientX - eventFormOffsetX) + "px";
+    eventForm.style.top = (touch.clientY - eventFormOffsetY) + "px";
+  }
+});
+
 document.addEventListener("mouseup", function(){ isDraggingEventForm = false; });
+document.addEventListener("touchend", function(){ isDraggingEventForm = false; });
 let isMinimized = false;
 minimizeEventFormButton.addEventListener("click", function(){
   if(!isMinimized){
@@ -1643,19 +1718,46 @@ showEventFormButton.addEventListener("click", function(){
 
 /********* Draggable Legend Functionality *********/
 let isDraggingLegend = false, legendOffsetX = 0, legendOffsetY = 0;
+
+// Mouse events
 legendHeader.addEventListener("mousedown", function(e) {
+  if (e.target.closest('button')) return; // Don't drag when clicking buttons
   isDraggingLegend = true;
   const rect = legend.getBoundingClientRect();
   legendOffsetX = e.clientX - rect.left;
   legendOffsetY = e.clientY - rect.top;
 });
+
+// Touch events for mobile
+legendHeader.addEventListener("touchstart", function(e) {
+  if (e.target.closest('button')) return; // Don't drag when clicking buttons
+  isDraggingLegend = true;
+  const rect = legend.getBoundingClientRect();
+  const touch = e.touches[0];
+  legendOffsetX = touch.clientX - rect.left;
+  legendOffsetY = touch.clientY - rect.top;
+});
+
 document.addEventListener("mousemove", function(e) {
   if(isDraggingLegend) {
     legend.style.left = (e.clientX - legendOffsetX) + "px";
     legend.style.top = (e.clientY - legendOffsetY) + "px";
   }
 });
+
+document.addEventListener("touchmove", function(e) {
+  if(isDraggingLegend) {
+    const touch = e.touches[0];
+    legend.style.left = (touch.clientX - legendOffsetX) + "px";
+    legend.style.top = (touch.clientY - legendOffsetY) + "px";
+  }
+});
+
 document.addEventListener("mouseup", function() {
+  isDraggingLegend = false;
+});
+
+document.addEventListener("touchend", function() {
   isDraggingLegend = false;
 });
 

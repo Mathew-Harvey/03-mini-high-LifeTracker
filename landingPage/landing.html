@@ -530,6 +530,35 @@
                 height: 65%;
             }
 
+            .choice-content {
+                width: 90%;
+                padding: 20px;
+                /* Adjust positioning to ensure buttons are visible */
+                top: 45%;
+            }
+
+            .choice-number {
+                font-size: 120px;
+                margin-bottom: 20px;
+            }
+
+            .choice-title {
+                font-size: 24px;
+                margin-bottom: 16px;
+            }
+
+            .choice-subtitle {
+                font-size: 14px;
+                margin-bottom: 32px;
+                display: none; /* Hide subtitle on small screens to save space */
+            }
+
+            .choice-enter {
+                padding: 14px 28px;
+                font-size: 12px;
+                margin-bottom: 20px; /* Add bottom margin for safety */
+            }
+
             .week-visualization {
                 height: 300px;
             }
@@ -553,6 +582,36 @@
 
             * {
                 cursor: auto !important;
+            }
+        }
+
+        /* Small mobile specific adjustments */
+        @media (max-width: 480px) {
+            .choice-content {
+                top: 40%; /* Move content up more on very small screens */
+            }
+
+            .choice-number {
+                font-size: 80px;
+                margin-bottom: 16px;
+            }
+
+            .choice-title {
+                font-size: 20px;
+                margin-bottom: 12px;
+            }
+
+            .choice-enter {
+                padding: 12px 24px;
+                font-size: 11px;
+                margin-bottom: 30px; /* Extra margin for very small screens */
+            }
+        }
+
+        /* Extra small screens */
+        @media (max-width: 360px) {
+            .choice-half {
+                min-height: 300px; /* Ensure minimum height for content */
             }
         }
 

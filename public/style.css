@@ -948,6 +948,9 @@ button.primary:hover {
   padding: 16px 20px;
   cursor: move;
   border-bottom: 1px solid var(--eink-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 #legendHeader h3 { 
   font-size: 16px; 
@@ -955,6 +958,42 @@ button.primary:hover {
   color: var(--eink-text);
   font-family: 'EB Garamond', serif;
   font-weight: 500;
+}
+
+/* Legend minimize button */
+.legend-minimize-btn {
+  background: none;
+  border: none;
+  color: var(--eink-text);
+  font-size: 20px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-quick);
+  opacity: 0.6;
+}
+
+.legend-minimize-btn:hover {
+  background: var(--eink-hover);
+  opacity: 1;
+}
+
+/* Minimized legend state */
+#legend.minimized #legendContent {
+  display: none;
+}
+
+#legend.minimized {
+  min-width: auto;
+}
+
+#legend.minimized #legendHeader {
+  border-bottom: none;
 }
 #legendContent { 
   padding: 16px 20px; 
@@ -2267,6 +2306,49 @@ body.is-mobile select {
     font-size: 9px;
     padding: 4px 2px;
   }
+  
+  /* Mobile legend improvements */
+  body.is-mobile #legend {
+    top: auto;
+    bottom: 140px;
+    right: 10px;
+    max-width: 200px;
+    font-size: 14px;
+  }
+  
+  body.is-mobile #legendHeader h3 {
+    font-size: 14px;
+  }
+  
+  body.is-mobile #legendContent {
+    padding: 12px 16px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  body.is-mobile .legend-item {
+    padding: 6px 0;
+    margin-bottom: 4px;
+    font-size: 13px;
+  }
+  
+  body.is-mobile .legend-color {
+    width: 14px;
+    height: 14px;
+    margin-right: 10px;
+  }
+  
+  /* Start minimized on mobile for better UX */
+  body.is-mobile #legend:not(.expanded) {
+    /* Ensure legend starts minimized on mobile */
+  }
+  
+  /* Mobile-specific minimized state */
+  body.is-mobile #legend.minimized {
+    bottom: 140px;
+    right: 10px;
+    opacity: 0.9;
+  }
 }
 
 /* Small mobile specific adjustments */
@@ -2313,6 +2395,36 @@ body.is-mobile select {
   }
   
   .zoom-level {
+    font-size: 12px;
+  }
+  
+  /* Very small mobile legend adjustments */
+  body.is-mobile #legend {
+    max-width: 160px;
+    bottom: 120px;
+    right: 8px;
+  }
+  
+  body.is-mobile #legendHeader {
+    padding: 12px 14px;
+  }
+  
+  body.is-mobile #legendHeader h3 {
+    font-size: 13px;
+  }
+  
+  body.is-mobile .legend-minimize-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 18px;
+  }
+  
+  body.is-mobile #legendContent {
+    padding: 10px 12px;
+    max-height: 150px;
+  }
+  
+  body.is-mobile .legend-item {
     font-size: 12px;
   }
 }
