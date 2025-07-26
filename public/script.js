@@ -5,6 +5,213 @@ const totalWeeks = maxYears * weeksPerYear;
 const msPerWeek = 1000 * 60 * 60 * 24 * 7;
 const baseUrl = ""; // Assumes same domain/port as your Node server
 
+/********* Mobile Detection & Touch Handling *********/
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                 (window.innerWidth <= 768);
+
+let touchStartDistance = 0;
+let currentZoom = 1;
+let isPinching = false;
+
+// Mobile zoom state
+const zoomState = {
+  scale: 1,
+  minScale: 0.5,
+  maxScale: 3,
+  startDistance: 0,
+  lastScale: 1
+};
+
+function initMobileFeatures() {
+  if (!isMobile) return;
+  
+  // Add mobile class to body
+  document.body.classList.add('is-mobile');
+  
+  // Show mobile welcome message on first visit
+  const hasSeenMobileWelcome = localStorage.getItem('hasSeenMobileWelcome');
+  if (!hasSeenMobileWelcome) {
+    showMobileWelcome();
+  }
+  
+  // Initialize touch gestures
+  initTouchGestures();
+  
+  // Add zoom controls
+  addZoomControls();
+}
+
+function showMobileWelcome() {
+  const welcomeModal = document.createElement('div');
+  welcomeModal.className = 'mobile-welcome-modal';
+  welcomeModal.innerHTML = `
+    <div class="mobile-welcome-content">
+      <h2>📱 Welcome to Life in Weeks</h2>
+      <p>You're viewing this on a mobile device. The life grid contains <strong>4,680 tiny squares</strong> representing each week of a 90-year life.</p>
+      
+      <div class="mobile-tips">
+        <h3>Navigation Tips:</h3>
+        <ul>
+          <li>📌 <strong>Pinch to zoom</strong> in and out of the grid</li>
+          <li>👆 <strong>Swipe</strong> to navigate around the zoomed grid</li>
+          <li>🔍 Use the <strong>zoom controls</strong> at the bottom</li>
+          <li>📅 <strong>Tap a week</strong> to see details</li>
+        </ul>
+      </div>
+      
+      <p class="mobile-note">💡 For the best experience, we recommend using a tablet or desktop computer where you can see your entire life at a glance.</p>
+      
+      <button class="mobile-welcome-button" onclick="closeMobileWelcome()">Got it, let's start!</button>
+    </div>
+  `;
+  
+  document.body.appendChild(welcomeModal);
+  setTimeout(() => welcomeModal.classList.add('show'), 10);
+}
+
+function closeMobileWelcome() {
+  const modal = document.querySelector('.mobile-welcome-modal');
+  if (modal) {
+    modal.classList.remove('show');
+    setTimeout(() => modal.remove(), 300);
+    localStorage.setItem('hasSeenMobileWelcome', 'true');
+  }
+}
+
+function initTouchGestures() {
+  const gridContainer = document.getElementById('grid');
+  if (!gridContainer) return;
+  
+  let lastTouchEnd = 0;
+  
+  // Prevent double-tap zoom on grid
+  gridContainer.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) {
+      e.preventDefault();
+    }
+    lastTouchEnd = now;
+  });
+  
+  // Pinch to zoom
+  gridContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+  gridContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+  gridContainer.addEventListener('touchend', handleTouchEnd);
+}
+
+function handleTouchStart(e) {
+  if (e.touches.length === 2) {
+    isPinching = true;
+    const touch1 = e.touches[0];
+    const touch2 = e.touches[1];
+    touchStartDistance = Math.hypot(
+      touch2.clientX - touch1.clientX,
+      touch2.clientY - touch1.clientY
+    );
+    zoomState.startDistance = touchStartDistance;
+    zoomState.lastScale = zoomState.scale;
+    e.preventDefault();
+  }
+}
+
+function handleTouchMove(e) {
+  if (e.touches.length === 2 && isPinching) {
+    const touch1 = e.touches[0];
+    const touch2 = e.touches[1];
+    const currentDistance = Math.hypot(
+      touch2.clientX - touch1.clientX,
+      touch2.clientY - touch1.clientY
+    );
+    
+    const scale = (currentDistance / zoomState.startDistance) * zoomState.lastScale;
+    setGridZoom(scale);
+    e.preventDefault();
+  }
+}
+
+function handleTouchEnd(e) {
+  isPinching = false;
+}
+
+function setGridZoom(scale) {
+  // Clamp scale to min/max
+  scale = Math.max(zoomState.minScale, Math.min(zoomState.maxScale, scale));
+  zoomState.scale = scale;
+  
+  const lifeGrid = document.getElementById('lifeGrid');
+  if (lifeGrid) {
+    lifeGrid.style.transform = `scale(${scale})`;
+    lifeGrid.style.transformOrigin = 'center center';
+    
+    // Update zoom indicator
+    updateZoomIndicator(scale);
+  }
+}
+
+function addZoomControls() {
+  const gridContainer = document.getElementById('gridContainer');
+  if (!gridContainer) return;
+  
+  const zoomControls = document.createElement('div');
+  zoomControls.className = 'mobile-zoom-controls';
+  zoomControls.innerHTML = `
+    <button class="zoom-btn zoom-out" onclick="zoomOut()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="8" y1="12" x2="16" y2="12"></line>
+      </svg>
+    </button>
+    <div class="zoom-indicator">
+      <span class="zoom-level">100%</span>
+    </div>
+    <button class="zoom-btn zoom-in" onclick="zoomIn()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="16"></line>
+        <line x1="8" y1="12" x2="16" y2="12"></line>
+      </svg>
+    </button>
+    <button class="zoom-btn zoom-reset" onclick="resetZoom()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3.5 13.5L8 18l4.5-4.5"></path>
+        <path d="M12 18V6"></path>
+        <path d="M20.5 10.5L16 6l-4.5 4.5"></path>
+      </svg>
+    </button>
+  `;
+  
+  // Insert after the grid area
+  const gridArea = document.getElementById('gridArea');
+  if (gridArea && gridArea.parentNode) {
+    gridArea.parentNode.insertBefore(zoomControls, gridArea.nextSibling);
+  }
+}
+
+function zoomIn() {
+  setGridZoom(zoomState.scale * 1.2);
+}
+
+function zoomOut() {
+  setGridZoom(zoomState.scale / 1.2);
+}
+
+function resetZoom() {
+  setGridZoom(1);
+}
+
+function updateZoomIndicator(scale) {
+  const indicator = document.querySelector('.zoom-level');
+  if (indicator) {
+    indicator.textContent = `${Math.round(scale * 100)}%`;
+  }
+}
+
+// Make functions available globally for onclick handlers
+window.zoomIn = zoomIn;
+window.zoomOut = zoomOut;
+window.resetZoom = resetZoom;
+window.closeMobileWelcome = closeMobileWelcome;
+
 /********* Custom Cursor from Landing Page *********/
 let mouseX = 0, mouseY = 0;
 let cursorX = 0, cursorY = 0;
@@ -531,6 +738,9 @@ authButton.addEventListener("click", async () => {
     
     initializeMainApp();
     
+    // Initialize mobile features after login
+    initMobileFeatures();
+    
     // Seed celebrity charts after successful login
     seedCelebrityCharts();
     
@@ -564,6 +774,9 @@ logoutButton.addEventListener("click", () => {
 
 /********* On Page Load, Check for Existing Token *********/
 window.addEventListener("load", () => {
+  // Initialize mobile features
+  initMobileFeatures();
+  
   if(token && localStorage.getItem("birthDate")) {
     userBirthDate = localStorage.getItem("birthDate");
     introSection.style.display = "none";

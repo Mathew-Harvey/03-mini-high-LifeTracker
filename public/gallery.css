@@ -770,4 +770,187 @@
   .owner-icon {
     font-size: 0.9rem;
   }
+}
+
+/* Additional Mobile-Specific Enhancements */
+@media (max-width: 768px) {
+  /* Mobile-friendly header layout */
+  .gallery-header {
+    position: relative;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .gallery-header h1 {
+    order: 1;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .back-button {
+    order: 2;
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+  
+  .refresh-button,
+  .regenerate-button {
+    order: 3;
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+  
+  /* Improve gallery item touch targets */
+  .public-gallery-item {
+    min-height: 250px;
+  }
+  
+  .public-gallery-item img {
+    height: 200px;
+  }
+  
+  .chart-overlay {
+    padding: 1rem;
+  }
+  
+  .chart-info h4 {
+    font-size: 1.1rem;
+  }
+  
+  .chart-info p {
+    font-size: 0.85rem;
+  }
+  
+  .chart-action-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+  
+  /* Better mobile tabs */
+  .gallery-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--eink-bg);
+    padding: 0.5rem;
+    margin: -0.5rem -0.5rem 1.5rem -0.5rem;
+  }
+  
+  /* Mobile loading states */
+  .skeleton-item {
+    min-height: 250px;
+  }
+  
+  .skeleton-image {
+    height: 200px;
+  }
+}
+
+/* Small mobile optimizations */
+@media (max-width: 480px) {
+  .gallery-header {
+    padding: 0.75rem;
+  }
+  
+  .gallery-header h1 {
+    font-size: 1.3rem;
+  }
+  
+  .back-button,
+  .refresh-button,
+  .regenerate-button {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+  
+  .regenerate-button {
+    display: none; /* Hide on very small screens */
+  }
+  
+  .gallery-main {
+    padding: 0.75rem;
+  }
+  
+  .tab-button {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .empty-tab,
+  .community-prompt,
+  .loading-state,
+  .error-state {
+    padding: 2rem 1.5rem;
+  }
+  
+  .empty-tab h3,
+  .prompt-content h3 {
+    font-size: 1.4rem;
+  }
+  
+  .empty-tab p,
+  .prompt-content p {
+    font-size: 0.95rem;
+  }
+  
+  /* Optimize owner badges for very small screens */
+  .owner-badge {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+  
+  .owner-name {
+    max-width: 60px;
+  }
+  
+  .owner-icon {
+    font-size: 0.8rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Ensure all interactive elements have adequate touch targets */
+  .tab-button,
+  .chart-action-btn,
+  .make-public-action-btn {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Show chart overlay by default on touch devices */
+  .public-gallery-item .chart-overlay {
+    transform: translateY(0);
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      transparent 30%,
+      rgba(0, 0, 0, 0.4) 60%,
+      rgba(0, 0, 0, 0.9) 100%
+    );
+  }
+  
+  /* Improve touch feedback */
+  .public-gallery-item:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  .tab-button:active,
+  .chart-action-btn:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Ensure smooth scrolling on mobile */
+@media (max-width: 768px) {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  .gallery-page {
+    -webkit-overflow-scrolling: touch;
+  }
 } 

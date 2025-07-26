@@ -1969,3 +1969,373 @@ body.tutorial-active {
   }
 }
 
+/* --- Mobile-Specific Styles --- */
+
+/* Mobile Welcome Modal */
+.mobile-welcome-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mobile-welcome-modal.show {
+  opacity: 1;
+}
+
+.mobile-welcome-content {
+  background: var(--eink-surface);
+  border-radius: 20px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px var(--eink-shadow-heavy);
+  border: 1px solid var(--eink-border);
+  position: relative;
+}
+
+.mobile-welcome-content h2 {
+  color: var(--eink-accent);
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  font-family: 'EB Garamond', serif;
+  font-weight: 500;
+}
+
+.mobile-welcome-content p {
+  color: var(--eink-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.mobile-welcome-content strong {
+  color: var(--eink-text);
+  font-weight: 600;
+}
+
+.mobile-tips {
+  background: var(--eink-bg);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border: 1px solid var(--eink-border-light);
+}
+
+.mobile-tips h3 {
+  color: var(--eink-accent);
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.mobile-tips ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mobile-tips li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--eink-border-light);
+  color: var(--eink-text);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.mobile-tips li:last-child {
+  border-bottom: none;
+}
+
+.mobile-note {
+  background: var(--eink-hover);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+  border: 1px solid var(--eink-border);
+}
+
+.mobile-welcome-button {
+  width: 100%;
+  background: var(--eink-accent);
+  color: var(--eink-surface);
+  border: none;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1.5rem;
+}
+
+.mobile-welcome-button:hover {
+  background: var(--eink-accent-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--eink-shadow-heavy);
+}
+
+/* Mobile Zoom Controls */
+.mobile-zoom-controls {
+  display: none;
+  position: sticky;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--eink-surface);
+  border-radius: 24px;
+  padding: 8px;
+  box-shadow: 0 8px 32px var(--eink-shadow-heavy);
+  border: 1px solid var(--eink-border);
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  margin-top: 1rem;
+}
+
+body.is-mobile .mobile-zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.zoom-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--eink-bg);
+  border: 1px solid var(--eink-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.zoom-btn:hover {
+  background: var(--eink-hover);
+  transform: scale(1.1);
+}
+
+.zoom-btn:active {
+  transform: scale(0.95);
+}
+
+.zoom-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--eink-text);
+}
+
+.zoom-indicator {
+  background: var(--eink-bg);
+  border-radius: 12px;
+  padding: 8px 16px;
+  min-width: 80px;
+  text-align: center;
+  border: 1px solid var(--eink-border-light);
+}
+
+.zoom-level {
+  font-weight: 600;
+  color: var(--eink-accent);
+  font-size: 14px;
+}
+
+.zoom-reset {
+  background: var(--eink-accent);
+  border-color: var(--eink-accent);
+}
+
+.zoom-reset:hover {
+  background: var(--eink-accent-light);
+  border-color: var(--eink-accent-light);
+}
+
+.zoom-reset svg {
+  stroke: var(--eink-surface);
+}
+
+/* Mobile Grid Adjustments */
+body.is-mobile #grid {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+body.is-mobile #lifeGrid {
+  transition: transform 0.3s ease;
+  will-change: transform;
+}
+
+/* Enhanced mobile touch targets */
+body.is-mobile .week-inner {
+  min-width: 20px;
+  min-height: 20px;
+}
+
+body.is-mobile button {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Mobile scrollbar styling */
+body.is-mobile #grid::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+body.is-mobile #grid::-webkit-scrollbar-track {
+  background: var(--eink-bg);
+  border-radius: 4px;
+}
+
+body.is-mobile #grid::-webkit-scrollbar-thumb {
+  background: var(--eink-border);
+  border-radius: 4px;
+}
+
+body.is-mobile #grid::-webkit-scrollbar-thumb:hover {
+  background: var(--eink-accent);
+}
+
+/* Improve mobile form usability */
+body.is-mobile input,
+body.is-mobile select {
+  font-size: 16px; /* Prevents zoom on iOS */
+  min-height: 44px;
+}
+
+/* Mobile-friendly button group */
+@media (max-width: 768px) {
+  .button-group {
+    position: sticky;
+    bottom: 80px;
+    background: var(--eink-surface);
+    padding: 1rem;
+    margin: 0 -1rem;
+    border-top: 1px solid var(--eink-border);
+    box-shadow: 0 -4px 12px var(--eink-shadow);
+    z-index: 90;
+  }
+  
+  .button-group button {
+    flex: 1;
+    min-height: 48px;
+    font-size: 12px;
+  }
+  
+  /* Hide event form on mobile by default */
+  body.is-mobile #eventForm {
+    bottom: -100%;
+    transition: bottom 0.3s ease;
+  }
+  
+  body.is-mobile #eventForm.show {
+    bottom: 20px;
+  }
+  
+  /* Larger floating action button on mobile */
+  body.is-mobile #showEventFormButton {
+    width: 64px;
+    height: 64px;
+    font-size: 24px;
+  }
+  
+  /* Mobile grid label improvements */
+  body.is-mobile #xAxis .month-label {
+    font-size: 9px;
+    padding: 4px 1px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+  
+  body.is-mobile #yAxis .decade-label {
+    font-size: 9px;
+    padding: 4px 2px;
+  }
+}
+
+/* Small mobile specific adjustments */
+@media (max-width: 480px) {
+  .mobile-welcome-content {
+    padding: 1.5rem;
+  }
+  
+  .mobile-welcome-content h2 {
+    font-size: 1.5rem;
+  }
+  
+  .mobile-tips {
+    padding: 1rem;
+  }
+  
+  .mobile-tips h3 {
+    font-size: 1.1rem;
+  }
+  
+  .mobile-tips li {
+    font-size: 0.9rem;
+    padding: 0.5rem 0;
+  }
+  
+  .mobile-zoom-controls {
+    padding: 6px;
+    gap: 8px;
+  }
+  
+  .zoom-btn {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .zoom-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .zoom-indicator {
+    padding: 6px 12px;
+    min-width: 60px;
+  }
+  
+  .zoom-level {
+    font-size: 12px;
+  }
+}
+
+/* Dark mode adjustments for mobile */
+@media (prefers-color-scheme: dark) {
+  .mobile-welcome-modal {
+    background: rgba(0, 0, 0, 0.9);
+  }
+  
+  .mobile-welcome-content {
+    background: var(--eink-surface);
+    border-color: var(--eink-border);
+  }
+  
+  .mobile-tips {
+    background: var(--eink-bg);
+    border-color: var(--eink-border);
+  }
+  
+  .mobile-zoom-controls {
+    background: var(--eink-surface);
+    border-color: var(--eink-border);
+  }
+}
+
