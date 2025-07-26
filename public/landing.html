@@ -1105,54 +1105,11 @@
         });
 
         // Button click - check auth and navigate
-        panicButton.addEventListener('click', async () => {
+        panicButton.addEventListener('click', () => {
             if (!isRevealed) return;
-            
-            // Add satisfying click feedback
             panicButton.classList.add('pressing');
-            
-            // Wait a bit for the animation to be visible
-            setTimeout(async () => {
-                // Create dramatic transition
-                const overlay = document.createElement('div');
-                overlay.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: radial-gradient(circle at center, #ff0000, #000);
-                    opacity: 0;
-                    transition: opacity 0.8s ease;
-                    z-index: 10000;
-                `;
-                document.body.appendChild(overlay);
-                
-                requestAnimationFrame(() => {
-                    overlay.style.opacity = '1';
-                    
-                    setTimeout(async () => {
-                        // Check if user is authenticated
-                        try {
-                            const token = localStorage.getItem('token');
-                            const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-                            
-                            const response = await fetch('/api/check-auth', { headers });
-                            const data = await response.json();
-                            
-                            if (data.authenticated) {
-                                // User is logged in, go to their personal chart
-                                window.location.href = '/app?fromPanic=true';
-                            } else {
-                                // User not logged in, go to login page
-                                window.location.href = '/app?fromPanic=true';
-                            }
-                        } catch (error) {
-                            // If check fails, default to login page
-                            window.location.href = '/app?fromPanic=true';
-                        }
-                    }, 800);
-                });
+            setTimeout(() => {
+                launchApp();
             }, 150); // Small delay to show the button press
         });
 

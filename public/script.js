@@ -533,6 +533,9 @@ authButton.addEventListener("click", async () => {
     
     // Seed celebrity charts after successful login
     seedCelebrityCharts();
+    
+    // Initialize tutorial system after successful login
+    initTutorial();
   } catch (err) {
     console.error(err);
     showNotification(
@@ -581,6 +584,9 @@ window.addEventListener("load", () => {
     
     // Seed celebrity charts for existing session
     seedCelebrityCharts();
+    
+    // Initialize tutorial system for existing session
+    setTimeout(() => initTutorial(), 1500);
     
     // Check for URL parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -699,9 +705,8 @@ window.addEventListener("load", () => {
     const urlParams = new URLSearchParams(window.location.search);
     const fromLanding = urlParams.get('fromLanding');
     const fromGallery = urlParams.get('fromGallery');
-    const fromPanic = urlParams.get('fromPanic');
     
-    if (fromLanding === 'true' || fromGallery === 'true' || fromPanic === 'true') {
+    if (fromLanding === 'true' || fromGallery === 'true') {
       // Skip intro, go directly to login
       introSection.style.display = "none";
       authContainer.style.display = "block";
@@ -2349,3 +2354,275 @@ async function openGallery() {
 // document.addEventListener('DOMContentLoaded', function() {
 //   initCustomCursor();
 // });
+
+/********* Tutorial System *********/
+const tutorialSteps = [
+  {
+    element: '#lifeGrid',
+    title: 'Your Life Grid',
+    text: 'Each square represents one week of your life. The grid shows 90 years (4,680 weeks) - the filled squares show the weeks you\'ve already lived.',
+    position: 'center',
+    spotlight: true
+  },
+  {
+    element: '#eventForm',
+    title: 'Add Life Events',
+    text: 'Record important moments, achievements, and milestones in your life. You can add events with custom colors and date ranges.',
+    position: 'left',
+    spotlight: true
+  },
+  {
+    element: '#legend',
+    title: 'Event Legend',
+    text: 'All your life events appear here with their colors. You can drag this legend anywhere on the screen.',
+    position: 'right',
+    spotlight: true
+  },
+  {
+    element: '#presetMenu',
+    title: 'Celebrity Inspiration',
+    text: 'Explore life charts of famous people to see their journeys and get inspired by their timelines.',
+    position: 'bottom',
+    spotlight: true
+  },
+  {
+    element: '#printButton',
+    title: 'Save Your Journey',
+    text: 'Download your life chart as an image to share or keep as a personal reminder of your journey.',
+    position: 'top',
+    spotlight: true
+  },
+  {
+    element: '#makePublicBtn',
+    title: 'Share with Others',
+    text: 'Make your life chart public to inspire others with your unique journey. You can always keep it private if you prefer.',
+    position: 'top',
+    spotlight: true
+  },
+  {
+    element: '#galleryButton',
+    title: 'Community Gallery',
+    text: 'Browse public life charts from the community and see how others have lived their weeks.',
+    position: 'left',
+    spotlight: true
+  }
+];
+
+let currentTutorialStep = 0;
+let tutorialActive = false;
+
+function initTutorial() {
+  const overlay = document.getElementById('tutorialOverlay');
+  const skipBtn = document.getElementById('tutorialSkipBtn');
+  const prevBtn = document.getElementById('tutorialPrevBtn');
+  const nextBtn = document.getElementById('tutorialNextBtn');
+  const closeBtn = document.getElementById('tutorialCloseBtn');
+  const restartBtn = document.getElementById('tutorialRestartBtn');
+  
+  // Check if tutorial has been completed before
+  const tutorialCompleted = localStorage.getItem('tutorialCompleted') === 'true';
+  
+  // Show restart button if tutorial was completed
+  if (tutorialCompleted) {
+    restartBtn.classList.add('show');
+  }
+  
+  // Event listeners
+  skipBtn.addEventListener('click', () => endTutorial());
+  closeBtn.addEventListener('click', () => endTutorial());
+  prevBtn.addEventListener('click', () => navigateTutorial(-1));
+  nextBtn.addEventListener('click', () => navigateTutorial(1));
+  restartBtn.addEventListener('click', () => startTutorial(true));
+  
+  // Add keyboard shortcut (Escape) to close tutorial
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && tutorialActive) {
+      endTutorial();
+    }
+  });
+  
+  // Start tutorial for new users
+  if (!tutorialCompleted && token && userBirthDate) {
+    // Delay to ensure UI is fully loaded
+    setTimeout(() => startTutorial(), 1000);
+  }
+}
+
+function startTutorial(isRestart = false) {
+  if (isRestart) {
+    // Show a notification that tutorial is restarting
+    showNotification('Tutorial', 'Restarting the tutorial...', 'info', 3000);
+  }
+  
+  tutorialActive = true;
+  currentTutorialStep = 0;
+  document.body.classList.add('tutorial-active');
+  
+  const overlay = document.getElementById('tutorialOverlay');
+  overlay.classList.add('active');
+  
+  showTutorialStep(currentTutorialStep);
+}
+
+function showTutorialStep(stepIndex) {
+  const step = tutorialSteps[stepIndex];
+  const overlay = document.getElementById('tutorialOverlay');
+  const spotlight = overlay.querySelector('.tutorial-spotlight');
+  const content = overlay.querySelector('.tutorial-content');
+  const pulse = overlay.querySelector('.tutorial-pulse');
+  const progressBar = overlay.querySelector('.tutorial-progress-bar');
+  const prevBtn = document.getElementById('tutorialPrevBtn');
+  const nextBtn = document.getElementById('tutorialNextBtn');
+  
+  // Update progress bar
+  const progress = ((stepIndex + 1) / tutorialSteps.length) * 100;
+  progressBar.style.width = `${progress}%`;
+  
+  // Update navigation buttons
+  prevBtn.classList.toggle('show', stepIndex > 0);
+  nextBtn.textContent = stepIndex === tutorialSteps.length - 1 ? 'Finish' : 'Next';
+  
+  // Update content
+  content.querySelector('.tutorial-title').textContent = step.title;
+  content.querySelector('.tutorial-text').textContent = step.text;
+  
+  // Get target element
+  const targetElement = document.querySelector(step.element);
+  
+  if (targetElement && step.spotlight) {
+    // Remove previous highlights
+    document.querySelectorAll('.tutorial-highlight').forEach(el => {
+      el.classList.remove('tutorial-highlight');
+    });
+    
+    // Highlight target element
+    targetElement.classList.add('tutorial-highlight');
+    
+    // Position spotlight
+    const rect = targetElement.getBoundingClientRect();
+    const padding = 10;
+    
+    spotlight.style.left = `${rect.left - padding}px`;
+    spotlight.style.top = `${rect.top - padding}px`;
+    spotlight.style.width = `${rect.width + padding * 2}px`;
+    spotlight.style.height = `${rect.height + padding * 2}px`;
+    spotlight.style.display = 'block';
+    
+    // Position pulse animation
+    pulse.style.left = `${rect.left + rect.width / 2}px`;
+    pulse.style.top = `${rect.top + rect.height / 2}px`;
+    pulse.style.width = '60px';
+    pulse.style.height = '60px';
+    pulse.style.marginLeft = '-30px';
+    pulse.style.marginTop = '-30px';
+    pulse.style.display = 'block';
+    
+    // Position content based on available space
+    positionTutorialContent(content, rect, step.position);
+  } else {
+    // Center content if no target element
+    spotlight.style.display = 'none';
+    pulse.style.display = 'none';
+    content.style.left = '50%';
+    content.style.top = '50%';
+    content.style.transform = 'translate(-50%, -50%)';
+    content.className = 'tutorial-content';
+  }
+}
+
+function positionTutorialContent(content, targetRect, preferredPosition) {
+  const contentRect = content.getBoundingClientRect();
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const margin = 20;
+  
+  // Reset classes
+  content.className = 'tutorial-content';
+  
+  let left, top, arrowClass;
+  
+  // Calculate positions based on preference
+  switch (preferredPosition) {
+    case 'top':
+      left = targetRect.left + targetRect.width / 2 - contentRect.width / 2;
+      top = targetRect.top - contentRect.height - margin;
+      arrowClass = 'arrow-bottom';
+      break;
+      
+    case 'bottom':
+      left = targetRect.left + targetRect.width / 2 - contentRect.width / 2;
+      top = targetRect.bottom + margin;
+      arrowClass = 'arrow-top';
+      break;
+      
+    case 'left':
+      left = targetRect.left - contentRect.width - margin;
+      top = targetRect.top + targetRect.height / 2 - contentRect.height / 2;
+      arrowClass = 'arrow-right';
+      break;
+      
+    case 'right':
+      left = targetRect.right + margin;
+      top = targetRect.top + targetRect.height / 2 - contentRect.height / 2;
+      arrowClass = 'arrow-left';
+      break;
+      
+    case 'center':
+    default:
+      left = viewportWidth / 2 - contentRect.width / 2;
+      top = viewportHeight / 2 - contentRect.height / 2;
+      arrowClass = '';
+      break;
+  }
+  
+  // Ensure content stays within viewport
+  left = Math.max(margin, Math.min(left, viewportWidth - contentRect.width - margin));
+  top = Math.max(margin, Math.min(top, viewportHeight - contentRect.height - margin));
+  
+  // Apply position
+  content.style.left = `${left}px`;
+  content.style.top = `${top}px`;
+  content.style.transform = 'none';
+  
+  if (arrowClass) {
+    content.classList.add(arrowClass);
+  }
+}
+
+function navigateTutorial(direction) {
+  const newStep = currentTutorialStep + direction;
+  
+  if (newStep < 0 || newStep >= tutorialSteps.length) {
+    if (newStep >= tutorialSteps.length) {
+      endTutorial();
+    }
+    return;
+  }
+  
+  currentTutorialStep = newStep;
+  showTutorialStep(currentTutorialStep);
+}
+
+function endTutorial() {
+  tutorialActive = false;
+  document.body.classList.remove('tutorial-active');
+  
+  const overlay = document.getElementById('tutorialOverlay');
+  overlay.classList.remove('active');
+  
+  // Remove highlights
+  document.querySelectorAll('.tutorial-highlight').forEach(el => {
+    el.classList.remove('tutorial-highlight');
+  });
+  
+  // Mark tutorial as completed
+  localStorage.setItem('tutorialCompleted', 'true');
+  
+  // Show restart button
+  document.getElementById('tutorialRestartBtn').classList.add('show');
+  
+  // Show success notification
+  showNotification('Tutorial Complete!', 'You can restart the tutorial anytime using the button in the bottom right.', 'success', 5000);
+}
+
+// Tutorial is initialized after login or when existing session is loaded

@@ -143,6 +143,44 @@
   <!-- Notification Container -->
   <div id="notificationContainer" class="notification-container"></div>
 
+  <!-- Tutorial Overlay System -->
+  <div id="tutorialOverlay" class="tutorial-overlay">
+    <div class="tutorial-backdrop"></div>
+    <div class="tutorial-spotlight"></div>
+    <div class="tutorial-content">
+      <div class="tutorial-header">
+        <h3 class="tutorial-title">Welcome to Your Life in Weeks</h3>
+        <button class="tutorial-close" id="tutorialCloseBtn">×</button>
+      </div>
+      <div class="tutorial-body">
+        <p class="tutorial-text"></p>
+      </div>
+      <div class="tutorial-footer">
+        <div class="tutorial-progress">
+          <div class="tutorial-progress-bar"></div>
+        </div>
+        <div class="tutorial-navigation">
+          <button class="tutorial-btn tutorial-skip" id="tutorialSkipBtn">Skip Tutorial</button>
+          <div class="tutorial-nav-right">
+            <button class="tutorial-btn tutorial-prev" id="tutorialPrevBtn">Previous</button>
+            <button class="tutorial-btn tutorial-next primary" id="tutorialNextBtn">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tutorial-pulse"></div>
+  </div>
+
+  <!-- Tutorial Restart Button -->
+  <button id="tutorialRestartBtn" class="tutorial-restart-btn" title="Restart Tutorial">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <path d="M12 8v4l3 3"></path>
+      <path d="M4 12a8 8 0 0 1 8-8"></path>
+    </svg>
+    Tutorial
+  </button>
+
   <script src="script.js"></script> 
 </body>
 </html>

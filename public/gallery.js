@@ -231,7 +231,6 @@ async function loadGallery() {
   // Check URL parameters
   const urlParams = new URLSearchParams(window.location.search);
   const requestedCelebrity = urlParams.get('celebrity');
-  const fromPanic = urlParams.get('fromPanic');
   const shouldRefresh = urlParams.get('refresh') === 'true';
   const requestedTab = urlParams.get('tab');
   
@@ -304,13 +303,13 @@ async function loadGallery() {
     }
     
     // Clean up URL parameters after processing
-    if (shouldRefresh || requestedTab || fromPanic) {
+    if (shouldRefresh || requestedTab) {
       const newUrl = window.location.pathname;
       window.history.replaceState({}, document.title, newUrl);
     }
     
     // If requested to show a specific celebrity chart, find and open it
-    if (requestedCelebrity && fromPanic) {
+    if (requestedCelebrity) {
       setTimeout(() => {
         openCelebrityChart(requestedCelebrity);
       }, 500); // Small delay to ensure charts are loaded
